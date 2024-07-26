@@ -1,0 +1,59 @@
+Poster med QR-koder
+
+I en app kan man flytte tokens fra en post til en anden eller spawne nye tokens, når man har scannet QR-koden
+
+QR-kodehjul? Drej efter hver scan. Hver post har så kun ~10 koder. Medmindre der er flere hjul ved hver post.
+Hver telefon holder rede på egne point og hvilket niveau man har scannet ved hver post.
+Ved start og slut scanner en spiller alle telefoner, så det kan tjekkes om man har drejet hjulet nok. Eller når man drejer skal næste kode scannes før man kan løbe videre (tjek accelerationssensor?)
+
+
+Mobilitet M vs tænkning T
+
+Lav T, lav M
+Support funktion? Vigtig som informationsformidler?
+Scan-master? Her spillerne går hen for at finde ud af hvor der er ledige point? Spillernes telefoner scannes og Scan-masteren(s telefon) giver tips.
+Fe-Dronning: Giver tips og æg.
+
+Høj T, lav M
+Nogle tokens skal kombineres smart mellem centrale poster, men giver mange point hvis det lykkes --> tænke og langsom gang ok.
+Gamemaster. Som  ovenfor, men kan ændre posters værdi.
+Spillernes telefoner scannes, men spilleren scanner også GMens telefon.
+Fe-hovmester?
+
+
+Høj T, høj M
+Fjerne poster kombineres for høj score. Løb godt, men hurtigt ikke nødvendigt
+
+
+Lav T, høj M
+Nogle tokens er tidsbegrænsede med høj værdi --> idé i at løbe hurtigt
+Løber: Kan scanne alle poster, men kun en gang, før telefonen skal scannes af en anden spiller. Motivationen for den anden spiller er at det giver point at scanne en Løbers telefon.
+Scan-master kan oplyse om hvem der har færrest point pt., så Løberen kan vælge hvem der skal boostes.
+Er der en Scan-master giver post-nulstilling ikke andre point?
+Simon Says: Der gives en sekvens der så skal scannes på "urskiven".
+
+Mellem T, mellem M:
+Gå rundt mellem poster og svare på quizspørgsmål. Nabo-poster har sværere spørgsmål end poster i den anden ende af banen. Aktivitetesniveau bestemmer om man får flere chancer ved hver post.
+Tamagochi-pasning af ny feer. Når en fe klægger kan andre spillere få et boost ved at modtage forstærkninger (ved at scanne den nye fe). Når en fe er færdigudviklet hentes et nyt æg ved Dronningen.
+
+Tanker:
+Alle mod spillet eller alle mod alle? Eller to gamemodes?
+Fe-kube? Feer er eusociale ligesom bier, og skal samle mana for at overleve vinteren. Mana samles ved at løse puzzles af alle slags. Når kuben er fuld ee spillet slut. Men pas på: Mana er flygtig og undslipper, hvis den ikke bindes korrekt. Overhold ritualerne eller oplev at blive sat tilbage!
+
+Alle mod spillet: Løse fælles gåde ved at samle hints? First person coop krydsord? Vokaler skjult i første faser?
+Eller Slå-katten-af-tønden som metafor?
+Game-state deles og opdateres løbende. Der er en større og større chance for at en telefon efter en task siger "Ding! i har vundet!". Når det sker skal game-state spredes til alle telefoner i løbet af f.eks. 1 minut, ellers vender game-state tilbage til ikke-vundet (Er det muligt på tværs af telefoner uden at vindertelefonen scanner alle? Er det et problem?)
+
+Gåden deles op ved initieringsscan. Hver spiller får alle dele, men kun deres del låses op ved løsning af opgave. Hurtige spillere kan låse flere dele op ved at scanne scanmasters skærm eller en flip-bog, hvis der ikke er en SM.
+Fælles mål og sejr, men individuelle procenter for bidrag?
+
+
+Parallelle spil med fælles ramme for at være mest muligt inkluderende (Meta-spil)?
+Point for objektives og support og  ...?
+Nogle objektives kræver virtuelle terningeslag/nogle scan giver tilfældig udbetaling?
+
+Man vælger klasse efter gamepræferencer og ønsket aktivitet. Fokus på at vi er forskellige og at lidt er bedre end ingenting.
+
+Quiz-elementet for en af klasserne?
+
+Mål: Proof of concept, ikke kommercielt produkt jf. Beattie https://youtu.be/7FiHlCMt1Ws?si=QjltEjpPW2tE9ONc
