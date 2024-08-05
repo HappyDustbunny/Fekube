@@ -23,6 +23,7 @@
             console.log(`Code matched = ${decodedText}`, decodedResult);
             let outputDiv = document.getElementById('output');
             let content = document.createTextNode(decodedText);
+            outputDiv.appendChild(content);
         }
         
         function onScanFailure(error) {
@@ -31,12 +32,12 @@
             console.warn(`Code scan error = ${error}`);
         }
         
-        let html5QrcodeScanner = new Html5QrcodeScanner(
-            "reader", { fps: 10, qrbox: {width: 250, height: 250} }, /* verbose= */ false);
         
-        document.getElementById('firstButton').addEventListener('click', 
-            html5QrcodeScanner.render(onScanSuccess, onScanFailure)
-        );
+        document.getElementById('firstButton').addEventListener('click', function() {
+            let html5QrcodeScanner = new Html5QrcodeScanner(
+                "reader", { fps: 10, qrbox: {width: 250, height: 250} }, /* verbose= */ false);
+            html5QrcodeScanner.render(onScanSuccess, onScanFailure);
+        });
       </script>
 </body>
 </html>
