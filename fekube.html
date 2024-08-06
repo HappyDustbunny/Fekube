@@ -4,40 +4,22 @@
     <meta charset="UTF-8" />
     <title>Fekube</title>
 
-    <!-- <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js" type="text/javascript" defer></script> -->
-    <!-- <script src="https://unpkg.com/html5-qrcode/minified/html5-qrcode.min.js" type="text/javascript" defer></script> -->
+    <link rel="stylesheet" href="fekube.css">
+
+    <script>document.write("<script src='qr-code-styling.js'><\/script>")</script>
+    <script src="qr-code-styling.js" type="text/plain"></script>
+
+    <script>document.write("<script src='html5-qrcode.min.js'><\/script>")</script>
+    <script src="html5-qrcode.min.js" type="text/plain"></script>
+
+    <script src="fekube.js" type="text/javascript" defer></script>
+
 </head>
 <body>
     <h1>Fekube</h1>
-    <div id="reader" width="600px"></div>
-    <div id="output"></div>
-    <button id="firstButton" type="button">Dyt til mig</button>
-
-    <script>document.write("<script src='html5-qrcode.min.js'><\/script>")</script>
-
-    <script src="html5-qrcode.min.js" type="text/plain"></script>
-    
-    <script defer>
-        function onScanSuccess(decodedText, decodedResult) {
-            // handle the scanned code as you like, for example:
-            console.log(`Code matched = ${decodedText}`, decodedResult);
-            let outputDiv = document.getElementById('output');
-            let content = document.createTextNode(decodedText);
-            outputDiv.appendChild(content);
-        }
-        
-        function onScanFailure(error) {
-            // handle scan failure, usually better to ignore and keep scanning.
-            // for example:
-            console.warn(`Code scan error = ${error}`);
-        }
-        
-        
-        document.getElementById('firstButton').addEventListener('click', function() {
-            let html5QrcodeScanner = new Html5QrcodeScanner(
-                "reader", { fps: 10, qrbox: {width: 250, height: 250} }, /* verbose= */ false);
-            html5QrcodeScanner.render(onScanSuccess, onScanFailure);
-        });
-      </script>
+    <div id="reader" width="600px"></div> <br>
+    <div id="output"></div> <br>
+    <button id="firstButton" type="button">Dyt til mig</button> <br>
+    <div id="canvas"></div>
 </body>
 </html>
