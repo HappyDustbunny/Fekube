@@ -26,7 +26,7 @@ const qrCode = new QRCodeStyling({
     height: 300,
     type: "svg",
     data: "abcdefghi jklmnopqr stuvwxyz 1234567890!#¤%&/()=?~^*<>", // Max 256 characters or the QR pixels will be too small. May have to encode information in bits
-    image: "3.png",
+    image: "qr-codes/fairy.png",
     dotsOptions: {
         color: "#000",
         type: "square"

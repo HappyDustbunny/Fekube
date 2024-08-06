@@ -1,0 +1,7 @@
+QR code generator: https://github.com/kozakdenys/qr-code-styling
+
+Online advanced QR code generator: https://www.qrcode-monkey.com/#text
+
+QR code reader: https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js
+
+Fairy emoji: https://emojipedia.org/noto-emoji/15.1 
