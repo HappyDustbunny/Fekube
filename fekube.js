@@ -1,3 +1,4 @@
+const pi = Math.PI;
 
 // QR-code generator
 function generateQRcode(text) {
@@ -20,7 +21,7 @@ function generateQRcode(text) {
     return responseQRcode;
 }
 
-generateQRcode("blarp").append(document.getElementById("canvas"));
+generateQRcode("blarp").append(document.getElementById("canvasQRShow"));
 
 
 // QR-code reader
@@ -48,6 +49,27 @@ document.getElementById('firstButton').addEventListener('click', function() {
     console.log(`Decoded text = ${decodedText}`);
 });
 
+function drawClockface() {
+    let canvasClockface = document.getElementById("canvasClockface");
+    let drawArea = canvasClockface.getContext("2d");
+    canvasClockface.width = 300;
+    canvasClockface.height = 300;
+    let r = 10;
+    drawArea.beginPath();
+    drawArea.fillStyle = "red";
+    for (let v = 0; v < 2*pi; v += pi/6) {
+        let xc = 130 * Math.cos(v) + 150;
+        let yc = 130 * Math.sin(v) + 150;
+        drawArea.moveTo(xc + r, yc);  // Add radius to avoid drawing a horizontal radius
+        drawArea.arc(xc, yc, r, 0, 2*pi);
+        drawArea.fill();
+    }
+    drawArea.moveTo(150 + r, 150);
+    drawArea.arc(150, 150, r, 0, 2*pi);
+    drawArea.stroke();
+}
+
+drawClockface();
 
 // function onScanSuccess(decodedText, decodedResult) {
 //     // handle the scanned code as you like, for example:
