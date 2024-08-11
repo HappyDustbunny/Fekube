@@ -57,3 +57,50 @@ Man vælger klasse efter gamepræferencer og ønsket aktivitet. Fokus på at vi 
 Quiz-elementet for en af klasserne?
 
 Mål: Proof of concept, ikke kommercielt produkt jf. Beattie https://youtu.be/7FiHlCMt1Ws?si=QjltEjpPW2tE9ONc
+
+
+To opgave modes:
+• Bonus mode, der giver mana efter opgaven er udført
+• Akkord mode, der giver mana for hvert korrekt scan
+
+Høj T, Høj M:
+"Vikle elastikker ud". Flyt rundt på ankerpunkter, så linjerne imellem dem ikke ovetlapper jf Linux spil.
+
+Høj T, Mellem M:
+• 12 bogstaver: Skriv ord ved at lave anagram ud fra oplæg
+
+Mellem T, Mellem M:
+• 12 toner, kort nodeark: Spil melodien
+
+• 12 bogstaver: Skriv ord ud fra eksempel
+
+• Tegn linjer på tværs i 12 kanten, så de matcher oplæg
+a) Linie mellem sidste to besøgte punkter, center for fortryd
+b) Turtle-mode. Gå til center for pen-op og pen-ned
+
+• Pengeskab: Start med at scanne 12. Scan alle tal langs cirklen indtil første tal i koden er nået. Scan alle tilbage til 12. Gentag med næste tal. Både højre og venstr om.
+
+Lav T, Mellem M:
+Scan alle tal i rækkefølge, start med 1
+
+Lav T, Høj M: 
+Scan det tal der kommer frem på skærmen, så hurtigt som muligt
+
+Høj T, Lav M:
+• Løs puzzle på telefonen. 
+a) Få andre feer til at aktivere relevante anker-punkter. De andre får substantielle perks af at hjælpe. Hjælpe-mode kan aktiveres i alle små-spil og targets (1-12) overføres via et scan af opgavegiverens telefon. Hjælpe-mode deaktiveres ved at løse opgaven (eller afvisning via option på hjælperens telefon).
+b) Scan det tal (1-12) der er resultatet af løsningen
+
+• Svar på Logik for viderekomne spørgsmål (Genereret af Marjovkøde?) JA er scan til venstre, Nej er scan til højre og SLUDDER er bliv stårnde.
+
+Mellem T, Lav M: 
+Lav puzzles til de andre ved at tegne opgavemønsteret på telefonen (for puzzles med linjer). Overfør vis scan. 
+Fordele: Perks for at vente, passer i spillets flavour hvis spilleren præsenteres som højtstående magiker
+
+Lav T, Lav M:
+Der skal være modstand/eksplosiv mana der en gang imellem sårer feer der høster mana ("glitcher" deres interface? Rød pulseren og jagged edges?). Man healer sig selv ved at scanne centerportalen 0 mellem 3-7 gange (symboliseret ved ambulance emoji ved center? Farven og pulsfrekvensen aftager for hvert scan). Hvis der er en Lav T, Lav M spiller (healer) kan man nøjes med at scanne healerens telefon 1-2 gange. Vedkommendes opgave er at trykke på en knap for at generere nye QR-koder - eller bare holde telefonen.
+Der skal være flere gliches når der er en healer, men bedre høst for alle, da de farlige verdener giver bedst.
+Spillet er tidsbestemt, spil-slut  kan have forskellige mængder samlet mana, og højst når der er en healer med (Men ikke nok til at der er værd at tvinge nogen til at stå over/udenfor).
+
+Sidste runde går ud på at sprede den indsamlede mana i feermes verden.
+Alle samles i midten og en eventuel healer starter med at scanne center 0. Der kommer et deltager navn frem og en QR-kode frem som vedkommende scanner. Nyt navn, ny kode osv mens der bygges grafik op (sparkles?). En tilfældig deltager når kritisk masse og manaen spredes med en fanfare. Game over, alle jubler :-P
