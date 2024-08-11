@@ -30,9 +30,9 @@ function grabQRcode() {
     const config = {fps: 10, qrbox: {width: 300, height: 300}};
     const qrCodeHasBeenRead = (decodedText, decodedResult) => {
         console.log(`Code matched = ${decodedText}`, decodedResult);
-        let outputDiv = document.getElementById('output');
+        let readerDiv = document.getElementById('readerDiv');
         let content = document.createTextNode(decodedText);
-        outputDiv.appendChild(content);
+        readerDiv.appendChild(content);
 
         html5Qrcode.stop().then((ignore) => {
             console.log('QR scanning stopped');

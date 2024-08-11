@@ -2,6 +2,9 @@
 <html>
 <head>
     <meta charset="UTF-8" />
+    <meta name="description" content="This is an attempt at building an inclusive game involving both thinking and physical activity">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
     <title>Fekube</title>
 
     <link rel="stylesheet" href="fekube.css">
@@ -16,11 +19,40 @@
 </head>
 
 <body>
-    <h1>Fekube</h1>
-    <div id="reader" width="600px"></div> <br>
-    <div id="output"></div> <br>
-    <button id="firstButton" type="button">Dyt til mig</button> <br>
-    <div id="canvasQRShow"></div>
-    <canvas id="canvasClockface"></canvas>
+    <div id="headContainer">
+        <h1>Fekube</h1>
+    </div>
+    
+    <div id="selectGameModeContainer">
+        <p>Vælg aktivitetsniveau </p>
+        <details> <summary> &#x1f3c3;&#127998;&#x200d;&#x2640;&#xFE0F; </summary>
+            <details><summary></summary>
+            </details>
+        </details>
+        <details> <summary> &#x1f6b6;&#127997; </summary>
+            <details><summary></summary>
+            </details>
+        </details>
+        <details> <summary> &#x1f9cd;&#x200d;&#x2640;&#xFE0F; </summary>
+            <details><summary></summary>
+            </details>
+        </details>
+        <div class="mirrorEmoji">&#x1f3c3;&#127998;&#x200d;&#x2640;&#xFE0F;</div>
+        <div class="mirrorEmoji">&#x1f6b6;&#127997;</div>
+        <div class="mirrorEmoji">&#x1f9cd;&#x200d;&#x2640;&#xFE0F;</div>
+    </div>
+    
+    <!-- Contanier for communicating with player and meta-game -->
+    <div id="comunicationContainer">
+        <!-- <div id="reader" width="600px"></div> <br> -->
+        <div id="readerDiv"></div> <br>
+        <div id="canvasQRShow"></div>
+        <canvas id="canvasClockface"></canvas>
+    </div>
+    
+    <!-- Contanier for interacting with game-states -->
+    <div id="navigationContainer">
+        <button id="firstButton" type="button">Dyt til mig</button> <br>
+    </div>
 </body>
 </html>

@@ -1,3 +1,7 @@
+summary {
+    font-size: 3em;
+}
+
 #output {
     background-color: aqua;
 }
@@ -7,3 +11,16 @@
     height: 300px;
     border: 1px solid;
 }
+
+.mirrorEmoji {
+    transform: scaleX(-1);
+    font-size: 3em;
+}
+
+
+
+
+/* @media (prefers-reduced-motion) {
+    styles to apply if a user's device settings are set to reduced motion 
+}*/
+ 
