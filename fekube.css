@@ -27,6 +27,12 @@ button {
     border: 1px solid;
 }
 
+#navigationContainer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
 .summaryHeading {
     transform: scaleX(-1);
     font-size: 3em;

@@ -1,5 +1,7 @@
 const pi = Math.PI;
 
+let gameMode = '';
+
 // QR-code generator
 function generateQRcode(text) {
     let responseQRcode = new QRCodeStyling({
@@ -44,11 +46,32 @@ function grabQRcode() {
     return html5Qrcode.start({facingMode: "environment"}, config, qrCodeHasBeenRead);
 }
 
-document.getElementById('firstButton').addEventListener('click', function() {
+// Eventlisteners
+document.getElementById('scanButton').addEventListener('click', function() {
     decodedText = grabQRcode();
     console.log(`Decoded text = ${decodedText}`);
 });
 
+document.getElementById('cancelScanButton').addEventListener('click', stopScan);
+
+document.getElementById('selectGameModeContainer').addEventListener('click', function(event) { gameModeHasBeenClicked(event); }, true);
+
+function gameModeHasBeenClicked(event) {
+    gameMode = event.target.id; // Id in the format T1M3G1 for Thinking level 1, Movement level 3 and Game 1
+    console.log(gameMode);
+    if (gameMode) {
+        document.getElementById('selectGameModeContainer').hidden = true;
+        document.getElementById('scanButton').hidden = false;
+        document.getElementById('cancelScanButton').hidden = false;
+    }
+}
+
+function stopScan() {
+    window.location.reload();
+}
+
+
+// Draw clockface
 function drawClockface() {
     let canvasClockface = document.getElementById("canvasClockface");
     let drawArea = canvasClockface.getContext("2d");

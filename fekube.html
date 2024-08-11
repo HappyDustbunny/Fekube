@@ -25,29 +25,16 @@
     
     <div id="selectGameModeContainer">
         <p>Vælg aktivitetsniveau og derefter sværhedsgrad </p>
-        <details> <summary class="summaryHeading"> &#x1f3c3;&#127998;&#x200d;&#x2640;&#xFE0F; </summary>
+        <details> <summary class="summaryHeading"> &#x1f9cd;&#x200d;&#x2640;&#xFE0F; &#x1FA91;</summary>
             <details><summary class="summarySubHeading">&#x1F914;</summary>
-                <details><summary class="summarySubSubHeading">Skan løs</summary>
-                    Scan så mange QR-koder som muligt. <br> Jo længere QR-koderne ligger fra hinanden, jo mere mana samles der ind
-                    <button> Vælg </button>
-                </details>
-                <details><summary class="summarySubSubHeading">Følg mønster som vist</summary>
-                    Scan QR-koder i den rækkefølge din skærm viser. <br> Efter hvert scan lyser den næste QR-kode op
-                    <button> Vælg </button>
+                <details><summary class="summarySubSubHeading">Healer</summary>
+                    Vær klar til at hjælpe feer der er kommet til <br> skade ved at lade dem scanne din skærm
+                    <button id="T1M1G1"> Vælg </button>
                 </details>
             </details>
             <details><summary class="summarySubHeading">&#x1F914;&#x1F914;</summary>
-                <details><summary class="summarySubSubHeading">Følg mønster efter tal</summary>
-                    Scan QR-koder i den rækkefølge din skærm viser <br> (F.eks. 1, 9, 6, 2, 11, ..)
-                    <button> Vælg </button>
-                </details>
             </details>
             <details><summary class="summarySubHeading">&#x1F914;&#x1F914;&#x1F914;</summary>
-                <details><summary class="summarySubSubHeading">Vikl ud</summary>
-                    Flyt knudepunkter så ingen linjer krydser <br>
-                    Scan den knude der skal flyttes, og derefter det anker den skal flyttes til
-                    <button> Vælg </button>
-                </details>
             </details>
         </details>
         <details> <summary class="summaryHeading"> &#x1f6b6;&#127997; &#x1f9D1;&#x200D;&#x1F9BD;</summary>
@@ -58,31 +45,45 @@
             <details><summary class="summarySubHeading">&#x1F914;&#x1F914;&#x1F914;</summary>
             </details>
         </details>
-        <details> <summary class="summaryHeading"> &#x1f9cd;&#x200d;&#x2640;&#xFE0F; &#x1FA91;</summary>
+        <details> <summary class="summaryHeading"> &#x1f3c3;&#127998;&#x200d;&#x2640;&#xFE0F; </summary>
             <details><summary class="summarySubHeading">&#x1F914;</summary>
-                <details><summary class="summarySubSubHeading">Healer</summary>
-                    Vær klar til at hjælpe feer der er kommet til <br> skade ved at lade dem scanne din skærm
-                    <button> Vælg </button>
+                <details><summary class="summarySubSubHeading">Skan løs</summary>
+                    Scan så mange QR-koder som muligt. <br> Jo længere QR-koderne ligger fra hinanden, jo mere mana samles der ind
+                    <button id="T1M3G1"> Vælg </button>
+                </details>
+                <details><summary class="summarySubSubHeading">Følg mønster som vist</summary>
+                    Scan QR-koder i den rækkefølge din skærm viser. <br> Efter hvert scan lyser den næste QR-kode op
+                    <button id="T1M3G2"> Vælg </button>
                 </details>
             </details>
             <details><summary class="summarySubHeading">&#x1F914;&#x1F914;</summary>
+                <details><summary class="summarySubSubHeading">Følg mønster efter tal</summary>
+                    Scan QR-koder i den rækkefølge din skærm viser <br> (F.eks. 1, 9, 6, 2, 11, ..)
+                    <button id="T2M3G1"> Vælg </button>
+                </details>
             </details>
             <details><summary class="summarySubHeading">&#x1F914;&#x1F914;&#x1F914;</summary>
+                <details><summary class="summarySubSubHeading">Vikl ud</summary>
+                    Flyt knudepunkter så ingen linjer krydser <br>
+                    Scan den knude der skal flyttes, og derefter det anker den skal flyttes til
+                    <button id="T3M3G1"> Vælg </button>
+                </details>
             </details>
         </details>
     </div>
     
     <!-- Contanier for communicating with player and meta-game -->
     <div id="comunicationContainer">
-        <!-- <div id="reader" width="600px"></div> <br> -->
+        <div id="reader" width="600px"></div> <br>
         <div id="readerDiv"></div> <br>
-        <div id="canvasQRShow"></div>
-        <canvas id="canvasClockface"></canvas>
+        <div id="canvasQRShow" hidden></div>
+        <canvas id="canvasClockface" hidden></canvas>
     </div>
     
     <!-- Contanier for interacting with game-states -->
     <div id="navigationContainer">
-        <button id="firstButton" type="button">Dyt til mig</button> <br>
+        <button id="scanButton" type="button" hidden>Scan</button> <br>
+        <button id="cancelScanButton" type="button" hidden>Stop scan</button> <br>
     </div>
 </body>
 </html>
