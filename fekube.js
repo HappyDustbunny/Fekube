@@ -1,6 +1,28 @@
 const pi = Math.PI;
+const kv3h = Math.sqrt(3)/2;
+// Initialize QR-code reader
+const html5Qrcode = new Html5Qrcode("reader");
+const config = {fps: 10, qrbox: {width: 300, height: 300}};
 
 let gameMode = '';
+let globalMana = 0;
+let localMana = 0;
+
+let lastScan = 0;     // Used for T1M3G1
+let clockFaceCoor = { // Used for T1M3G1
+    1: [0.5, kv3h],
+    2: [kv3h, 0.5],
+    3: [1.0, 0.0],
+    4: [kv3h, -0.5],
+    5: [0.5, -kv3h],
+    6: [0.0, -1.0],
+    7: [-0.5, -kv3h],
+    8: [-kv3h, -0.5],
+    9: [-1.0, 0.0],
+    10: [-kv3h, 0.5],
+    11: [-0.5, kv3h],
+    12: [0.0, 1.0]
+} ; 
 
 // Eventlisteners
 document.getElementById('closeIntro1').addEventListener('click', closeIntro);
@@ -31,10 +53,15 @@ function gameModeHasBeenClicked(event) {
 }
 
 function scanQRcode() {
-    // decodedText = grabQRcode();
-    // console.log(`Decoded text = ${decodedText}`);
-    let result = html5Qrcode.start({facingMode: "environment"}, config, qrCodeHasBeenRead).then(result => console.log('Bzz' + result));
-    console.log('Rap ' + result);
+    html5Qrcode.start({facingMode: "environment"}, config, (decodedText, decodedResult) => {
+        console.log('We have got ' + decodedText);
+        useQRcode(decodedText);
+        stopQrReading();
+    }, (errorMessage) => {
+        console.log('Camera says ' + errorMessage);
+    }).catch((err) => {
+        console.log('Camera failed to start');
+    });
 }
 
 function stopScan() {
@@ -43,18 +70,53 @@ function stopScan() {
     }
 }
 
-
-// QR-code reader
-const html5Qrcode = new Html5Qrcode("reader");
-const config = {fps: 10, qrbox: {width: 300, height: 300}};
-const qrCodeHasBeenRead = (decodedText, decodedResult) => {
-    console.log(`Code matched = ${decodedText}`, decodedResult);
-    let readerDiv = document.getElementById('readerDiv');
-    let content = document.createTextNode(decodedText);
-    readerDiv.appendChild(content);
-    
-    stopQrReading();
+function updateLocalManaCounter(localMana) {
+    document.getElementById('localManaCounter').textContent = localMana;
 }
+
+function useQRcode(QrNumber) {
+    switch(gameMode) {
+        case 'T1M1G1': {  // Healer
+        break;    
+        }
+        case 'T1M3G1': {  // Scan løs
+            let newDelta = 0;
+            if (lastScan === 0) {
+                newDelta = QrNumber;
+            } else {
+                newDelta = Math.round(10 * (Math.sqrt((clockFaceCoor[QrNumber][0] - clockFaceCoor[lastScan][0]) * (clockFaceCoor[QrNumber][0] - clockFaceCoor[lastScan][0]) + (clockFaceCoor[QrNumber][1] - clockFaceCoor[lastScan][1]) * (clockFaceCoor[QrNumber][1] - clockFaceCoor[lastScan][1]))));
+            }
+            lastScan = QrNumber;
+            localMana += Number(newDelta);
+            updateLocalManaCounter(localMana);
+        break;    
+        }
+        case 'T1M3G2': {  // Følg det viste mønster
+        break;    
+        }
+        case 'T2M3G1': {  // Følg mønster efter tal
+        break;    
+        }
+        case 'T3M3G1': {  // Vikl ud
+        break;    
+        }
+        case 'T1M3G1': {
+        break;    
+        }
+        case 'T1M3G1': {
+        break;    
+        }
+    }
+}
+
+// const qrCodeHasBeenRead = (decodedText, decodedResult) => {
+//     console.log(`Code matched = ${decodedText}`, decodedResult);
+//     let readerDiv = document.getElementById('readerDiv');
+//     let content = document.createTextNode(decodedText);
+//     readerDiv.appendChild(content);
+    
+//     stopQrReading();
+// }
 
 function stopQrReading() {
     html5Qrcode.stop().then((ignore) => {
