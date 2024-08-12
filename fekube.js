@@ -8,13 +8,12 @@ document.getElementById('closeIntro2').addEventListener('click', closeIntro);
 
 document.getElementById('selectGameModeContainer').addEventListener('click', function(event) { gameModeHasBeenClicked(event); }, true);
 
-document.getElementById('scanButton').addEventListener('click', function() {
-    decodedText = grabQRcode();
-    console.log(`Decoded text = ${decodedText}`);
-});
+document.getElementById('scanButton').addEventListener('click', scanQRcode);
 
 document.getElementById('cancelScanButton').addEventListener('click', stopScan);
 // End of eventlisteners
+
+console.clear();
 
 function closeIntro() {
     document.getElementById('intro').hidden = true;
@@ -31,8 +30,38 @@ function gameModeHasBeenClicked(event) {
     }
 }
 
+function scanQRcode() {
+    // decodedText = grabQRcode();
+    // console.log(`Decoded text = ${decodedText}`);
+    let result = html5Qrcode.start({facingMode: "environment"}, config, qrCodeHasBeenRead).then(result => console.log('Bzz' + result));
+    console.log('Rap ' + result);
+}
+
 function stopScan() {
-    window.location.reload();
+    if (html5Qrcode.getState() === 2) {  // 1 is not-scanning, 2 is scanning
+        stopQrReading();
+    }
+}
+
+
+// QR-code reader
+const html5Qrcode = new Html5Qrcode("reader");
+const config = {fps: 10, qrbox: {width: 300, height: 300}};
+const qrCodeHasBeenRead = (decodedText, decodedResult) => {
+    console.log(`Code matched = ${decodedText}`, decodedResult);
+    let readerDiv = document.getElementById('readerDiv');
+    let content = document.createTextNode(decodedText);
+    readerDiv.appendChild(content);
+    
+    stopQrReading();
+}
+
+function stopQrReading() {
+    html5Qrcode.stop().then((ignore) => {
+        console.log('QR scanning stopped');
+    }).catch((err) => {
+        console.log('QR scanning did not stop for some reason');
+    });
 }
 
 
@@ -84,25 +113,29 @@ function generateQRcode(text) {
 generateQRcode("blarp").append(document.getElementById("canvasQRShow"));
 
 
-// QR-code reader
-function grabQRcode() {
-    const html5Qrcode = new Html5Qrcode("reader");
-    const config = {fps: 10, qrbox: {width: 300, height: 300}};
-    const qrCodeHasBeenRead = (decodedText, decodedResult) => {
-        console.log(`Code matched = ${decodedText}`, decodedResult);
-        let readerDiv = document.getElementById('readerDiv');
-        let content = document.createTextNode(decodedText);
-        readerDiv.appendChild(content);
+// let result = html5Qrcode.start({facingMode: "environment"}, config, qrCodeHasBeenRead);
 
-        html5Qrcode.stop().then((ignore) => {
-            console.log('QR scanning stopped');
-        }).catch((err) => {
-            console.log('QR scanning did not stop for some reason');
-        })
-    }
+// // QR-code reader
+// function grabQRcode() {
+//     const html5Qrcode = new Html5Qrcode("reader");
+//     const config = {fps: 10, qrbox: {width: 300, height: 300}};
+//     const qrCodeHasBeenRead = (decodedText, decodedResult) => {
+//         console.log(`Code matched = ${decodedText}`, decodedResult);
+//         let readerDiv = document.getElementById('readerDiv');
+//         let content = document.createTextNode(decodedText);
+//         readerDiv.appendChild(content);
+
+//         html5Qrcode.stop().then((ignore) => {
+//             console.log('QR scanning stopped');
+//         }).catch((err) => {
+//             console.log('QR scanning did not stop for some reason');
+//         })
+//     }
+
+//     let result = html5Qrcode.start({facingMode: "environment"}, config, qrCodeHasBeenRead);
     
-    return html5Qrcode.start({facingMode: "environment"}, config, qrCodeHasBeenRead);
-}
+//     return result;
+// }
 
 
 // function onScanSuccess(decodedText, decodedResult) {
