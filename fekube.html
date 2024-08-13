@@ -19,129 +19,132 @@
 </head>
 
 <body>
-    <div id="headContainer">
-        <h1>Fekube</h1>
-    </div>
-
-    <div id="localManaCounter">0</div>
-
-    <div id="intro">
-        <h3> Introduktion </h3>
-        <p> Feerne mangler mana </p>
-        <p> Jeres opgave er at samle mana fra verdener der ikke bruger deres </p>
-        <p> Start med at sætte portalankre 1-12 op i en cirkel som en gammeldags urskive</p>
-        <p> Sæt derefter det sidste portalanker ("0"), op i midten af cirkelen </p>
-
-        <button id="closeIntro1"> GÅ VIDERE TIL ÅBNING AF PORTALERNE </button>
+    <div id="page">
+        <div id="headContainer">
+            <div id="globalManaCounter"> <span>Samlet Mana</span> <span class="score"> 0 </span> </div>
+            <h1 id="gameName">Fekube</h1>
+            <div id="localManaCounter"> <span>Nyhøstet Mana</span> <span class="score"> 0 </span> </div>
+        </div>
+    
+    
+        <div id="intro">
+            <h3> Introduktion </h3>
+            <p> Feerne mangler mana </p>
+            <p> Jeres opgave er at samle mana fra verdener der ikke bruger deres </p>
+            <p> Start med at sætte portalankre 1-12 op i en cirkel som en gammeldags urskive</p>
+            <p> Sæt derefter det sidste portalanker ("0"), op i midten af cirkelen </p>
+    
+            <button id="closeIntro1"> GÅ VIDERE TIL ÅBNING AF PORTALERNE </button>
+            
+            <h3> Baggrund </h3>
+            <p> Feerne troede at mana var en uudtømmelig ressource <br>
+                Det passede selvfølgelig ikke </p>
+            <p> Heldigvis kan mana samles i parallelle verdener og spredes her i Avalon, feernes rige, 
+                ved hjælp af magi 
+            </p>
+    
+            <p> Det er slut med ekstravagante flyvende slotte og med at bruge magi til 
+                trivielle hverdags oogaver som opvask, men livet er ikke blevet dårligere i Avalon, 
+                næsten tværtimod <br>
+                Uendelige baller og strengt hieraki er afløst af ansvarlighed og samarbejde samt 
+                meningsfulde opgaver som skånsomt at høste mana i tomme verdener <br>
+                Stort set den eneste der er ked af det, er dronningen, men før omlægningen 
+                krævede at alle sparede på manaen, var hun ikke særligt sød ved andre, så det 
+                er okay
+            </p>
+    
+            <p> Høsten foregår ved at feerne mødes i midten og åbner en portal til hver deres 
+                verden. Det foregår ved at feerne scanner portal-ankeret "0" og hinandens 
+                magiske tavler (&#x0030;&#xFE0F;&#x20E3;&#x1F4F2; &#x1F4F2; &#x1F4F2; ...) <br>
+                (En tilfældig fe scanner "0" og bliver derved <kbd>&alpha;</kbd>. Den næste fe 
+                scannet <kbd>&alpha;</kbd>s tavle og bliver <kbd>&beta;</kbd> og så videre. Til 
+                slut scanner <kbd>&alpha;</kbd> den sidstes magiske tavle og signalet til start 
+                lyder.)<br>
+                Når portalerne er åbnet udfører hver fe sit valgte ritual for at høste mana 
+                i den verden feen har adgang til. <br> 
+                Portal-ankrene er fælles for alle feer, 
+                men har forskellig funktion i forskellige ritualer
+            </p>
+            
+            <p> Ritualet der åbner en portal for hver fe undgår verdener som indeholder magiske 
+                samfund ligesom feernes <br>
+                Da der er uendeligt mange verdener gør det ikke noget at høste lidt fra alle de 
+                tomme verdener <br>
+                I enkelte verdener findes vilde dyr der gør brug af magi når de jager, og er 
+                der et af dem der vandrer ind i en uheldig fes portal, kan de godt gå i panik 
+                og angribe feen <br>
+                De løber dog altid væk lige efter angrebet, så høsten kan fortsætte, når feen 
+                er blevet healet. En fe kan heale sig selv ved at scanne portal-ankeret "0" 
+                flere gange (eller scanne healerens magiske tavle 1-2 gange, hvis der er en 
+                har valgt rollen som healer)
+            </p>
+    
+            <button id="closeIntro2"> GÅ VIDERE TIL ÅBNING AF PORTALERNE </button>
         
-        <h3> Baggrund </h3>
-        <p> Feerne troede at mana var en uudtømmelig ressource <br>
-            Det passede selvfølgelig ikke </p>
-        <p> Heldigvis kan mana samles i parallelle verdener og spredes her i Avalon, feernes rige, 
-            ved hjælp af magi 
-        </p>
-
-        <p> Det er slut med ekstravagante flyvende slotte og med at bruge magi til 
-            trivielle hverdags oogaver som opvask, men livet er ikke blevet dårligere i Avalon, 
-            næsten tværtimod <br>
-            Uendelige baller og strengt hieraki er afløst af ansvarlighed og samarbejde samt 
-            meningsfulde opgaver som skånsomt at høste mana i tomme verdener <br>
-            Stort set den eneste der er ked af det, er dronningen, men før omlægningen 
-            krævede at alle sparede på manaen, var hun ikke særligt sød ved andre, så det 
-            er okay
-        </p>
-
-        <p> Høsten foregår ved at feerne mødes i midten og åbner en portal til hver deres 
-            verden. Det foregår ved at feerne scanner portal-ankeret "0" og hinandens 
-            magiske tavler (&#x0030;&#xFE0F;&#x20E3;&#x1F4F2; &#x1F4F2; &#x1F4F2; ...) <br>
-            (En tilfældig fe scanner "0" og bliver derved <kbd>&alpha;</kbd>. Den næste fe 
-            scannet <kbd>&alpha;</kbd>s tavle og bliver <kbd>&beta;</kbd> og så videre. Til 
-            slut scanner <kbd>&alpha;</kbd> den sidstes magiske tavle og signalet til start 
-            lyder.)<br>
-            Når portalerne er åbnet udfører hver fe sit valgte ritual for at høste mana 
-            i den verden feen har adgang til. <br> 
-            Portal-ankrene er fælles for alle feer, 
-            men har forskellig funktion i forskellige ritualer
-        </p>
+        </div>
         
-        <p> Ritualet der åbner en portal for hver fe undgår verdener som indeholder magiske 
-            samfund ligesom feernes <br>
-            Da der er uendeligt mange verdener gør det ikke noget at høste lidt fra alle de 
-            tomme verdener <br>
-            I enkelte verdener findes vilde dyr der gør brug af magi når de jager, og er 
-            der et af dem der vandrer ind i en uheldig fes portal, kan de godt gå i panik 
-            og angribe feen <br>
-            De løber dog altid væk lige efter angrebet, så høsten kan fortsætte, når feen 
-            er blevet healet. En fe kan heale sig selv ved at scanne portal-ankeret "0" 
-            flere gange (eller scanne healerens magiske tavle 1-2 gange, hvis der er en 
-            har valgt rollen som healer)
-        </p>
-
-        <button id="closeIntro2"> GÅ VIDERE TIL ÅBNING AF PORTALERNE </button>
-    
-    </div>
-    
-    <div id="selectGameModeContainer" hidden>
-        <p>Vælg aktivitetsniveau og derefter sværhedsgrad </p>
-        <details> <summary class="summaryHeading"> &#x1f9cd;&#x200d;&#x2640;&#xFE0F; &#x1FA91;</summary>
-            <details><summary class="summarySubHeading">&#x1F914;</summary>
-                <details><summary class="summarySubSubHeading">Healer</summary>
-                    Vær klar til at hjælpe feer der er kommet til <br> skade ved at lade dem scanne din skærm
-                    <button id="T1M1G1"> Vælg </button>
+        <div id="selectGameModeContainer" hidden>
+            <p>Vælg aktivitetsniveau og derefter sværhedsgrad </p>
+            <details> <summary class="summaryHeading"> &#x1f9cd;&#x200d;&#x2640;&#xFE0F; &#x1FA91;</summary>
+                <details><summary class="summarySubHeading">&#x1F914;</summary>
+                    <details><summary class="summarySubSubHeading">Healer</summary>
+                        Vær klar til at hjælpe feer der er kommet til <br> skade ved at lade dem scanne din skærm
+                        <button id="T1M1G1"> Vælg </button>
+                    </details>
+                </details>
+                <details><summary class="summarySubHeading">&#x1F914;&#x1F914;</summary>
+                </details>
+                <details><summary class="summarySubHeading">&#x1F914;&#x1F914;&#x1F914;</summary>
                 </details>
             </details>
-            <details><summary class="summarySubHeading">&#x1F914;&#x1F914;</summary>
-            </details>
-            <details><summary class="summarySubHeading">&#x1F914;&#x1F914;&#x1F914;</summary>
-            </details>
-        </details>
-        <details> <summary class="summaryHeading"> &#x1f6b6;&#127997; &#x1f9D1;&#x200D;&#x1F9BD;</summary>
-            <details><summary class="summarySubHeading">&#x1F914;</summary>
-            </details>
-            <details><summary class="summarySubHeading">&#x1F914;&#x1F914;</summary>
-            </details>
-            <details><summary class="summarySubHeading">&#x1F914;&#x1F914;&#x1F914;</summary>
-            </details>
-        </details>
-        <details> <summary class="summaryHeading"> &#x1f3c3;&#127998;&#x200d;&#x2640;&#xFE0F; </summary>
-            <details><summary class="summarySubHeading">&#x1F914;</summary>
-                <details><summary class="summarySubSubHeading">Skan løs</summary>
-                    Scan så mange QR-koder som muligt. <br> Jo længere QR-koderne ligger fra hinanden, jo mere mana samles der ind
-                    <button id="T1M3G1"> Vælg </button>
+            <details> <summary class="summaryHeading"> &#x1f6b6;&#127997; &#x1f9D1;&#x200D;&#x1F9BD;</summary>
+                <details><summary class="summarySubHeading">&#x1F914;</summary>
                 </details>
-                <details><summary class="summarySubSubHeading">Følg det viste mønster</summary>
-                    Scan QR-koder i den rækkefølge din skærm viser. <br> Efter hvert scan lyser den næste QR-kode op
-                    <button id="T1M3G2"> Vælg </button>
+                <details><summary class="summarySubHeading">&#x1F914;&#x1F914;</summary>
+                </details>
+                <details><summary class="summarySubHeading">&#x1F914;&#x1F914;&#x1F914;</summary>
                 </details>
             </details>
-            <details><summary class="summarySubHeading">&#x1F914;&#x1F914;</summary>
-                <details><summary class="summarySubSubHeading">Følg mønster efter tal</summary>
-                    Scan QR-koder i den rækkefølge din skærm viser <br> (F.eks. 1, 9, 6, 2, 11, ..)
-                    <button id="T2M3G1"> Vælg </button>
+            <details> <summary class="summaryHeading"> &#x1f3c3;&#127998;&#x200d;&#x2640;&#xFE0F; </summary>
+                <details><summary class="summarySubHeading">&#x1F914;</summary>
+                    <details><summary class="summarySubSubHeading">Skan løs</summary>
+                        Scan så mange QR-koder som muligt. <br> Jo længere QR-koderne ligger fra hinanden, jo mere mana samles der ind
+                        <button id="T1M3G1"> Vælg </button>
+                    </details>
+                    <details><summary class="summarySubSubHeading">Følg det viste mønster</summary>
+                        Scan QR-koder i den rækkefølge din skærm viser. <br> Efter hvert scan lyser den næste QR-kode op
+                        <button id="T1M3G2"> Vælg </button>
+                    </details>
+                </details>
+                <details><summary class="summarySubHeading">&#x1F914;&#x1F914;</summary>
+                    <details><summary class="summarySubSubHeading">Følg mønster efter tal</summary>
+                        Scan QR-koder i den rækkefølge din skærm viser <br> (F.eks. 1, 9, 6, 2, 11, ..)
+                        <button id="T2M3G1"> Vælg </button>
+                    </details>
+                </details>
+                <details><summary class="summarySubHeading">&#x1F914;&#x1F914;&#x1F914;</summary>
+                    <details><summary class="summarySubSubHeading">Vikl ud</summary>
+                        Flyt knudepunkter så ingen linjer krydser <br>
+                        Scan den knude der skal flyttes, og derefter det anker den skal flyttes til
+                        <button id="T3M3G1"> Vælg </button>
+                    </details>
                 </details>
             </details>
-            <details><summary class="summarySubHeading">&#x1F914;&#x1F914;&#x1F914;</summary>
-                <details><summary class="summarySubSubHeading">Vikl ud</summary>
-                    Flyt knudepunkter så ingen linjer krydser <br>
-                    Scan den knude der skal flyttes, og derefter det anker den skal flyttes til
-                    <button id="T3M3G1"> Vælg </button>
-                </details>
-            </details>
-        </details>
-    </div>
-    
-    <!-- Contanier for communicating with player and meta-game -->
-    <div id="comunicationContainer">
-        <div id="reader" width="600px"></div> <br>
-        <div id="readerDiv"></div> <br>
-        <div id="canvasQRShow" hidden></div>
-        <canvas id="canvasClockface" hidden></canvas>
-    </div>
-    
-    <!-- Contanier for interacting with game-states -->
-    <div id="navigationContainer">
-        <button id="scanButton" type="button" hidden>Scan</button> <br>
-        <button id="cancelScanButton" type="button" hidden>Stop scan</button> <br>
+        </div>
+        
+        <!-- Contanier for communicating with player and meta-game -->
+        <div id="comunicationContainer">
+            <div id="reader" width="600px"></div> <br>
+            <div id="readerDiv"></div> <br>
+            <div id="canvasQRShow" hidden></div>
+            <canvas id="canvasClockface" hidden></canvas>
+        </div>
+        
+        <!-- Contanier for interacting with game-states -->
+        <div id="navigationContainer" hidden>
+            <button id="scanButton" type="button">Scan</button> <br>
+            <button id="cancelScanButton" type="button" hidden>Stop scan</button> <br>
+        </div>
     </div>
 </body>
 </html>

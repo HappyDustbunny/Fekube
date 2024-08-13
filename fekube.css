@@ -7,6 +7,10 @@ p {
     font-size: larger;
 }
 
+span {
+    text-align: center;
+}
+
 summary {
     border: 1px solid;
     text-align: center;
@@ -40,6 +44,60 @@ kbd {
     display: flex;
     justify-content: center;
     align-items: center;
+}
+
+#headContainer {
+    display: grid;
+    grid-template-columns: 1% 15% auto 15% 1%;
+    row-gap: .3em;
+    grid-template-areas: '. gblscr header lclscr .';
+}
+
+#globalManaCounter {
+    display: grid;
+    grid-area: gblscr;
+    align-content: center;
+    justify-content: center;
+    visibility: hidden;
+}
+
+#gameName {
+    grid-area: header;
+    font-size: 3em;
+}
+
+#localManaCounter {
+    display: grid;
+    grid-area: lclscr;
+    align-content: center;
+    justify-content: center;
+    visibility: hidden;
+}
+
+#navigationContainer {
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    height: 6%;
+    background-color: rgba(127, 255, 0, .15);
+    visibility: hidden;
+}
+
+#scanButton, cancelScanButton {
+    align-self: center;
+    border-radius: 25px;
+    width: 50px;
+    height: 50px;
+    background-color: rgba(127, 255, 0, .5);
+}
+
+#cancelScanButton {
+    background-color: rgba(255, 0, 0, .75);
+}
+
+.score {
+    font-size: xx-large;
 }
 
 .summaryHeading {

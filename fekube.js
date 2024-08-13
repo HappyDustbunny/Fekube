@@ -30,7 +30,11 @@ document.getElementById('closeIntro2').addEventListener('click', closeIntro);
 
 document.getElementById('selectGameModeContainer').addEventListener('click', function(event) { gameModeHasBeenClicked(event); }, true);
 
-document.getElementById('scanButton').addEventListener('click', scanQRcode);
+document.getElementById('scanButton').addEventListener('click', function() {
+    document.getElementById('scanButton').hidden = true;
+    document.getElementById('cancelScanButton').hidden = false;
+    scanQRcode();
+});
 
 document.getElementById('cancelScanButton').addEventListener('click', stopScan);
 // End of eventlisteners
@@ -47,16 +51,18 @@ function gameModeHasBeenClicked(event) {
     console.log(gameMode);
     if (gameMode) {
         document.getElementById('selectGameModeContainer').hidden = true;
-        document.getElementById('scanButton').hidden = false;
-        document.getElementById('cancelScanButton').hidden = false;
+        document.getElementById('navigationContainer').style.visibility = 'visible'
+        // document.getElementById('scanButton').hidden = false;
+        document.getElementById('globalManaCounter').style.visibility = 'visible';
+        document.getElementById('localManaCounter').style.visibility = 'visible';
     }
 }
 
 function scanQRcode() {
     html5Qrcode.start({facingMode: "environment"}, config, (decodedText, decodedResult) => {
         console.log('We have got ' + decodedText);
-        useQRcode(decodedText);
         stopQrReading();
+        useQRcode(decodedText);
     }, (errorMessage) => {
         console.log('Camera says ' + errorMessage);
     }).catch((err) => {
@@ -66,6 +72,8 @@ function scanQRcode() {
 
 function stopScan() {
     if (html5Qrcode.getState() === 2) {  // 1 is not-scanning, 2 is scanning
+        document.getElementById('scanButton').hidden = false;
+        document.getElementById('cancelScanButton').hidden = true;
         stopQrReading();
     }
 }
@@ -84,7 +92,7 @@ function useQRcode(QrNumber) {
             if (lastScan === 0) {
                 newDelta = QrNumber;
             } else {
-                newDelta = Math.round(10 * (Math.sqrt((clockFaceCoor[QrNumber][0] - clockFaceCoor[lastScan][0]) * (clockFaceCoor[QrNumber][0] - clockFaceCoor[lastScan][0]) + (clockFaceCoor[QrNumber][1] - clockFaceCoor[lastScan][1]) * (clockFaceCoor[QrNumber][1] - clockFaceCoor[lastScan][1]))));
+                newDelta = Math.round(10 * ((clockFaceCoor[QrNumber][0] - clockFaceCoor[lastScan][0]) * (clockFaceCoor[QrNumber][0] - clockFaceCoor[lastScan][0]) + (clockFaceCoor[QrNumber][1] - clockFaceCoor[lastScan][1]) * (clockFaceCoor[QrNumber][1] - clockFaceCoor[lastScan][1])));
             }
             lastScan = QrNumber;
             localMana += Number(newDelta);
