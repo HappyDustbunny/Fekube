@@ -5,9 +5,9 @@
     <meta name="description" content="This is an attempt at building an inclusive game involving both thinking and physical activity">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>Fekube</title>
+    <title>Niff</title>
 
-    <link rel="stylesheet" href="fekube.css">
+    <link rel="stylesheet" href="niff.css">
 
     <script>document.write("<script src='qr-code-styling.js'><\/script>")</script>
     <script src="qr-code-styling.js" type="text/plain"></script>
@@ -15,14 +15,14 @@
     <script>document.write("<script src='html5-qrcode.min.js'><\/script>")</script>
     <script src="html5-qrcode.min.js" type="text/plain"></script>
 
-    <script src="fekube.js" type="text/javascript" defer></script>
+    <script src="niff.js" type="text/javascript" defer></script>
 </head>
 
 <body>
     <div id="page">
         <div id="headContainer">
             <div id="globalManaCounter"> <span>Samlet Mana</span> <span class="score"> 0 </span> </div>
-            <h1 id="gameName">Fekube</h1>
+            <h1 id="gameName">Niff</h1>
             <div id="localManaCounter"> <span>Nyhøstet Mana</span> <span class="score"> 0 </span> </div>
         </div>
     
@@ -39,12 +39,12 @@
             <h3> Baggrund </h3>
             <p> Feerne troede at mana var en uudtømmelig ressource <br>
                 Det passede selvfølgelig ikke </p>
-            <p> Heldigvis kan mana samles i parallelle verdener og spredes her i Avalon, feernes rige, 
+            <p> Heldigvis kan mana samles i parallelle verdener og spredes her i Niff, feernes rige, 
                 ved hjælp af magi 
             </p>
     
             <p> Det er slut med ekstravagante flyvende slotte og med at bruge magi til 
-                trivielle hverdags oogaver som opvask, men livet er ikke blevet dårligere i Avalon, 
+                trivielle hverdags oogaver som opvask, men livet er ikke blevet dårligere i Niff, 
                 næsten tværtimod <br>
                 Uendelige baller og strengt hieraki er afløst af ansvarlighed og samarbejde samt 
                 meningsfulde opgaver som skånsomt at høste mana i tomme verdener <br>
@@ -131,12 +131,14 @@
                 </details>
             </details>
         </div>
+
+        <div id="QrContainer" hidden>
+            <div id="reader" width="600px"></div> <br>
+        </div>
         
         <!-- Contanier for communicating with player and meta-game -->
         <div id="comunicationContainer">
-            <div id="reader" width="600px"></div> <br>
-            <div id="readerDiv"></div> <br>
-            <div id="canvasQRShow" hidden></div>
+            <div id="canvasQrShow" hidden></div>
             <canvas id="canvasClockface" hidden></canvas>
         </div>
         

@@ -28,7 +28,8 @@ let clockFaceCoor = { // Used for T1M3G1
 document.getElementById('closeIntro1').addEventListener('click', closeIntro);
 document.getElementById('closeIntro2').addEventListener('click', closeIntro);
 
-document.getElementById('selectGameModeContainer').addEventListener('click', function(event) { gameModeHasBeenClicked(event); }, true);
+document.getElementById('selectGameModeContainer').addEventListener('click', 
+    function(event) { gameModeHasBeenClicked(event); }, true);
 
 document.getElementById('scanButton').addEventListener('click', function() {
     document.getElementById('scanButton').hidden = true;
@@ -51,6 +52,7 @@ function gameModeHasBeenClicked(event) {
     console.log(gameMode);
     if (gameMode) {
         document.getElementById('selectGameModeContainer').hidden = true;
+        document.getElementById('QrContainer').hidden = false;
         document.getElementById('navigationContainer').style.visibility = 'visible'
         // document.getElementById('scanButton').hidden = false;
         document.getElementById('globalManaCounter').style.visibility = 'visible';
@@ -117,14 +119,6 @@ function useQRcode(QrNumber) {
     }
 }
 
-// const qrCodeHasBeenRead = (decodedText, decodedResult) => {
-//     console.log(`Code matched = ${decodedText}`, decodedResult);
-//     let readerDiv = document.getElementById('readerDiv');
-//     let content = document.createTextNode(decodedText);
-//     readerDiv.appendChild(content);
-    
-//     stopQrReading();
-// }
 
 function stopQrReading() {
     html5Qrcode.stop().then((ignore) => {
@@ -180,7 +174,7 @@ function generateQRcode(text) {
     return responseQRcode;
 }
 
-generateQRcode("blarp").append(document.getElementById("canvasQRShow"));
+generateQRcode("blarp").append(document.getElementById("canvasQrShow"));
 
 
 // let result = html5Qrcode.start({facingMode: "environment"}, config, qrCodeHasBeenRead);

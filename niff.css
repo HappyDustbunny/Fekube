@@ -1,3 +1,4 @@
+
 h1 {
     text-align: center;
 }
@@ -29,6 +30,16 @@ button {
 kbd {
     font-size: x-large;
 }
+
+/* #page { Breaks buttons??
+    display: grid;
+    grid-template-rows: 112px 300px auto;
+    grid-template-areas:
+        "up  " 
+        "mid " 
+        "down";
+    height: 760px;
+} */
 
 #output {
     background-color: aqua;
@@ -72,6 +83,13 @@ kbd {
     align-content: center;
     justify-content: center;
     visibility: hidden;
+}
+
+#comunicationContainer {
+    display: grid;
+    grid-area: down;
+    align-content: center;
+    justify-content: center;
 }
 
 #navigationContainer {
