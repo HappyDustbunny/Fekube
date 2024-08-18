@@ -7,6 +7,7 @@ const config = {fps: 10, qrbox: {width: 300, height: 300}};
 let gameMode = '';
 let globalMana = 0;
 let localMana = 0;
+let currentUser = '';
 
 let lastScan = 0;     // Used for T1M3G1
 let clockFaceCoor = { // Used for T1M3G1
@@ -23,7 +24,26 @@ let clockFaceCoor = { // Used for T1M3G1
     10: [-kv3h, 0.5],
     11: [-0.5, kv3h],
     12: [0.0, 1.0]
-} ; 
+} ;
+
+class niffUser {
+    constructor(gameMode, goalArray) {
+        this.gameMode = gameMode;
+        this.globalMana = 0;
+        this.localMana = 0;
+        this.goalArray = goalArray;
+        this.currentGoalNumber = 0; 
+        this.currentGoal = goalArray[this.currentGoalNumber];
+    }
+
+    updateGoal () {
+        if (this.currentGoalNumber < this.goalArray.length - 1) {
+            this.currentGoalNumber += 1;
+            this.currentGoal = this.goalArray[this.currentGoalNumber];
+        }
+    }
+}
+
 
 // Eventlisteners
 document.getElementById('closeIntro1').addEventListener('click', closeIntro);
@@ -63,13 +83,19 @@ function gameModeHasBeenClicked(event) {
         document.getElementById('localManaCounter').style.visibility = 'visible';
         document.getElementById('QrContainer').hidden = false;
         document.getElementById('navigationContainer').style.visibility = 'visible';
+
         // Set up instructions for game modes that needs them
         switch(gameMode) {
             case 'T1M3G2': {
+                let arrayLen = 10;
+                goalArray = Array.from({length:arrayLen}, () => Math.floor(Math.random()*12) + 1);
+                currentUser = new niffUser(gameMode, goalArray);
                 document.getElementById('canvasClockface').hidden = false;
-                drawClockface();
+                drawClockface(currentUser.currentGoal);
                 break;
             }
+            default:
+                currentUser = new niffUser(gameMode, []);
         }
     }
 }
@@ -96,13 +122,13 @@ function stopScan() {
 
 function updateLocalManaCounter(localMana) {
     document.getElementById('localManaCounter').innerHTML = 
-        '<span>Nyhøstet Mana</span> <span class="score">' + localMana + '</span>';
+    '<span>Nyhøstet Mana</span> <span class="score">' + localMana + '</span>';
 }
 
 function useQRcode(QrNumber) {
     switch(gameMode) {
         case 'T1M1G1': {  // Healer
-        break;    
+            break;    
         }
         case 'T1M3G1': {  // Scan løs
             let newDelta = 0;
@@ -111,12 +137,18 @@ function useQRcode(QrNumber) {
             } else {
                 newDelta = Math.round(10 * ((clockFaceCoor[QrNumber][0] - clockFaceCoor[lastScan][0]) * (clockFaceCoor[QrNumber][0] - clockFaceCoor[lastScan][0]) + (clockFaceCoor[QrNumber][1] - clockFaceCoor[lastScan][1]) * (clockFaceCoor[QrNumber][1] - clockFaceCoor[lastScan][1])));
             }
-            localMana += Number(newDelta);
-            updateLocalManaCounter(localMana);
+            currentUser.localMana += Number(newDelta);
+            updateLocalManaCounter(currentUser.localMana);
             lastScan = QrNumber;
             break;    
         }
         case 'T1M3G2': {  // Følg det viste mønster
+            if (QrNumber === currentUser.currentGoal) {
+                currentUser.localMana += 50;
+                updateLocalManaCounter(currentUser.localMana);
+                currentUser.updateGoal();
+                drawClockface(currentUser.currentGoal);
+            }
         break;    
         }
         case 'T2M3G1': {  // Følg mønster efter tal
