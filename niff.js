@@ -87,7 +87,7 @@ function gameModeHasBeenClicked(event) {
         // Set up instructions for game modes that needs them
         switch(gameMode) {
             case 'T1M3G2': {
-                let arrayLen = 10;
+                let arrayLen = 20;
                 goalArray = Array.from({length:arrayLen}, () => Math.floor(Math.random()*12) + 1);
                 currentUser = new niffUser(gameMode, goalArray);
                 document.getElementById('canvasClockface').hidden = false;
@@ -143,7 +143,7 @@ function useQRcode(QrNumber) {
             break;    
         }
         case 'T1M3G2': {  // Følg det viste mønster
-            if (QrNumber === currentUser.currentGoal) {
+            if (Number(QrNumber) === currentUser.currentGoal) {
                 currentUser.localMana += 50;
                 updateLocalManaCounter(currentUser.localMana);
                 currentUser.updateGoal();
