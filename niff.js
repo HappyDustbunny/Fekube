@@ -10,6 +10,7 @@ let localMana = 0;
 
 let lastScan = 0;     // Used for T1M3G1
 let clockFaceCoor = { // Used for T1M3G1
+    0: [0.0, 0.0],
     1: [0.5, kv3h],
     2: [kv3h, 0.5],
     3: [1.0, 0.0],
@@ -54,12 +55,21 @@ function closeIntro() {
 function gameModeHasBeenClicked(event) {
     gameMode = event.target.id; // Id in the format T1M3G1 for Thinking level 1, Movement level 3 and Game 1
     console.log(gameMode);
-    if (gameMode) {
+    if (gameMode !== '' && gameMode !== 'selectGameModeContainer') {
+        // Adjust layout to game mode
         document.getElementById('selectGameModeContainer').hidden = true;
         document.getElementById('globalManaCounter').style.visibility = 'visible';
         document.getElementById('localManaCounter').style.visibility = 'visible';
         document.getElementById('QrContainer').hidden = false;
-        document.getElementById('navigationContainer').style.visibility = 'visible'
+        document.getElementById('navigationContainer').style.visibility = 'visible';
+        // Set up instructions for game modes that needs them
+        switch(gameMode) {
+            case 'T1M3G2': {
+                document.getElementById('canvasClockface').hidden = false;
+                drawClockface();
+                break;
+            }
+        }
     }
 }
 
@@ -136,27 +146,59 @@ function stopQrReading() {
 
 
 // Draw clockface
-function drawClockface() {
+function drawClockface(number) {
     let canvasClockface = document.getElementById("canvasClockface");
     let drawArea = canvasClockface.getContext("2d");
     canvasClockface.width = 300;
     canvasClockface.height = 300;
     let r = 10;
+    let offset = 3;
     drawArea.beginPath();
-    drawArea.fillStyle = "red";
-    for (let v = 0; v < 2*pi; v += pi/6) {
-        let xc = 130 * Math.cos(v) + 150;
-        let yc = 130 * Math.sin(v) + 150;
+    drawArea.strokeStyle = "blue";
+    if (number) {
+        let xc = 130 * clockFaceCoor[number][0] + 150;
+        let yc = -130 * clockFaceCoor[number][1] + 150;
+        drawArea.moveTo(xc + r, yc);
+        drawArea.arc(xc, yc, r, 0, 2*pi);
+        drawArea.fillStyle = "red";
+        drawArea.fill();
+        if (9 < Number(number)) {offset = 7}
+        drawArea.fillStyle = "black";
+        drawArea.fillText(number, xc - offset, yc + 3);
+    }
+
+    for (const [i, coor] of Object.entries(clockFaceCoor)) {
+        let xc = 130 * coor[0] + 150;
+        let yc = -130 * coor[1] + 150;  // Minus 130 to flip coordinate system to programmer style with y-axis downwards
         drawArea.moveTo(xc + r, yc);  // Add radius to avoid drawing a horizontal radius
         drawArea.arc(xc, yc, r, 0, 2*pi);
-        drawArea.fill();
+        drawArea.stroke();
+        if (9 < Number(i)) {offset = 7}
+        drawArea.fillText(i, xc - offset, yc + 3);
     }
-    drawArea.moveTo(150 + r, 150);
-    drawArea.arc(150, 150, r, 0, 2*pi);
-    drawArea.stroke();
 }
 
-drawClockface();
+// // Draw clockface
+// function drawClockface() {
+//     let canvasClockface = document.getElementById("canvasClockface");
+//     let drawArea = canvasClockface.getContext("2d");
+//     canvasClockface.width = 300;
+//     canvasClockface.height = 300;
+//     let r = 10;
+//     drawArea.beginPath();
+//     drawArea.fillStyle = "red";
+//     for (let v = 0; v < 2*pi; v += pi/6) {
+//         let xc = 130 * Math.cos(v) + 150;
+//         let yc = 130 * Math.sin(v) + 150;
+//         drawArea.moveTo(xc + r, yc);  // Add radius to avoid drawing a horizontal radius
+//         drawArea.arc(xc, yc, r, 0, 2*pi);
+//         drawArea.fill();
+//     }
+//     drawArea.moveTo(150 + r, 150);
+//     drawArea.arc(150, 150, r, 0, 2*pi);
+//     drawArea.stroke();
+// }
+
 
 
 // QR-code generator
