@@ -42,6 +42,10 @@ document.getElementById('cancelScanButton').addEventListener('click', stopScan);
 
 console.clear();
 
+function setUpFunction() {
+    document.getElementById('page').style.height = window.innerHeight - 30 + 'px';
+}
+
 function closeIntro() {
     document.getElementById('intro').hidden = true;
     document.getElementById('selectGameModeContainer').hidden = false;
@@ -52,11 +56,10 @@ function gameModeHasBeenClicked(event) {
     console.log(gameMode);
     if (gameMode) {
         document.getElementById('selectGameModeContainer').hidden = true;
-        document.getElementById('QrContainer').hidden = false;
-        document.getElementById('navigationContainer').style.visibility = 'visible'
-        // document.getElementById('scanButton').hidden = false;
         document.getElementById('globalManaCounter').style.visibility = 'visible';
         document.getElementById('localManaCounter').style.visibility = 'visible';
+        document.getElementById('QrContainer').hidden = false;
+        document.getElementById('navigationContainer').style.visibility = 'visible'
     }
 }
 
@@ -81,7 +84,8 @@ function stopScan() {
 }
 
 function updateLocalManaCounter(localMana) {
-    document.getElementById('localManaCounter').textContent = localMana;
+    document.getElementById('localManaCounter').innerHTML = 
+        '<span>Nyhøstet Mana</span> <span class="score">' + localMana + '</span>';
 }
 
 function useQRcode(QrNumber) {
@@ -96,25 +100,25 @@ function useQRcode(QrNumber) {
             } else {
                 newDelta = Math.round(10 * ((clockFaceCoor[QrNumber][0] - clockFaceCoor[lastScan][0]) * (clockFaceCoor[QrNumber][0] - clockFaceCoor[lastScan][0]) + (clockFaceCoor[QrNumber][1] - clockFaceCoor[lastScan][1]) * (clockFaceCoor[QrNumber][1] - clockFaceCoor[lastScan][1])));
             }
-            lastScan = QrNumber;
             localMana += Number(newDelta);
             updateLocalManaCounter(localMana);
-        break;    
+            lastScan = QrNumber;
+            break;    
         }
         case 'T1M3G2': {  // Følg det viste mønster
         break;    
         }
         case 'T2M3G1': {  // Følg mønster efter tal
-        break;    
+            break;    
         }
         case 'T3M3G1': {  // Vikl ud
-        break;    
+            break;    
         }
         case 'T1M3G1': {
-        break;    
+            break;    
         }
         case 'T1M3G1': {
-        break;    
+            break;    
         }
     }
 }
@@ -122,6 +126,8 @@ function useQRcode(QrNumber) {
 
 function stopQrReading() {
     html5Qrcode.stop().then((ignore) => {
+        document.getElementById('scanButton').hidden = false;
+        document.getElementById('cancelScanButton').hidden = true;
         console.log('QR scanning stopped');
     }).catch((err) => {
         console.log('QR scanning did not stop for some reason');

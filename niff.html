@@ -18,7 +18,7 @@
     <script src="niff.js" type="text/javascript" defer></script>
 </head>
 
-<body>
+<body onload="setUpFunction()">
     <div id="page">
         <div id="headContainer">
             <div id="globalManaCounter"> <span>Samlet Mana</span> <span class="score"> 0 </span> </div>
@@ -137,7 +137,7 @@
         </div>
         
         <!-- Contanier for communicating with player and meta-game -->
-        <div id="comunicationContainer">
+        <div id="communicationContainer" hidden>
             <div id="canvasQrShow" hidden></div>
             <canvas id="canvasClockface" hidden></canvas>
         </div>
