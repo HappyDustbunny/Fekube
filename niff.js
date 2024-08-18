@@ -28,6 +28,7 @@ let clockFaceCoor = { // Used for T1M3G1
 // Eventlisteners
 document.getElementById('closeIntro1').addEventListener('click', closeIntro);
 document.getElementById('closeIntro2').addEventListener('click', closeIntro);
+document.getElementById('closeIntro3').addEventListener('click', closeIntro);
 
 document.getElementById('selectGameModeContainer').addEventListener('click', 
     function(event) { gameModeHasBeenClicked(event); }, true);
