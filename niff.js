@@ -5,9 +5,18 @@ const html5Qrcode = new Html5Qrcode("reader");
 const config = {fps: 10, qrbox: {width: 300, height: 300}};
 
 let gameMode = '';
-let globalMana = 0;
+let globalMana = 500;  // Start with some mana to heal attacked players
 let localMana = 0;
 let currentUser = '';
+let isVictim = 0;  // Change to 5 if player is attacked and needs healing. Is healed fully by Healer, but need a few scans of '0' to heal alone
+
+let messageDiv = document.getElementById('messageDiv');
+let healMsgs = [
+    'Det var bedre!',
+    'Det hjælper',
+    'Lidt mere',
+    'Og ... sidste gang'
+]
 
 let lastScan = 0;     // Used for T1M3G1
 let clockFaceCoor = { // Used for T1M3G1
@@ -29,13 +38,13 @@ let clockFaceCoor = { // Used for T1M3G1
 class niffUser {
     constructor(gameMode, goalArray) {
         this.gameMode = gameMode;
-        this.globalMana = 0;
+        this.globalMana = globalMana;
         this.localMana = 0;
         this.goalArray = goalArray;
         this.currentGoalNumber = 0; 
         this.currentGoal = goalArray[this.currentGoalNumber];
     }
-
+    
     updateGoal () {
         if (this.currentGoalNumber < this.goalArray.length - 1) {
             this.currentGoalNumber += 1;
@@ -60,6 +69,7 @@ document.getElementById('scanButton').addEventListener('click', function() {
 });
 
 document.getElementById('cancelScanButton').addEventListener('click', stopScan);
+document.getElementById('healButton').addEventListener('click', heal);
 // End of eventlisteners
 
 console.clear();
@@ -73,37 +83,6 @@ function closeIntro() {
     document.getElementById('selectGameModeContainer').hidden = false;
 }
 
-function gameModeHasBeenClicked(event) {
-    gameMode = event.target.id; // Id in the format T1M3G1 for Thinking level 1, Movement level 3 and Game 1
-    console.log(gameMode);
-    if (gameMode !== '' && gameMode !== 'selectGameModeContainer') {
-        // Adjust layout to game mode
-        document.getElementById('selectGameModeContainer').hidden = true;
-        document.getElementById('globalManaCounter').style.visibility = 'visible';
-        document.getElementById('localManaCounter').style.visibility = 'visible';
-        document.getElementById('QrContainer').hidden = false;
-        document.getElementById('navigationContainer').style.visibility = 'visible';
-
-        // Set up instructions for game modes that needs them
-        switch(gameMode) {
-            case 'T1M3G2': {
-                let arrayLen = 20;
-                let startNum = 0;
-                let tempArray = Array.from({length: arrayLen},()=> startNum += Math.ceil(Math.random()*6) + 2);  // Avoid the same number twice and neighboring numbers by stepping 2 to 8 steps forward. The next function brings the numbers back into 1-12
-                mod12 = (number) => number%12 + 1; // Plus 1 to avoid 12%12 = 0
-                goalArray = tempArray.map(mod12);
-
-                currentUser = new niffUser(gameMode, goalArray);
-
-                document.getElementById('canvasClockface').hidden = false;
-                drawClockface(currentUser.currentGoal);
-                break;
-            }
-            default:
-                currentUser = new niffUser(gameMode, []);
-        }
-    }
-}
 
 function scanQRcode() {
     html5Qrcode.start({facingMode: "environment"}, config, (decodedText, decodedResult) => {
@@ -125,48 +104,160 @@ function stopScan() {
     }
 }
 
-function updateLocalManaCounter(localMana) {
-    document.getElementById('localManaCounter').innerHTML = 
-    '<span>Nyhøstet Mana</span> <span class="score">' + localMana + '</span>';
+
+let healingDrainTimer = '';
+
+function heal() {
+    setTimeout(stopHealing, 5000);
+    document.getElementById('canvasQrShow').hidden = false;
+    document.getElementById('healButton').hidden = true;
+    healingDrainTimer = setInterval(whileHealing, 1000);
 }
 
-function useQRcode(QrNumber) {
-    switch(gameMode) {
-        case 'T1M1G1': {  // Healer
-            break;    
-        }
-        case 'T1M3G1': {  // Scan løs
-            let newDelta = 0;
-            if (lastScan === 0) {
-                newDelta = QrNumber;
-            } else {
-                newDelta = Math.round(10 * ((clockFaceCoor[QrNumber][0] - clockFaceCoor[lastScan][0]) * (clockFaceCoor[QrNumber][0] - clockFaceCoor[lastScan][0]) + (clockFaceCoor[QrNumber][1] - clockFaceCoor[lastScan][1]) * (clockFaceCoor[QrNumber][1] - clockFaceCoor[lastScan][1])));
+
+function whileHealing() {
+    globalMana -= 10;
+    updateManaCounters();
+    // Todo: What happens if global mana is depleated? Should the Healer be able to top up global mana by scanning 0?
+}
+
+function stopHealing() {
+    document.getElementById('canvasQrShow').hidden = true;
+    clearInterval(healingDrainTimer);
+    document.getElementById('healButton').hidden = false;
+}
+
+
+function updateManaCounters(localMana) {
+    document.getElementById('localManaCounter').innerHTML = 
+    '<span>Nyhøstet Mana</span> <span class="score">' + currentUser.localMana + '</span>';
+    document.getElementById('globalManaCounter').innerHTML = 
+    '<span>Samlet Mana</span> <span class="score">' + globalMana + '</span>';
+}
+
+
+let attackTimer = setInterval(attackChance, 10000);
+let whileAttackedTimer = '';
+
+
+function attackChance() {
+    if (isVictim === 0 && Math.random() < 0.001) {
+        isVictim = 5;
+        document.getElementById('page').style.background = 'rgba(255, 0, 0, .36)';
+        messageDiv.hidden = false;
+        messageDiv.innerHTML = '<p>Du er blevet angrebet! <br> Skynd dig at blive healet ved at finde Healeren eller scanne 0 flere gange</p>'
+        whileAttackedTimer = setInterval(whileAttacked, 1000);
+    }
+}
+
+
+function whileAttacked() {
+    currentUser.localMana -= 1;
+    updateManaCounters(currentUser.localMana);
+    
+    if (isVictim === 0) {
+        clearInterval(whileAttackedTimer);
+    }
+}
+
+
+function gameModeHasBeenClicked(event) {
+    gameMode = event.target.id; // Id in the format T1M3G1 for Thinking level 1, Movement level 3 and Game 1
+    console.log(gameMode);
+    
+    if (gameMode !== '' && gameMode !== 'selectGameModeContainer') {
+        // Adjust layout to game mode
+        document.getElementById('selectGameModeContainer').hidden = true;
+        document.getElementById('globalManaCounter').style.visibility = 'visible';
+        document.getElementById('localManaCounter').style.visibility = 'visible';
+        document.getElementById('QrContainer').hidden = false;
+        document.getElementById('navigationContainer').style.visibility = 'visible';
+        
+        // Set up instructions for game modes that needs them
+        switch(gameMode) {
+            case 'T1M1G1': {  // Healer
+                generateQRcode("Thy shalst be healed!").append(document.getElementById("canvasQrShow"));
+                // ToDo: Add explaning text?
+                document.getElementById('healButton').hidden = false;
+                clearInterval(attackTimer);  // Makes sure the Healer is not attacked
+                currentUser = new niffUser(gameMode, []);
+                break;    
             }
-            currentUser.localMana += Number(newDelta);
-            updateLocalManaCounter(currentUser.localMana);
-            lastScan = QrNumber;
-            break;    
-        }
-        case 'T1M3G2': {  // Følg det viste mønster
-            if (Number(QrNumber) === currentUser.currentGoal) {
-                currentUser.localMana += 50;
-                updateLocalManaCounter(currentUser.localMana);
-                currentUser.updateGoal();
+            case 'T1M3G2': {
+                let arrayLen = 20;
+                let startNum = 0;
+                let tempArray = Array.from({length: arrayLen},()=> startNum += Math.ceil(Math.random()*6) + 2);  // Avoid the same number twice and neighboring numbers by stepping 2 to 8 steps forward. The next function brings the numbers back into 1-12
+                mod12 = (number) => number%12 + 1; // Plus 1 to avoid 12%12 = 0
+                goalArray = tempArray.map(mod12);
+                
+                currentUser = new niffUser(gameMode, goalArray);
+                
+                document.getElementById('canvasClockface').hidden = false;
                 drawClockface(currentUser.currentGoal);
+                break;
             }
-        break;    
+            default:
+                currentUser = new niffUser(gameMode, []);
         }
-        case 'T2M3G1': {  // Følg mønster efter tal
-            break;    
+    }
+    updateManaCounters();
+}
+
+
+function useQRcode(QrNumber) {
+    if (isVictim !== 0  && QrNumber === 'center' || QrNumber === 'Thy shalst be healed!') {
+        if (QrNumber === 'Thy shalst be healed') {
+            isVictim = 0;
+            document.getElementById('page').style.background = 'white';
+            messageDiv.innerHTML = '';
+            messageDiv.hidden = true;
+        } else {
+            isVictim -= 1;
+            if (isVictim < 0.00001) {
+                isVictim = 0;
+                messageDiv.innerHTML = '';
+                messageDiv.hidden = true;
+            }
+            document.getElementById('page').style.background = 'rgba(255, 0, 0, '+ isVictim / 14 + ')';
+            messageDiv.innerHTML = '<p> ' + healMsgs[isVictim] + ' <br> Scan 0 igen</p>'
         }
-        case 'T3M3G1': {  // Vikl ud
+    } else if (isVictim !== 0 && 0 < QrNumber && QrNumber < 13) {
+        messageDiv.innerHTML = '<p> Du er skadet og skal heales før du kan andet <br> Find en Healer eller scan 0 flere gange </p>'
+    } else {
+        switch(gameMode) {
+            case 'T1M3G1': {  // Scan løs
+                let newDelta = 0;
+                if (lastScan === 0) {
+                    newDelta = QrNumber;
+                } else {
+                    newDelta = Math.round(10 * ((clockFaceCoor[QrNumber][0] - clockFaceCoor[lastScan][0]) * (clockFaceCoor[QrNumber][0] - clockFaceCoor[lastScan][0]) + (clockFaceCoor[QrNumber][1] - clockFaceCoor[lastScan][1]) * (clockFaceCoor[QrNumber][1] - clockFaceCoor[lastScan][1])));
+                }
+                currentUser.localMana += Number(newDelta);
+                updateManaCounters(currentUser.localMana);
+                lastScan = QrNumber;
+                break;    
+            }
+            case 'T1M3G2': {  // Følg det viste mønster
+                if (Number(QrNumber) === currentUser.currentGoal) {
+                    currentUser.localMana += 50;
+                    updateManaCounters(currentUser.localMana);
+                    currentUser.updateGoal();
+                    drawClockface(currentUser.currentGoal);
+                }
             break;    
-        }
-        case 'T1M3G1': {
-            break;    
-        }
-        case 'T1M3G1': {
-            break;    
+            }
+            case 'T2M3G1': {  // Følg mønster efter tal
+                break;    
+            }
+            case 'T3M3G1': {  // Vikl ud
+                break;    
+            }
+            case 'T1M3G1': {
+                break;    
+            }
+            case 'T1M3G1': {
+                break;    
+            }
         }
     }
 }
@@ -216,28 +307,6 @@ function drawClockface(number) {
     }
 }
 
-// // Draw clockface
-// function drawClockface() {
-//     let canvasClockface = document.getElementById("canvasClockface");
-//     let drawArea = canvasClockface.getContext("2d");
-//     canvasClockface.width = 300;
-//     canvasClockface.height = 300;
-//     let r = 10;
-//     drawArea.beginPath();
-//     drawArea.fillStyle = "red";
-//     for (let v = 0; v < 2*pi; v += pi/6) {
-//         let xc = 130 * Math.cos(v) + 150;
-//         let yc = 130 * Math.sin(v) + 150;
-//         drawArea.moveTo(xc + r, yc);  // Add radius to avoid drawing a horizontal radius
-//         drawArea.arc(xc, yc, r, 0, 2*pi);
-//         drawArea.fill();
-//     }
-//     drawArea.moveTo(150 + r, 150);
-//     drawArea.arc(150, 150, r, 0, 2*pi);
-//     drawArea.stroke();
-// }
-
-
 
 // QR-code generator
 function generateQRcode(text) {
@@ -260,7 +329,6 @@ function generateQRcode(text) {
     return responseQRcode;
 }
 
-generateQRcode("blarp").append(document.getElementById("canvasQrShow"));
 
 
 // let result = html5Qrcode.start({facingMode: "environment"}, config, qrCodeHasBeenRead);
