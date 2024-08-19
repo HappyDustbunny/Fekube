@@ -88,8 +88,13 @@ function gameModeHasBeenClicked(event) {
         switch(gameMode) {
             case 'T1M3G2': {
                 let arrayLen = 20;
-                goalArray = Array.from({length:arrayLen}, () => Math.floor(Math.random()*12) + 1);
+                let startNum = 0;
+                let tempArray = Array.from({length: arrayLen},()=> startNum += Math.ceil(Math.random()*6) + 2);  // Avoid the same number twice and neighboring numbers by stepping 2 to 8 steps forward. The next function brings the numbers back into 1-12
+                mod12 = (number) => number%12 + 1; // Plus 1 to avoid 12%12 = 0
+                goalArray = tempArray.map(mod12);
+
                 currentUser = new niffUser(gameMode, goalArray);
+
                 document.getElementById('canvasClockface').hidden = false;
                 drawClockface(currentUser.currentGoal);
                 break;
