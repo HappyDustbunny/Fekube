@@ -102,7 +102,7 @@ kbd {
 #navigationContainer {
     display: flex;
     grid-area: navCont;
-    justify-content: space-evenly;
+    justify-content: center;
     align-content: center;
     background-color: rgba(127, 255, 0, .15);
     visibility: hidden;
@@ -118,6 +118,10 @@ kbd {
 
 #cancelScanButton {
     background-color: rgba(255, 0, 0, .75);
+}
+
+#uglyHackSpacer { /* Todo: Make sane layout here */
+    width: 100px;
 }
 
 #healButton {

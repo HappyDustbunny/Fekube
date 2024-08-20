@@ -128,7 +128,7 @@ function stopHealing() {
 }
 
 
-function updateManaCounters(localMana) {
+function updateManaCounters() {
     document.getElementById('localManaCounter').innerHTML = 
     '<span>Nyhøstet Mana</span> <span class="score">' + currentUser.localMana + '</span>';
     document.getElementById('globalManaCounter').innerHTML = 
@@ -153,7 +153,7 @@ function attackChance() {
 
 function whileAttacked() {
     currentUser.localMana -= 1;
-    updateManaCounters(currentUser.localMana);
+    updateManaCounters();
     
     if (isVictim === 0) {
         clearInterval(whileAttackedTimer);
@@ -179,6 +179,7 @@ function gameModeHasBeenClicked(event) {
                 generateQRcode("Thy shalst be healed!").append(document.getElementById("canvasQrShow"));
                 // ToDo: Add explaning text?
                 document.getElementById('healButton').hidden = false;
+                document.getElementById('uglyHackSpacer').hidden = false
                 clearInterval(attackTimer);  // Makes sure the Healer is not attacked
                 currentUser = new niffUser(gameMode, []);
                 break;    
@@ -192,7 +193,6 @@ function gameModeHasBeenClicked(event) {
                 
                 currentUser = new niffUser(gameMode, goalArray);
                 
-                document.getElementById('canvasClockface').hidden = false;
                 drawClockface(currentUser.currentGoal);
                 break;
             }
@@ -221,10 +221,15 @@ function useQRcode(QrNumber) {
             document.getElementById('page').style.background = 'rgba(255, 0, 0, '+ isVictim / 14 + ')';
             messageDiv.innerHTML = '<p> ' + healMsgs[isVictim] + ' <br> Scan 0 igen</p>'
         }
-    } else if (isVictim !== 0 && 0 < QrNumber && QrNumber < 13) {
+    } else if (isVictim !== 0 && -1 < QrNumber && QrNumber < 13) {
         messageDiv.innerHTML = '<p> Du er skadet og skal heales før du kan andet <br> Find en Healer eller scan 0 flere gange </p>'
-    } else {
+    } else if (-1 < QrNumber && QrNumber < 13) {
         switch(gameMode) {
+            case 'T1M1G1': {
+                currentUser.localMana += 10;
+                updateManaCounters()  // Todo: Remove the Healers scan-button for 10 seconds after each scan?
+                break;
+            }
             case 'T1M3G1': {  // Scan løs
                 let newDelta = 0;
                 if (lastScan === 0) {
@@ -233,14 +238,14 @@ function useQRcode(QrNumber) {
                     newDelta = Math.round(10 * ((clockFaceCoor[QrNumber][0] - clockFaceCoor[lastScan][0]) * (clockFaceCoor[QrNumber][0] - clockFaceCoor[lastScan][0]) + (clockFaceCoor[QrNumber][1] - clockFaceCoor[lastScan][1]) * (clockFaceCoor[QrNumber][1] - clockFaceCoor[lastScan][1])));
                 }
                 currentUser.localMana += Number(newDelta);
-                updateManaCounters(currentUser.localMana);
+                updateManaCounters();
                 lastScan = QrNumber;
                 break;    
             }
             case 'T1M3G2': {  // Følg det viste mønster
                 if (Number(QrNumber) === currentUser.currentGoal) {
                     currentUser.localMana += 50;
-                    updateManaCounters(currentUser.localMana);
+                    updateManaCounters();
                     currentUser.updateGoal();
                     drawClockface(currentUser.currentGoal);
                 }
@@ -259,6 +264,15 @@ function useQRcode(QrNumber) {
                 break;    
             }
         }
+    } else {
+        messageDiv.innerHTML = '<p> Denne QR kode er dårlig magi! <br> Scan en anden </p>';
+        messageDiv.hidden = false;
+
+        // Then remove message after 2 sec
+        msgTimeOut = setTimeout(function () {
+            messageDiv.innerHTML = '';
+            messageDiv.hidden = true;
+        }, 2000);
     }
 }
 
@@ -276,10 +290,13 @@ function stopQrReading() {
 
 // Draw clockface
 function drawClockface(number) {
+    // Find and show Clockface
     let canvasClockface = document.getElementById("canvasClockface");
+    canvasClockface.hidden = false;
     let drawArea = canvasClockface.getContext("2d");
     canvasClockface.width = 300;
     canvasClockface.height = 300;
+
     let r = 10;
     let offset = 3;
     drawArea.beginPath();
