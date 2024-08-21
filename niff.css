@@ -134,6 +134,12 @@ kbd {
     font-size: xx-large;
 }
 
+.frontpageSummary {
+    font-size: 2em;
+    border-radius: 15px;
+    background-color: rgb(128, 255, 255);
+}
+
 .summaryHeading {
     transform: scaleX(-1);
     font-size: 3em;

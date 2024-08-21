@@ -287,6 +287,7 @@ function stopQrReading() {
     });
 }
 
+// DRAWING BELOW
 
 // Draw clockface
 function drawClockface(number) {
@@ -302,8 +303,8 @@ function drawClockface(number) {
     drawArea.beginPath();
     drawArea.strokeStyle = "blue";
     if (number) {
-        let xc = 130 * clockFaceCoor[number][0] + 150;
-        let yc = -130 * clockFaceCoor[number][1] + 150;
+        let xc = Math.floor(130 * clockFaceCoor[number][0] + 150);
+        let yc = Math.floor(-130 * clockFaceCoor[number][1] + 150);
         drawArea.moveTo(xc + r, yc);
         drawArea.arc(xc, yc, r, 0, 2*pi);
         drawArea.fillStyle = "red";
@@ -314,8 +315,8 @@ function drawClockface(number) {
     }
 
     for (const [i, coor] of Object.entries(clockFaceCoor)) {
-        let xc = 130 * coor[0] + 150;
-        let yc = -130 * coor[1] + 150;  // Minus 130 to flip coordinate system to programmer style with y-axis downwards
+        let xc = Math.floor(130 * coor[0] + 150);
+        let yc = Math.floor(-130 * coor[1] + 150);  // Minus 130 to flip coordinate system to programmer style with y-axis downwards
         drawArea.moveTo(xc + r, yc);  // Add radius to avoid drawing a horizontal radius
         drawArea.arc(xc, yc, r, 0, 2*pi);
         drawArea.stroke();
@@ -324,6 +325,68 @@ function drawClockface(number) {
     }
 }
 
+
+// Functions for vector manipulation
+function dist(A, B) {  // Returns the distance between two points A[xa, ya] and B[xb, yb]
+    return Math.sqrt((A[0] - B[0])*(A[0] - B[0]) + (A[1] - B[1])*(A[1] - B[1]));
+}
+
+
+function midPoint(A, B) {  // Returns the midpoint between point A[xa, ya] and B[xb, yb]
+    return [(A[0] + B[0])/2, (A[1] + B[1])/2];
+}
+
+
+function vecAB(A, B) {  // Returns the vector from point A[xa, ya] to point B[xb, yb]
+    return [B[0] - A[0], B[1] - A[1]];
+}
+
+function subtractVector(B, A) {  // Return vector A[xa, ya] subtracted from B[xb, yb]
+    return [B[0] - A[0], B[1] - A[1]];
+}
+
+
+function hatVector(A) {  // Return a vector orthogonal on vector A[x,y] rotated 90 degrees
+    return [-A[1], A[0]];
+}
+
+
+function vectorLength(A) {
+    return Math.sqrt(A[0] * A[0] + A[1] * A[1]);
+}
+
+function unitVector(A) {  // Return a unitvector in the direction of vector A[x,y]
+    lenA = vectorLength(A);
+    return [A[0]/lenA, A[1]/lenA];
+}
+
+
+function scalarMult(A, k) { // Returns a vector A[x, y] multiplied with a scalar k
+    return [A[0] * k, A[1] * k];
+}
+
+
+function dotProd(A, B) {  // Returns the dot product between vector A[xa, ya] and B[xb, yb]
+    return A[0] * B[0] + A[1] * B[1];
+}
+
+
+function getCenterAndAngles(A, B, R) {  // Return the center and the two angles necessarty for drawing an arc defined by its endpoints A[xa, ya] and B[xb, yb] and radius R
+    let distAB = dist(A, B);
+    let distABtoC = Math.sqrt(R * R - (distAB/2) * (distAB/2));
+    let AB = vecAB(A, B);
+    let hatAB = hatVector(AB);
+    let M = midPoint(A, B);  // Also the vector from (0, 0) to M
+    let C = subtractVector(M, scalarMult(unitVector(hatAB), distABtoC));
+    let CA = vecAB(C, A);
+    let CB = vecAB(C, B);
+    let i = [1, 0];  // Unit vector along x-axis
+    angleACB = Math.acos(dotProd(CA, CB)/(vectorLength(CA)*vectorLength(CB))); // Angle spanned by the arc
+    angleBCO = Math.acos(dotProd(CB, i)/(vectorLength(CB)*vectorLength(i)));  // The angle between the x-axis and the first vector
+    return [angleBCO, angleACB, C];
+}
+
+// DRAWING ABOVE
 
 // QR-code generator
 function generateQRcode(text) {
