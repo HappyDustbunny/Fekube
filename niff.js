@@ -20,19 +20,19 @@ let healMsgs = [
 
 let lastScan = 0;     // Used for T1M3G1
 let clockFaceCoor = { // Used for T1M3G1
-    0: [0.0, 0.0],
-    1: [0.5, kv3h],
-    2: [kv3h, 0.5],
-    3: [1.0, 0.0],
-    4: [kv3h, -0.5],
-    5: [0.5, -kv3h],
-    6: [0.0, -1.0],
-    7: [-0.5, -kv3h],
-    8: [-kv3h, -0.5],
-    9: [-1.0, 0.0],
-    10: [-kv3h, 0.5],
-    11: [-0.5, kv3h],
-    12: [0.0, 1.0]
+    0: [130 * 0.0 + 150, -130 * 0.0 + 150],
+    1: [130 * 0.5 + 150, -130 * kv3h + 150],
+    2: [130 * kv3h + 150, -130 * 0.5 + 150],
+    3: [130 * 1.0 + 150, -130 * 0.0 + 150],
+    4: [130 * kv3h + 150,  -130 *-0.5 + 150],
+    5: [130 * 0.5 + 150, -130 * -kv3h + 150],
+    6: [130 * 0.0 + 150, -130 * -1.0 + 150],
+    7: [130 * -0.5 + 150, -130 * -kv3h + 150],
+    8: [130 * -kv3h + 150, -130 * -0.5 + 150],
+    9: [130 * -1.0 + 150, -130 * 0.0 + 150],
+    10: [130 * -kv3h + 150, -130 * 0.5 + 150],
+    11: [130 * -0.5 + 150, -130 * kv3h + 150],
+    12: [130 * 0.0 + 150, -130 * 1.0 + 150]
 } ;
 
 class niffUser {
@@ -237,7 +237,7 @@ function useQRcode(QrNumber) {
                 if (lastScan === 0) {
                     newDelta = QrNumber;
                 } else {
-                    newDelta = Math.round(10 * ((clockFaceCoor[QrNumber][0] - clockFaceCoor[lastScan][0]) * (clockFaceCoor[QrNumber][0] - clockFaceCoor[lastScan][0]) + (clockFaceCoor[QrNumber][1] - clockFaceCoor[lastScan][1]) * (clockFaceCoor[QrNumber][1] - clockFaceCoor[lastScan][1])));
+                    newDelta = Math.round(1/10000 * ((clockFaceCoor[QrNumber][0] - clockFaceCoor[lastScan][0]) * (clockFaceCoor[QrNumber][0] - clockFaceCoor[lastScan][0]) + (clockFaceCoor[QrNumber][1] - clockFaceCoor[lastScan][1]) * (clockFaceCoor[QrNumber][1] - clockFaceCoor[lastScan][1])));
                 }
                 currentUser.localMana += Number(newDelta);
                 updateManaCounters();
@@ -305,8 +305,8 @@ function drawClockface() {
     drawArea.strokeStyle = "blue";
     drawArea.beginPath();
     for (const [i, coor] of Object.entries(clockFaceCoor)) {
-        let xc = Math.floor(130 * coor[0] + 150);
-        let yc = Math.floor(-130 * coor[1] + 150);  // Minus 130 to flip coordinate system to programmer style with y-axis downwards
+        let xc = Math.floor(coor[0]);
+        let yc = Math.floor(coor[1]);  // Minus 130 to flip coordinate system to programmer style with y-axis downwards
         drawArea.moveTo(xc + r, yc);  // Add radius to avoid drawing a horizontal radius
         drawArea.arc(xc, yc, r, 0, 2*pi);
         drawArea.stroke();
@@ -327,8 +327,8 @@ function drawClockfaceOverlay(number) {
     let r = 10;
     let offset = 3;
     if (number) {
-        let xc = Math.floor(130 * clockFaceCoor[number][0] + 150);
-        let yc = Math.floor(-130 * clockFaceCoor[number][1] + 150);
+        let xc = Math.floor(clockFaceCoor[number][0]);
+        let yc = Math.floor(clockFaceCoor[number][1]);
         const radgrad3 = drawArea.createRadialGradient(xc - 4, yc - 4, 1, xc, yc, r); // Red sphere
         radgrad3.addColorStop(0, "rgba(255, 0,0,.3)");
         radgrad3.addColorStop(0.5, "rgb(255, 0,0)");
@@ -360,6 +360,22 @@ function drawArcOnOverlay(C, R, v1, v2) {
     drawArea.beginPath();
     drawArea.arc(C[0], C[1], R, v1, v2);
     drawArea.stroke();
+}
+
+
+function getCenterAndAngles(A, B, R) {  // Return the center and the two angles necessarty for drawing an arc defined by its endpoints A[xa, ya] and B[xb, yb] and radius R
+    let distAB = dist(A, B);
+    let distABtoC = Math.sqrt(R * R - (distAB/2) * (distAB/2));
+    let AB = vecAB(A, B);
+    let hatAB = hatVector(AB);
+    let M = midPoint(A, B);  // Also the vector from (0, 0) to M
+    let C = subtractVector(M, scalarMult(unitVector(hatAB), distABtoC));
+    let CA = vecAB(C, A);
+    let CB = vecAB(C, B);
+    let i = [1, 0];  // Unit vector along x-axis
+    angleACB = Math.acos(dotProd(CA, CB)/(vectorLength(CA)*vectorLength(CB))); // Angle spanned by the arc
+    angleBCO = Math.acos(dotProd(CB, i)/(vectorLength(CB)*vectorLength(i)));  // The angle between the x-axis and the first vector
+    return [C, angleBCO, angleACB];
 }
 
 
@@ -407,21 +423,6 @@ function dotProd(A, B) {  // Returns the dot product between vector A[xa, ya] an
     return A[0] * B[0] + A[1] * B[1];
 }
 
-
-function getCenterAndAngles(A, B, R) {  // Return the center and the two angles necessarty for drawing an arc defined by its endpoints A[xa, ya] and B[xb, yb] and radius R
-    let distAB = dist(A, B);
-    let distABtoC = Math.sqrt(R * R - (distAB/2) * (distAB/2));
-    let AB = vecAB(A, B);
-    let hatAB = hatVector(AB);
-    let M = midPoint(A, B);  // Also the vector from (0, 0) to M
-    let C = subtractVector(M, scalarMult(unitVector(hatAB), distABtoC));
-    let CA = vecAB(C, A);
-    let CB = vecAB(C, B);
-    let i = [1, 0];  // Unit vector along x-axis
-    angleACB = Math.acos(dotProd(CA, CB)/(vectorLength(CA)*vectorLength(CB))); // Angle spanned by the arc
-    angleBCO = Math.acos(dotProd(CB, i)/(vectorLength(CB)*vectorLength(i)));  // The angle between the x-axis and the first vector
-    return [C, angleBCO, angleACB];
-}
 
 // DRAWING ABOVE
 
