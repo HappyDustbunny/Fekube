@@ -53,11 +53,20 @@ kbd {
     background-color: aqua;
 }
 
+#canvasStack {
+    position: absolute;
+    left: 50%;
+}
+
+canvas {
+    position: absolute;
+    left: -150px;
+}
+
 #canvasClockface, #canvasClockfaceOverlay {
     width: 300px;
     height: 300px;
     border: 1px solid;
-    position: absolute;
 }
 
 #headContainer {
@@ -131,6 +140,16 @@ kbd {
     background-color: rgba(127, 255, 0, 1);
 }
 
+#intro {
+    display: grid;
+    align-content: center;
+}
+
+#lastCloseIntro {
+    display: grid;
+    grid-area: navCont;
+}
+
 .score {
     font-size: xx-large;
 }
@@ -160,6 +179,11 @@ kbd {
 .mirrorEmoji {
     transform: scaleX(-1);
     font-size: 3em;
+}
+
+.closeIntroDiv {
+    display: flex;
+    justify-content: center;
 }
 
 

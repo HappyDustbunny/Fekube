@@ -28,16 +28,19 @@
     
     
         <div id="intro">
-            <h3> Introduktion </h3>
-            <p> Feerne mangler mana </p>
-            <p> Jeres opgave er at samle mana fra verdener, der ikke bruger deres </p>
-            <p> Start med at sætte <a href="qr-codes/QR codes print.pdf"> Portal-ankrene 1-12 </a> op 
-                i en cirkel som en gammeldags urskive</p>
-            <p> Sæt derefter det sidste Portal-anker ("0"), op i midten af cirkelen </p>
-    
-            <button id="closeIntro1"> GÅ VIDERE TIL ÅBNING AF PORTALERNE </button>
-            <br>
-            <br>
+            <details> <summary class="frontpageSummary"> Introduktion </summary> 
+                <p> Feerne mangler mana </p>
+                <p> Jeres opgave er at samle mana fra verdener, der ikke bruger deres </p>
+                <p> Start med at sætte <a href="qr-codes/QR codes print.pdf"> Portal-ankrene 1-12 </a> op 
+                    i en cirkel som en gammeldags urskive</p>
+                <p> Sæt derefter det sidste Portal-anker ("0"), op i midten af cirkelen </p>
+        
+                <div class="closeIntroDiv">
+                    <button id="closeIntro1"> GÅ VIDERE TIL ÅBNING AF PORTALERNE </button>
+                </div>
+                <br>
+                <br>
+            </details>
             <details> <summary class="frontpageSummary"> Baggrund </summary>
                 <p> Feerne troede at mana var en uudtømmelig ressource. <br>
                     Det passede selvfølgelig ikke. </p>
@@ -80,8 +83,9 @@
                     flere gange (eller scanne healerens magiske tavle 1-2 gange, hvis der er en der
                     har valgt rollen som healer).
                 </p>
-        
-                <button id="closeIntro2"> GÅ VIDERE TIL ÅBNING AF PORTALERNE </button>
+                <div class="closeIntroDiv">
+                    <button id="closeIntro2"> GÅ VIDERE TIL ÅBNING AF PORTALERNE </button>
+                </div>
                 <br>
                 <br>
             </details>
@@ -103,9 +107,18 @@
                     kræve penge ind. </a> </p>
                 <p> Jeg har moret mig med at lave spillet, og hvis du morer dig med at spille det, er 
                     vi begge gladere :-D </p>
-                                
-                <button id="closeIntro3"> GÅ VIDERE TIL ÅBNING AF PORTALERNE </button>
+
+                <div class="closeIntroDiv">
+                    <button id="closeIntro3"> GÅ VIDERE TIL ÅBNING AF PORTALERNE </button>
+                </div>
             </details>
+
+            <br>
+            <br>
+
+        </div>
+        <div id="lastCloseIntro" class="closeIntroDiv">
+            <button id="closeIntro4" tabindex="1"> GÅ VIDERE TIL ÅBNING AF PORTALERNE </button>
         </div>
         
         <div id="selectGameModeContainer" hidden>
@@ -166,8 +179,10 @@
         <!-- Contanier for communicating with player and meta-game -->
         <div id="communicationContainer" hidden>
             <div id="canvasQrShow" hidden></div>
-            <canvas id="canvasClockface" hidden>Canvas here. If you can see this, the game is not playable on your device </canvas>
-            <canvas id="canvasClockfaceOverlay" hidden>Canvas here. If you can see this, the game is not playable on your device </canvas>
+            <div id="canvasStack">
+                <canvas id="canvasClockface" hidden>Canvas here. If you can see this, the game is not playable on your device </canvas>
+                <canvas id="canvasClockfaceOverlay" hidden>Canvas here. If you can see this, the game is not playable on your device </canvas>
+            </div>
         </div>
         
         <!-- Contanier for interacting with game-states -->

@@ -58,6 +58,7 @@ class niffUser {
 document.getElementById('closeIntro1').addEventListener('click', closeIntro);
 document.getElementById('closeIntro2').addEventListener('click', closeIntro);
 document.getElementById('closeIntro3').addEventListener('click', closeIntro);
+document.getElementById('closeIntro4').addEventListener('click', closeIntro);
 
 document.getElementById('selectGameModeContainer').addEventListener('click', 
     function(event) { gameModeHasBeenClicked(event); }, true);
@@ -79,7 +80,8 @@ function setUpFunction() {
 }
 
 function closeIntro() {
-    document.getElementById('intro').hidden = true;
+    document.getElementById('intro').style.display = 'none';
+    document.getElementById('closeIntro4').style.display = 'none';
     document.getElementById('selectGameModeContainer').hidden = false;
 }
 
@@ -346,6 +348,21 @@ function drawClockfaceOverlay(number) {
 }
 
 
+function drawArcOnOverlay(C, R, v1, v2) {
+    drawClockface();
+    // Find and show ClockfaceOverlay
+    let canvasClockfaceOverlay = document.getElementById("canvasClockfaceOverlay");
+    canvasClockfaceOverlay.hidden = false;
+    let drawArea = canvasClockfaceOverlay.getContext("2d");
+    canvasClockfaceOverlay.width = 300;
+    canvasClockfaceOverlay.height = 300;
+
+    drawArea.beginPath();
+    drawArea.arc(C[0], C[1], R, v1, v2);
+    drawArea.stroke();
+}
+
+
 // Functions for vector manipulation
 function dist(A, B) {  // Returns the distance between two points A[xa, ya] and B[xb, yb]
     return Math.sqrt((A[0] - B[0])*(A[0] - B[0]) + (A[1] - B[1])*(A[1] - B[1]));
@@ -403,7 +420,7 @@ function getCenterAndAngles(A, B, R) {  // Return the center and the two angles 
     let i = [1, 0];  // Unit vector along x-axis
     angleACB = Math.acos(dotProd(CA, CB)/(vectorLength(CA)*vectorLength(CB))); // Angle spanned by the arc
     angleBCO = Math.acos(dotProd(CB, i)/(vectorLength(CB)*vectorLength(i)));  // The angle between the x-axis and the first vector
-    return [angleBCO, angleACB, C];
+    return [C, angleBCO, angleACB];
 }
 
 // DRAWING ABOVE
