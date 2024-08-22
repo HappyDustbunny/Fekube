@@ -193,7 +193,7 @@ function gameModeHasBeenClicked(event) {
                 
                 currentUser = new niffUser(gameMode, goalArray);
                 
-                drawClockface(currentUser.currentGoal);
+                drawClockfaceOverlay(currentUser.currentGoal);
                 break;
             }
             default:
@@ -247,7 +247,7 @@ function useQRcode(QrNumber) {
                     currentUser.localMana += 50;
                     updateManaCounters();
                     currentUser.updateGoal();
-                    drawClockface(currentUser.currentGoal);
+                    drawClockfaceOverlay(currentUser.currentGoal);
                 }
             break;    
             }
@@ -289,8 +289,8 @@ function stopQrReading() {
 
 // DRAWING BELOW
 
-// Draw clockface
-function drawClockface(number) {
+// Draw clockface    TODO: Make colour gradients instead of arcs
+function drawClockface() {
     // Find and show Clockface
     let canvasClockface = document.getElementById("canvasClockface");
     canvasClockface.hidden = false;
@@ -300,20 +300,8 @@ function drawClockface(number) {
 
     let r = 10;
     let offset = 3;
-    drawArea.beginPath();
     drawArea.strokeStyle = "blue";
-    if (number) {
-        let xc = Math.floor(130 * clockFaceCoor[number][0] + 150);
-        let yc = Math.floor(-130 * clockFaceCoor[number][1] + 150);
-        drawArea.moveTo(xc + r, yc);
-        drawArea.arc(xc, yc, r, 0, 2*pi);
-        drawArea.fillStyle = "red";
-        drawArea.fill();
-        if (9 < Number(number)) {offset = 7}
-        drawArea.fillStyle = "black";
-        drawArea.fillText(number, xc - offset, yc + 3);
-    }
-
+    drawArea.beginPath();
     for (const [i, coor] of Object.entries(clockFaceCoor)) {
         let xc = Math.floor(130 * coor[0] + 150);
         let yc = Math.floor(-130 * coor[1] + 150);  // Minus 130 to flip coordinate system to programmer style with y-axis downwards
@@ -322,6 +310,38 @@ function drawClockface(number) {
         drawArea.stroke();
         if (9 < Number(i)) {offset = 7}
         drawArea.fillText(i, xc - offset, yc + 3);
+    }
+}
+
+function drawClockfaceOverlay(number) {
+    drawClockface();
+    // Find and show ClockfaceOverlay
+    let canvasClockfaceOverlay = document.getElementById("canvasClockfaceOverlay");
+    canvasClockfaceOverlay.hidden = false;
+    let drawArea = canvasClockfaceOverlay.getContext("2d");
+    canvasClockfaceOverlay.width = 300;
+    canvasClockfaceOverlay.height = 300;
+
+    let r = 10;
+    let offset = 3;
+    if (number) {
+        let xc = Math.floor(130 * clockFaceCoor[number][0] + 150);
+        let yc = Math.floor(-130 * clockFaceCoor[number][1] + 150);
+        const radgrad3 = drawArea.createRadialGradient(xc - 4, yc - 4, 1, xc, yc, r); // Red sphere
+        radgrad3.addColorStop(0, "rgba(255, 0,0,.3)");
+        radgrad3.addColorStop(0.5, "rgb(255, 0,0)");
+        radgrad3.addColorStop(0.9, "rgb(255, 0,0)");
+        radgrad3.addColorStop(1, "rgba(255, 0, 0, 0)");
+        drawArea.fillStyle = radgrad3;
+        drawArea.fillRect(xc-r, yc -r, 2 * r, 2 * r)
+
+        // drawArea.moveTo(xc + r, yc);
+        // drawArea.arc(xc, yc, r, 0, 2*pi);
+        // drawArea.fillStyle = "red";
+        // drawArea.fill();
+        if (9 < Number(number)) {offset = 7}
+        drawArea.fillStyle = "black";
+        drawArea.fillText(number, xc - offset, yc + 3);
     }
 }
 

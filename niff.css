@@ -53,10 +53,11 @@ kbd {
     background-color: aqua;
 }
 
-#canvasClockface {
+#canvasClockface, #canvasClockfaceOverlay {
     width: 300px;
     height: 300px;
     border: 1px solid;
+    position: absolute;
 }
 
 #headContainer {
