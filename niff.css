@@ -43,10 +43,11 @@ kbd {
     display: grid;
     grid-template-areas:
         'header ' 
-        'QrCont ' 
+        'QrCont '
+        'txtCont' 
         'comCont' 
         'navCont';
-    grid-template-rows: 1fr 4fr 4fr 1fr;
+    grid-template-rows: 1fr 4fr 1fr 4fr 1fr;
 }
 
 #output {
@@ -100,6 +101,11 @@ canvas {
 
 #QrContainer {
     grid-area: QrCont;
+}
+
+#textContainer {
+    /* display: grid; */
+    grid-area: txtCont;
 }
 
 #communicationContainer {

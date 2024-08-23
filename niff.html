@@ -148,14 +148,20 @@
                 <details><summary class="summarySubHeading">&#x1F914;&#x1F914;&#x1F914;</summary>
                 </details>
             </details>
+
             <details> <summary class="summaryHeading"> &#x1f6b6;&#127997; &#x1f9D1;&#x200D;&#x1F9BD;</summary>
                 <details><summary class="summarySubHeading">&#x1F914;</summary>
                 </details>
                 <details><summary class="summarySubHeading">&#x1F914;&#x1F914;</summary>
+                    <details><summary class="summarySubSubHeading">Indstil visere</summary>
+                        Indstil viserne, så de viser samme tid som digitaluret 
+                        <button id="T2M2G1"> Vælg </button>
+                    </details>
                 </details>
                 <details><summary class="summarySubHeading">&#x1F914;&#x1F914;&#x1F914;</summary>
                 </details>
             </details>
+
             <details> <summary class="summaryHeading"> &#x1f3c3;&#127998;&#x200d;&#x2640;&#xFE0F; </summary>
                 <details><summary class="summarySubHeading">&#x1F914;</summary>
                     <details><summary class="summarySubSubHeading">Skan løs</summary>
@@ -165,6 +171,10 @@
                     <details><summary class="summarySubSubHeading">Følg det viste mønster</summary>
                         Scan QR-koder i den rækkefølge din skærm viser. <br> Efter hvert scan lyser den næste QR-kode op
                         <button id="T1M3G2"> Vælg </button>
+                    </details>
+                    <details><summary class="summarySubSubHeading">Følg mønster efter tal</summary>
+                        Scan QR-koder i den rækkefølge din skærm viser <br> (F.eks. 1, 9, 6, 2, 11, ..)
+                        <button id="T1M3G3"> Vælg </button>
                     </details>
                 </details>
                 <details><summary class="summarySubHeading">&#x1F914;&#x1F914;</summary>
@@ -187,7 +197,12 @@
             <div id="reader" width="350px"></div> <br>
             <div id="messageDiv" hidden></div>
         </div>
-        
+
+        <!-- Container for displaying single line text -->
+        <div id="textContainer">
+            <div id="showText" hidden></div>
+        </div>
+
         <!-- Contanier for communicating with player and meta-game -->
         <div id="communicationContainer" hidden>
             <div id="canvasQrShow" hidden></div>

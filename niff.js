@@ -186,7 +186,7 @@ function gameModeHasBeenClicked(event) {
                 currentUser = new niffUser(gameMode, []);
                 break;    
             }
-            case 'T1M3G2': {
+            case 'T1M3G2': {  // Følg det viste mønster
                 let arrayLen = 20;
                 let startNum = 0;
                 let tempArray = Array.from({length: arrayLen},()=> startNum += Math.ceil(Math.random()*6) + 2);  // Avoid the same number twice and neighboring numbers by stepping 2 to 8 steps forward. The next function brings the numbers back into 1-12
@@ -196,6 +196,40 @@ function gameModeHasBeenClicked(event) {
                 currentUser = new niffUser(gameMode, goalArray);
                 
                 drawClockfaceOverlay(currentUser.currentGoal);
+                break;
+            }
+            case 'T1M3G3': {  // Følg mønster efter tal
+                let arrayLen = 20;
+                let startNum = 0;
+                let tempArray = Array.from({length: arrayLen},()=> startNum += Math.ceil(Math.random()*6) + 2);  // Avoid the same number twice and neighboring numbers by stepping 2 to 8 steps forward. The next function brings the numbers back into 1-12
+                mod12 = (number) => number%12 + 1; // Plus 1 to avoid 12%12 = 0
+                goalArray = tempArray.map(mod12);
+                
+                currentUser = new niffUser(gameMode, goalArray);
+                
+                showText = document.getElementById('showText');
+                showText.hidden = false;
+                showText.innerHTML = '<h1>' + currentUser.currentGoal + '</h1>';
+                
+                break;
+            }
+            case 'T2M2G1': {
+                let arrayLen = 20;
+                let goalArray = [];
+                for (i = 0; i < arrayLen; i++) {
+                    let hour = Math.floor(Math.random() * 25);
+                    let min = Math.floor(Math.random() * 12) * 5;
+                    goalArray.push([hour, min]);
+                }
+                
+                currentUser = new niffUser(gameMode, goalArray);
+                
+                showText = document.getElementById('showText');
+                showText.hidden = false;
+                showText.innerHTML = '<h1>' + currentUser.currentGoal[0] + ':' + currentUser.currentGoal[1] + '</h1>';
+
+                drawClockface();
+                currentUser.firstGuess = true;
                 break;
             }
             default:
@@ -227,7 +261,7 @@ function useQRcode(QrNumber) {
         messageDiv.innerHTML = '<p> Du er skadet og skal heales før du kan andet <br> Find en Healer eller scan 0 flere gange </p>'
     } else if (-1 < QrNumber && QrNumber < 13) {
         switch(gameMode) {
-            case 'T1M1G1': {
+            case 'T1M1G1': {  // Healer
                 currentUser.localMana += 10;
                 updateManaCounters()  // Todo: Remove the Healers scan-button for 10 seconds after each scan?
                 break;
@@ -251,18 +285,41 @@ function useQRcode(QrNumber) {
                     currentUser.updateGoal();
                     drawClockfaceOverlay(currentUser.currentGoal);
                 }
-            break;    
-            }
-            case 'T2M3G1': {  // Følg mønster efter tal
                 break;    
             }
-            case 'T3M3G1': {  // Vikl ud
+            case 'T1M3G3': {  // Følg mønster efter tal
+                if (Number(QrNumber) === currentUser.currentGoal) {
+                    currentUser.localMana += 50;
+                    updateManaCounters();
+                    currentUser.updateGoal();
+                    showText = document.getElementById('showText');
+                    showText.innerHTML = '<h1>' + currentUser.currentGoal + '</h1>';
+                }
                 break;    
             }
-            case 'T1M3G1': {
+            case 'T2M2G1': {  // Indstil visere
+                if (currentUser.firstGuess && Number(QrNumber) === currentUser.currentGoal[0]) {
+                    currentUser.firstGuess = false;
+                    drawClockHandOnOverlay(QrNumber, 'smalHand');
+                } else if (Number(QrNumber) === currentUser.currentGoal[1]) {
+                    drawClockHandOnOverlay(QrNumber, 'bigHand');
+                    currentUser.localMana += 100;
+                    updateManaCounters();
+                    
+                    currentUser.updateGoal();
+                    showText = document.getElementById('showText');
+                    showText.innerHTML = '<h1>' + currentUser.currentGoal + '</h1>';
+                    currentUser.firstGuess = true;
+                } else {
+                    showText = document.getElementById('showText');
+                    showText.innerHTML = '<h1> Prøv igen &#x1F642; </h1>';
+                }
                 break;    
             }
-            case 'T1M3G1': {
+            case 'T1M3G': {
+                break;    
+            }
+            case 'T1M3G': {
                 break;    
             }
         }
@@ -348,6 +405,34 @@ function drawClockfaceOverlay(number) {
 }
 
 
+function drawClockHandOnOverlay(number, whichHand) {
+    drawClockface();
+    // Find and show ClockfaceOverlay
+    let canvasClockfaceOverlay = document.getElementById("canvasClockfaceOverlay");
+    canvasClockfaceOverlay.hidden = false;
+    let drawArea = canvasClockfaceOverlay.getContext("2d");
+    canvasClockfaceOverlay.width = 300;
+    canvasClockfaceOverlay.height = 300;
+
+    if (whichHand === 'smallHand') {
+        handSize = 0.5;
+    } else {
+        handSize = 1;
+    }
+
+    // Transform coordinates back into the unit circle, resize clock hand and transform back
+    xh = ((clockFaceCoor[number][0] -150) / 130 * handSize) * 130 + 150; 
+    yh = ((clockFaceCoor[number][1] -150) / 130 * handSize) * 130 + 150;
+
+    drawArea.beginPath();
+    drawArea.moveTo(clockFaceCoor[0][0], clockFaceCoor[0][1]);
+    // drawArea.moveTo(clockFaceCoor[0] + 5);  TODO Make Hand broad at base
+    drawArea.lineTo(xh, yh);
+    drawArea.closePath();
+    drawArea.stroke();
+}
+
+
 function drawArcOnOverlay(C, R, v1, v2) {
     drawClockface();
     // Find and show ClockfaceOverlay
@@ -379,11 +464,17 @@ function getCenterAndAngles(A, B, R) {  // Return the center and the two angles 
     let i = [1, 0];  // Unit vector along x-axis
     angleACB = Math.acos(dotProd(CA, CB)/(vectorLength(CA)*vectorLength(CB))); // Angle spanned by the arc
     angleBCO = Math.acos(dotProd(CB, i)/(vectorLength(CB)*vectorLength(i)));  // The angle between the x-axis and the first vector
-    if(10 < dist(clockFaceCoor[0], C)) {
-        return [C, -angleBCO, -angleBCO + angleACB];
+    if (A[1] < C[1]) {
+        return [C, 2 * pi - angleBCO, (2 * pi - angleBCO) - angleACB];
     } else {
-        return [C, angleBCO, angleACB + angleBCO];  // From angleBCO to angleACB + angleBCO clockwise. Absolute angles, the latter is NOT relative to the first. Doh.
+        return [C, angleBCO, angleBCO - angleACB];
     }
+
+    // if(10 < dist(clockFaceCoor[0], C)) {
+    //     return [C, -angleBCO, -angleBCO + angleACB];
+    // } else {
+    //     return [C, angleBCO, angleACB + angleBCO];  // From angleBCO to angleACB + angleBCO clockwise. Absolute angles, the latter is NOT relative to the first. Doh.
+    // }
 }
 
 
