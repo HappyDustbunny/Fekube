@@ -364,6 +364,10 @@ function drawArcOnOverlay(C, R, v1, v2) {
 
 
 function getCenterAndAngles(A, B, R) {  // Return the center and the two angles necessarty for drawing an arc defined by its endpoints A[xa, ya] and B[xb, yb] and radius R
+    if (typeof(A) === "number") {
+        A = clockFaceCoor[A];  // Bad practice to allow two input formats, I know, I know, but it saves a lot of lines and makes testing way easier ...
+        B = clockFaceCoor[B];
+    }
     let distAB = dist(A, B);
     let distABtoC = Math.sqrt(R * R - (distAB/2) * (distAB/2));
     let AB = vecAB(A, B);
@@ -375,7 +379,11 @@ function getCenterAndAngles(A, B, R) {  // Return the center and the two angles 
     let i = [1, 0];  // Unit vector along x-axis
     angleACB = Math.acos(dotProd(CA, CB)/(vectorLength(CA)*vectorLength(CB))); // Angle spanned by the arc
     angleBCO = Math.acos(dotProd(CB, i)/(vectorLength(CB)*vectorLength(i)));  // The angle between the x-axis and the first vector
-    return [C, angleBCO, angleACB];
+    if(10 < dist(clockFaceCoor[0], C)) {
+        return [C, -angleBCO, -angleBCO + angleACB];
+    } else {
+        return [C, angleBCO, angleACB + angleBCO];  // From angleBCO to angleACB + angleBCO clockwise. Absolute angles, the latter is NOT relative to the first. Doh.
+    }
 }
 
 
