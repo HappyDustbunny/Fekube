@@ -1,11 +1,12 @@
 
 h1 {
     text-align: center;
+    margin: 0px;
 }
 
 h2 {
     text-align: center;
-    font-size: xxx-large;
+    font-size: xx-large;
     margin: 0px;
 }
 
@@ -24,6 +25,7 @@ p {
 
 span {
     text-align: center;
+    font-size: small;
 }
 
 summary {
@@ -53,7 +55,7 @@ kbd {
         'txtCont' 
         'comCont' 
         'navCont';
-    grid-template-rows: 1fr 4fr 1fr 4fr 1fr;
+    grid-template-rows: 1fr 6fr 1fr 6fr 1fr;
 }
 
 #output {
@@ -163,7 +165,7 @@ canvas {
 }
 
 .score {
-    font-size: xx-large;
+    font-size: x-large;
 }
 
 .frontpageSummary {
