@@ -209,7 +209,7 @@ function gameModeHasBeenClicked(event) {
                 
                 showText = document.getElementById('showText');
                 showText.hidden = false;
-                showText.innerHTML = '<h1>' + currentUser.currentGoal + '</h1>';
+                showText.innerHTML = '<h2> Scan ' + currentUser.currentGoal + '</h2>';
                 
                 break;
             }
@@ -226,9 +226,9 @@ function gameModeHasBeenClicked(event) {
                 
                 showText = document.getElementById('showText');
                 showText.hidden = false;
-                showText.innerHTML = '<h1>' + currentUser.currentGoal[0] + ':' + currentUser.currentGoal[1] + '</h1>';
+                showText.innerHTML = '<h2>' + currentUser.currentGoal[0] + ':' + currentUser.currentGoal[1] + '</h2> <span> (Sæt den lille viser først) </span>';
 
-                drawClockface();
+                drawClockHandOnOverlay(6, false, 12, false);  // Draw hands pointing to 6 and 12, not filled, as a placeholder/reminder
                 currentUser.firstGuess = true;
                 break;
             }
@@ -293,26 +293,34 @@ function useQRcode(QrNumber) {
                     updateManaCounters();
                     currentUser.updateGoal();
                     showText = document.getElementById('showText');
-                    showText.innerHTML = '<h1>' + currentUser.currentGoal + '</h1>';
+                    showText.innerHTML = '<h2> Scan ' + currentUser.currentGoal + '</h2>';
                 }
                 break;    
             }
             case 'T2M2G1': {  // Indstil visere
-                if (currentUser.firstGuess && Number(QrNumber) === currentUser.currentGoal[0]) {
+                let num = Number(QrNumber);
+                var curGo = currentUser.currentGoal;
+                if (currentUser.firstGuess && num === curGo[0] || num === curGo[0] + 12) {
                     currentUser.firstGuess = false;
-                    drawClockHandOnOverlay(QrNumber, 'smalHand');
-                } else if (Number(QrNumber) === currentUser.currentGoal[1]) {
-                    drawClockHandOnOverlay(QrNumber, 'bigHand');
+                    currentUser.smallHandNum = QrNumber;
+                    drawClockHandOnOverlay(QrNumber, true, 12, false);
+                } else if (num * 5 === curGo[1]) {
+                    drawClockHandOnOverlay(currentUser.smallHandNum, true, QrNumber, true);
                     currentUser.localMana += 100;
                     updateManaCounters();
                     
-                    currentUser.updateGoal();
-                    showText = document.getElementById('showText');
-                    showText.innerHTML = '<h1>' + currentUser.currentGoal + '</h1>';
-                    currentUser.firstGuess = true;
+                    setTimeout(() => {drawClockHandOnOverlay(6, false, 12, false)
+                        currentUser.updateGoal();
+                        var curGo = currentUser.currentGoal;
+                        showText = document.getElementById('showText');
+                        showText.innerHTML = '<h2>' + curGo[0] + ':' + curGo[1] + '</h2> <span> (Sæt den lille viser først) </span>';
+                        currentUser.firstGuess = true;
+                    }, 5000);
                 } else {
                     showText = document.getElementById('showText');
+                    let oldText = showText.innerHTML;
                     showText.innerHTML = '<h1> Prøv igen &#x1F642; </h1>';
+                    setTimeout(() => showText.innerHTML = oldText, 3000);
                 }
                 break;    
             }
@@ -405,7 +413,7 @@ function drawClockfaceOverlay(number) {
 }
 
 
-function drawClockHandOnOverlay(number, whichHand) {
+function drawClockHandOnOverlay(smallHandNum, sFill, bigHandNum, bFill) {
     drawClockface();
     // Find and show ClockfaceOverlay
     let canvasClockfaceOverlay = document.getElementById("canvasClockfaceOverlay");
@@ -414,22 +422,40 @@ function drawClockHandOnOverlay(number, whichHand) {
     canvasClockfaceOverlay.width = 300;
     canvasClockfaceOverlay.height = 300;
 
-    if (whichHand === 'smallHand') {
-        handSize = 0.5;
-    } else {
-        handSize = 1;
+    for (let i = 0; i < 2; i++) {
+        if (i === 0) {
+            handSize = 0.5;
+            number = smallHandNum;
+        } else {
+            handSize = 1;
+            number = bigHandNum;
+        }
+
+        let xNum = clockFaceCoor[number][0];
+        let yNum = clockFaceCoor[number][1];
+        let xc = clockFaceCoor[0][0];
+        let yc = clockFaceCoor[0][1];
+        let handVec = vecAB([xc, yc], [xNum, yNum]);
+        let handVecHatNorm = unitVector(hatVector(handVec));
+        let xt = handVecHatNorm[0];
+        let yt = handVecHatNorm[1];
+    
+        // Transform coordinates back into the unit circle, resize clock hand and transform back
+        let xh = ((xNum  - 150) / 130 * handSize) * 130 + 150; 
+        let yh = ((yNum -  
+            150) / 130 * handSize) * 130 + 150;
+    
+        drawArea.beginPath();
+        drawArea.moveTo(xc + 5 * xt, yc + 5 * yt);
+        drawArea.lineTo(xh, yh);
+        drawArea.lineTo(xc - 5 * xt, yc - 5 * yt);
+        if ((i === 0 && sFill) || (i === 1 && bFill)) {
+            drawArea.fill();
+        } else {
+            drawArea.closePath();
+            drawArea.stroke();
+        }
     }
-
-    // Transform coordinates back into the unit circle, resize clock hand and transform back
-    xh = ((clockFaceCoor[number][0] -150) / 130 * handSize) * 130 + 150; 
-    yh = ((clockFaceCoor[number][1] -150) / 130 * handSize) * 130 + 150;
-
-    drawArea.beginPath();
-    drawArea.moveTo(clockFaceCoor[0][0], clockFaceCoor[0][1]);
-    // drawArea.moveTo(clockFaceCoor[0] + 5);  TODO Make Hand broad at base
-    drawArea.lineTo(xh, yh);
-    drawArea.closePath();
-    drawArea.stroke();
 }
 
 

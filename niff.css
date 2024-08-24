@@ -3,6 +3,12 @@ h1 {
     text-align: center;
 }
 
+h2 {
+    text-align: center;
+    font-size: xxx-large;
+    margin: 0px;
+}
+
 h3 {
     font-size: x-large;
 }
@@ -104,8 +110,8 @@ canvas {
 }
 
 #textContainer {
-    /* display: grid; */
     grid-area: txtCont;
+    justify-self: center;
 }
 
 #communicationContainer {
