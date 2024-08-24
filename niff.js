@@ -3,6 +3,7 @@ const kv3h = Math.sqrt(3)/2;
 // Initialize QR-code reader
 const html5Qrcode = new Html5Qrcode("reader");
 const config = {fps: 10, qrbox: {width: 300, height: 300}};
+const timer = ms => new Promise(res => setTimeout(res, ms));
 
 let gameMode = '';
 let globalMana = 500;  // Start with some mana to heal attacked players
@@ -213,7 +214,7 @@ function gameModeHasBeenClicked(event) {
                 
                 break;
             }
-            case 'T2M2G1': {
+            case 'T2M2G1': {  // Indstil visere
                 let arrayLen = 20;
                 let goalArray = [];
                 for (i = 0; i < arrayLen; i++) {
@@ -232,11 +233,39 @@ function gameModeHasBeenClicked(event) {
                 currentUser.firstGuess = true;
                 break;
             }
+            case 'T2M3G1': {  // Følg mønster efter tal
+                let arrayLen = 20;
+                let startNum = 0;
+                let tempArray = Array.from({length: arrayLen},()=> startNum += Math.ceil(Math.random()*6) + 2);  // Avoid the same number twice and neighboring numbers by stepping 2 to 8 steps forward. The next function brings the numbers back into 1-12
+                mod12 = (number) => number%12 + 1; // Plus 1 to avoid 12%12 = 0
+                goalArray = tempArray.map(mod12);
+                
+                currentUser = new niffUser(gameMode, goalArray);
+                
+                showText = document.getElementById('showText');
+                showText.hidden = false;
+                showText.innerHTML = '<h3> Scan i samme rækkefølge </h3>';
+
+                showPattern(2);
+                
+                break;
+            }
             default:
                 currentUser = new niffUser(gameMode, []);
         }
     }
     updateManaCounters();
+}
+
+
+async function showPattern(patternLenght){
+    drawClockface();
+    await timer(1500);
+    for (var i = 0; i < patternLenght; i++) {
+        drawClockfaceOverlay(currentUser.goalArray[i]);
+        await timer(2000);
+    }
+    document.getElementById("canvasClockfaceOverlay").hidden = true
 }
 
 
