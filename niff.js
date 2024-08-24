@@ -235,7 +235,7 @@ function gameModeHasBeenClicked(event) {
                 showText = document.getElementById('showText');
                 showText.hidden = false;
                 showText.innerHTML = '<h2>' + currentUser.currentGoal[0] + ':' + currentUser.currentGoal[1] + '</h2> <span> (Sæt den lille viser først) </span>';
-                if (currentUser.currentGoal[1] === 5) {
+                if (currentUser.currentGoal[1] === 0 || currentUser.currentGoal[1] === 5) {
                     showText.innerHTML = '<h2>' + currentUser.currentGoal[0] + ':0' + currentUser.currentGoal[1] + '</h2> <span> (Sæt den lille viser først) </span>';
                 }
 
@@ -339,21 +339,26 @@ function useQRcode(QrNumber) {
             case 'T2M2G1': {  // Indstil visere
                 let num = Number(QrNumber);
                 var curGo = currentUser.currentGoal;
-                if (currentUser.firstGuess && num === curGo[0] || num === curGo[0] + 12) {
+                if (currentUser.firstGuess && (num === curGo[0] || num + 12 === curGo[0] || (num === 12 && curGo[0] === 0))) {
                     currentUser.firstGuess = false;
                     currentUser.smallHandNum = QrNumber;
                     drawClockHandOnOverlay(QrNumber, true, 12, false);
-                } else if (num * 5 === curGo[1]) {
+                } else if (!currentUser.firstGuess && num * 5 === curGo[1]) {
                     drawClockHandOnOverlay(currentUser.smallHandNum, true, QrNumber, true);
                     currentUser.localMana += 100;
                     updateManaCounters();
+                    document.getElementsByTagName('h2')[0].style.color = 'rgb(53, 219, 53)';
                     
                     setTimeout(() => {drawClockHandOnOverlay(6, false, 12, false)
                         currentUser.updateGoal();
                         var curGo = currentUser.currentGoal;
                         showText = document.getElementById('showText');
                         showText.innerHTML = '<h2>' + curGo[0] + ':' + curGo[1] + '</h2> <span> (Sæt den lille viser først) </span>';
+                        if (currentUser.currentGoal[1] === 0 || currentUser.currentGoal[1] === 5) {
+                            showText.innerHTML = '<h2>' + currentUser.currentGoal[0] + ':0' + currentUser.currentGoal[1] + '</h2> <span> (Sæt den lille viser først) </span>';
+                        }
                         currentUser.firstGuess = true;
+                        document.getElementsByTagName('h2')[0].style.color = 'black';
                     }, 5000);
                 } else {
                     showText = document.getElementById('showText');
