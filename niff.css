@@ -1,4 +1,3 @@
-
 h1 {
     text-align: center;
     margin: 0px;
@@ -50,10 +49,10 @@ kbd {
 #page {
     display: grid;
     grid-template-areas:
-        'header ' 
+        'header '
         'QrCont '
-        'txtCont' 
-        'comCont' 
+        'txtCont'
+        'comCont'
         'navCont';
     grid-template-rows: 1fr 6fr 1fr 6fr 1fr;
 }
@@ -72,9 +71,10 @@ canvas {
     left: -150px;
 }
 
-#canvasClockface, #canvasClockfaceOverlay {
-    width: 300px;
-    height: 300px;
+#canvasClockface,
+#canvasClockfaceOverlay {
+    /* width: 300px;
+    height: 300px; */
     border: 1px solid;
 }
 
@@ -138,13 +138,16 @@ canvas {
     width: 50px;
     height: 50px;
     background-color: rgba(127, 255, 0, .5);
+    z-index: 100;
 }
 
 #cancelScanButton {
     background-color: rgba(255, 0, 0, .75);
+    z-index: 100;
 }
 
-#uglyHackSpacer { /* Todo: Make sane layout here */
+#uglyHackSpacer {
+    /* Todo: Make sane layout here */
     width: 100px;
 }
 
@@ -165,7 +168,7 @@ canvas {
 }
 
 .score {
-    font-size: x-large;
+    font-size: large;
 }
 
 .frontpageSummary {
@@ -201,9 +204,12 @@ canvas {
 }
 
 
-
+@media screen and (min-width: 420px) {
+    page {
+        width: 420px;
+    }
+}
 
 /* @media (prefers-reduced-motion) {
     styles to apply if a user's device settings are set to reduced motion 
 }*/
- 

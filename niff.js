@@ -1,9 +1,13 @@
 const pi = Math.PI;
 const kv3h = Math.sqrt(3)/2;
+const timer = ms => new Promise(res => setTimeout(res, ms));
+const winWidth = window.screen.width;
+const winHeight = winWidth;  // These two variables are currently used together to make square displays
+const zoomFactor = winWidth * 0.8 / 300;
+const config = {fps: 10, qrbox: {width: 0.8 * winWidth, height: 0.8 * winHeight}};
 // Initialize QR-code reader
 const html5Qrcode = new Html5Qrcode("reader");
-const config = {fps: 10, qrbox: {width: 300, height: 300}};
-const timer = ms => new Promise(res => setTimeout(res, ms));
+
 
 let gameMode = '';
 let globalMana = 500;  // Start with some mana to heal attacked players
@@ -78,6 +82,9 @@ console.clear();
 
 function setUpFunction() {
     document.getElementById('page').style.height = window.innerHeight - 30 + 'px';
+    document.getElementById('canvasQrShow').style.left = '' + -0.8 * winWidth / 2 + 'px';
+    document.getElementById('canvasClockface').style.left = '' + -0.8 * winWidth / 2 + 'px';
+    document.getElementById('canvasClockfaceOverlay').style.left = '' + -0.8 * winWidth / 2 + 'px';
 }
 
 function closeIntro() {
@@ -228,6 +235,9 @@ function gameModeHasBeenClicked(event) {
                 showText = document.getElementById('showText');
                 showText.hidden = false;
                 showText.innerHTML = '<h2>' + currentUser.currentGoal[0] + ':' + currentUser.currentGoal[1] + '</h2> <span> (Sæt den lille viser først) </span>';
+                if (currentUser.currentGoal[1] === 5) {
+                    showText.innerHTML = '<h2>' + currentUser.currentGoal[0] + ':0' + currentUser.currentGoal[1] + '</h2> <span> (Sæt den lille viser først) </span>';
+                }
 
                 drawClockHandOnOverlay(6, false, 12, false);  // Draw hands pointing to 6 and 12, not filled, as a placeholder/reminder
                 currentUser.firstGuess = true;
@@ -391,8 +401,9 @@ function drawClockface() {
     let canvasClockface = document.getElementById("canvasClockface");
     canvasClockface.hidden = false;
     let drawArea = canvasClockface.getContext("2d");
-    canvasClockface.width = 300;
-    canvasClockface.height = 300;
+    canvasClockface.width = 0.8 * winWidth;
+    canvasClockface.height = 0.8 * winHeight;
+    drawArea.scale(zoomFactor, zoomFactor);
 
     let r = 10;
     let offset = 3;
@@ -415,8 +426,9 @@ function drawClockfaceOverlay(number) {
     let canvasClockfaceOverlay = document.getElementById("canvasClockfaceOverlay");
     canvasClockfaceOverlay.hidden = false;
     let drawArea = canvasClockfaceOverlay.getContext("2d");
-    canvasClockfaceOverlay.width = 300;
-    canvasClockfaceOverlay.height = 300;
+    canvasClockfaceOverlay.width = 0.8 * winWidth;
+    canvasClockfaceOverlay.height = 0.8 * winHeight;
+    drawArea.scale(zoomFactor, zoomFactor);
 
     let r = 10;
     let offset = 3;
@@ -448,8 +460,9 @@ function drawClockHandOnOverlay(smallHandNum, sFill, bigHandNum, bFill) {
     let canvasClockfaceOverlay = document.getElementById("canvasClockfaceOverlay");
     canvasClockfaceOverlay.hidden = false;
     let drawArea = canvasClockfaceOverlay.getContext("2d");
-    canvasClockfaceOverlay.width = 300;
-    canvasClockfaceOverlay.height = 300;
+    canvasClockfaceOverlay.width = 0.8 * winWidth;
+    canvasClockfaceOverlay.height = 0.8 * winHeight;
+    drawArea.scale(zoomFactor, zoomFactor);
 
     for (let i = 0; i < 2; i++) {
         if (i === 0) {
@@ -494,8 +507,9 @@ function drawArcOnOverlay(C, R, v1, v2) {
     let canvasClockfaceOverlay = document.getElementById("canvasClockfaceOverlay");
     canvasClockfaceOverlay.hidden = false;
     let drawArea = canvasClockfaceOverlay.getContext("2d");
-    canvasClockfaceOverlay.width = 300;
-    canvasClockfaceOverlay.height = 300;
+    canvasClockfaceOverlay.width = 0.8 * winWidth;
+    canvasClockfaceOverlay.height = 0.8 * winHeight;
+    drawArea.scale(zoomFactor, zoomFactor);
 
     drawArea.beginPath();
     drawArea.arc(C[0], C[1], R, v1, v2);
@@ -583,8 +597,8 @@ function dotProd(A, B) {  // Returns the dot product between vector A[xa, ya] an
 // QR-code generator
 function generateQRcode(text) {
     let responseQRcode = new QRCodeStyling({
-        width: 300,
-        height: 300,
+        width: winWidth,
+        height: winHeight,
         type: "svg",
         data: text,
         image: "qr-codes/fairy.png",
