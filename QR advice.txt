@@ -1,0 +1,14 @@
+The recommended QR code minimum size is: 2cm by 2cm, but it's 
+better to be safe and go with 4cm+, especially if your QR 
+code includes a frame and an embedded logo.
+
+A good rule of thumb is a ratio of scanning distance to QR 
+code size of 10:1. For example, if the person scanning the 
+QR code will be 10m away, the QR code should be at least 1m by 1m.
+
+The best practice is for the quiet zone to be no smaller than 
+the width of 4 "modules" of your QR code pattern (the dot 
+pattern if your QR code).
+
+The logos should remain fairly small as if they're too big they 
+cover up too much of the scannable part of the QR code.

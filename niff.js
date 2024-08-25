@@ -203,7 +203,7 @@ function gameModeHasBeenClicked(event) {
                 
                 currentUser = new niffUser(gameMode, goalArray);
                 
-                drawClockfaceOverlay(currentUser.currentGoal);
+                drawClockfaceOverlay(currentUser.currentGoal, 'green');
                 break;
             }
             case 'T1M3G3': {  // Følg mønster efter tal
@@ -243,7 +243,7 @@ function gameModeHasBeenClicked(event) {
                 currentUser.firstGuess = true;
                 break;
             }
-            case 'T2M3G1': {  // Følg mønster efter tal
+            case 'T2M3G1': {  // Gentag mønster
                 let arrayLen = 20;
                 let startNum = 0;
                 let tempArray = Array.from({length: arrayLen},()=> startNum += Math.ceil(Math.random()*6) + 2);  // Avoid the same number twice and neighboring numbers by stepping 2 to 8 steps forward. The next function brings the numbers back into 1-12
@@ -255,8 +255,10 @@ function gameModeHasBeenClicked(event) {
                 showText = document.getElementById('showText');
                 showText.hidden = false;
                 showText.innerHTML = '<h3> Scan i samme rækkefølge </h3>';
-
-                showPattern(2);
+                
+                currentUser.currentPatternPosition = 0;
+                currentUser.patternLenght = 2;
+                showPattern(currentUser.patternLenght);
                 
                 break;
             }
@@ -272,9 +274,18 @@ async function showPattern(patternLenght){
     drawClockface();
     await timer(1500);
     for (var i = 0; i < patternLenght; i++) {
-        drawClockfaceOverlay(currentUser.goalArray[i]);
+        drawClockfaceOverlay(currentUser.goalArray[i], 'green');
         await timer(2000);
     }
+    document.getElementById("canvasClockfaceOverlay").hidden = true
+}
+
+
+async function showError(number) {
+    drawClockface();
+    await timer(1500);
+    drawClockfaceOverlay(number, 'red');
+    await timer(2000);
     document.getElementById("canvasClockfaceOverlay").hidden = true
 }
 
@@ -322,7 +333,7 @@ function useQRcode(QrNumber) {
                     currentUser.localMana += 50;
                     updateManaCounters();
                     currentUser.updateGoal();
-                    drawClockfaceOverlay(currentUser.currentGoal);
+                    drawClockfaceOverlay(currentUser.currentGoal, 'green');
                 }
                 break;    
             }
@@ -368,7 +379,30 @@ function useQRcode(QrNumber) {
                 }
                 break;    
             }
-            case 'T1M3G': {
+            case 'T2M3G1': {  // Gentag mønster
+                let num = Number(QrNumber);
+                if (num === currentUser.goalArray[currentUser.currentGoalNumber]) {
+                    if (currentUser.currentPatternPosition <= currentUser.patternLenght) {
+                        currentUser.updateGoal();
+                        currentUser.currentPatternPosition += 1;
+                        // TODO Show scanned number in green for 2 seconds
+                    } else {
+                        currentUser.localMana += 50 * currentUser.patternLenght;
+                        currentUser.currentPatternPosition = 0;
+                        currentUser.patternLenght += 1;
+                        showPattern(currentUser.patternLenght);
+                    }
+                } else {
+                    showError(num);  // Show scanned number in red for 2 seconds
+                    showText = document.getElementById('showText');
+                    let oldText = showText.innerHTML;
+                    showText.innerHTML = '<h1> Ups! Start forfra &#x1FAE4; </h1>';
+                    setTimeout(() => showText.innerHTML = oldText, 3000);
+
+                    currentUser.currentPatternPosition = 0;
+                    showPattern(currentUser.patternLenght);
+                }
+
                 break;    
             }
             case 'T1M3G': {
@@ -425,8 +459,14 @@ function drawClockface() {
     }
 }
 
-function drawClockfaceOverlay(number) {
+function drawClockfaceOverlay(number, colour) {
     drawClockface();
+    let red = 0;
+    let green = 255;
+    if (colour === 'red') {
+        red = 255;
+        green = 0;
+    }
     // Find and show ClockfaceOverlay
     let canvasClockfaceOverlay = document.getElementById("canvasClockfaceOverlay");
     canvasClockfaceOverlay.hidden = false;
@@ -441,10 +481,10 @@ function drawClockfaceOverlay(number) {
         let xc = Math.floor(clockFaceCoor[number][0]);
         let yc = Math.floor(clockFaceCoor[number][1]);
         const radgrad3 = drawArea.createRadialGradient(xc - 4, yc - 4, 1, xc, yc, r); // Red sphere
-        radgrad3.addColorStop(0, "rgba(255, 0,0,.3)");
-        radgrad3.addColorStop(0.5, "rgb(255, 0,0)");
-        radgrad3.addColorStop(0.9, "rgb(255, 0,0)");
-        radgrad3.addColorStop(1, "rgba(255, 0, 0, 0)");
+        radgrad3.addColorStop(0, 'rgba(' + red + ', ' + green + ', 0,.3)');
+        radgrad3.addColorStop(0.5, 'rgb(' + red + ', ' + green + ', 0)');
+        radgrad3.addColorStop(0.9, 'rgb(' + red + ', ' + green + ', 0)');
+        radgrad3.addColorStop(1, 'rgba(' + red + ', ' + green + ', 0, 0)');
         drawArea.fillStyle = radgrad3;
         drawArea.fillRect(xc-r, yc -r, 2 * r, 2 * r)
 
