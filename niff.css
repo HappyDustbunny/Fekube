@@ -9,9 +9,9 @@ h2 {
     margin: 0px;
 }
 
-h3 {
+/* h3 {
     font-size: x-large;
-}
+} */
 
 h5 {
     font-size: larger;
@@ -123,6 +123,23 @@ canvas {
     justify-content: center;
 }
 
+.triggerAnimation {
+    /* visibility: hidden; */
+    left: 150px;
+    top: 400px;
+    font-size: x-large;
+    position: relative;
+    animation-name: addingMana;
+    animation-duration: 0.5s;
+    animation-timing-function: ease-in;
+}
+
+@keyframes addingMana {
+    0% {left: 150px; top: 400px; visibility: visible;}
+    20% {left: 150px; top: 400px; visibility: visible;}
+    100% {left: 300px; top: 0px; visibility: visible;}
+}
+
 #navigationContainer {
     display: flex;
     grid-area: navCont;
@@ -138,6 +155,15 @@ canvas {
     width: 50px;
     height: 50px;
     background-color: rgba(127, 255, 0, .5);
+    z-index: 100;
+}
+
+#showPatternButton {
+    align-self: center;
+    border-radius: 10px;
+    width: 75px;
+    height: 50px;
+    background-color: rgba(251, 255, 0, 0.829);
     z-index: 100;
 }
 

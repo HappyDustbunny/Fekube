@@ -73,7 +73,9 @@ document.getElementById('scanButton').addEventListener('click', function() {
     document.getElementById('cancelScanButton').hidden = false;
     scanQRcode();
 });
-
+document.getElementById('showPatternButton').addEventListener('click', function() {
+    showPattern(currentUser.patternLenght);
+})
 document.getElementById('cancelScanButton').addEventListener('click', stopScan);
 document.getElementById('healButton').addEventListener('click', heal);
 // End of eventlisteners
@@ -138,11 +140,16 @@ function stopHealing() {
 }
 
 
-function updateManaCounters() {
+async function updateManaCounters(newMana) {  // TODO Add newMana arg to all functioncalls and debug animation
     document.getElementById('localManaCounter').innerHTML = 
     '<span>Nyhøstet Mana</span> <span class="score">' + currentUser.localMana + '</span>';
     document.getElementById('globalManaCounter').innerHTML = 
     '<span>Samlet Mana</span> <span class="score">' + globalMana + '</span>';
+    let showAddingManaP = document.getElementById('showAddingMana');
+    showAddingManaP.innerText = '+' + newMana;
+    showAddingManaP.classList.add('triggerAnimation');
+    await timer(750);
+    showAddingManaP.classList.remove('triggerAnimation');
 }
 
 
@@ -258,8 +265,9 @@ function gameModeHasBeenClicked(event) {
                 
                 currentUser.currentPatternPosition = 0;
                 currentUser.patternLenght = 2;
-                showPattern(currentUser.patternLenght);
-                
+
+                document.getElementById('showPatternButton').hidden = false;
+                document.getElementById('scanButton').hidden = true;
                 break;
             }
             default:
@@ -272,12 +280,14 @@ function gameModeHasBeenClicked(event) {
 
 async function showPattern(patternLenght){
     drawClockface();
-    await timer(1500);
+    await timer(500);
     for (var i = 0; i < patternLenght; i++) {
         drawClockfaceOverlay(currentUser.goalArray[i], 'green');
-        await timer(2000);
+        await timer(1000);
     }
     document.getElementById("canvasClockfaceOverlay").hidden = true
+    document.getElementById('showPatternButton').hidden = true;
+    document.getElementById('scanButton').hidden = false;
 }
 
 
@@ -382,15 +392,19 @@ function useQRcode(QrNumber) {
             case 'T2M3G1': {  // Gentag mønster
                 let num = Number(QrNumber);
                 if (num === currentUser.goalArray[currentUser.currentGoalNumber]) {
-                    if (currentUser.currentPatternPosition <= currentUser.patternLenght) {
+                    if (currentUser.currentPatternPosition < currentUser.patternLenght - 1) {
                         currentUser.updateGoal();
                         currentUser.currentPatternPosition += 1;
                         // TODO Show scanned number in green for 2 seconds
                     } else {
                         currentUser.localMana += 50 * currentUser.patternLenght;
+                        updateManaCounters();
+
                         currentUser.currentPatternPosition = 0;
+                        currentUser.currentGoalNumber = 0;
                         currentUser.patternLenght += 1;
-                        showPattern(currentUser.patternLenght);
+                        document.getElementById('showPatternButton').hidden = false;
+                        document.getElementById('scanButton').hidden = true;
                     }
                 } else {
                     showError(num);  // Show scanned number in red for 2 seconds
