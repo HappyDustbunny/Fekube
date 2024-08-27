@@ -141,17 +141,18 @@ function stopHealing() {
 
 
 async function updateManaCounters(newMana) {  // TODO Add newMana arg to all functioncalls and debug animation
-    document.getElementById('localManaCounter').innerHTML = 
-    '<span>Nyhøstet Mana</span> <span class="score">' + currentUser.localMana + '</span>';
-    document.getElementById('globalManaCounter').innerHTML = 
-    '<span>Samlet Mana</span> <span class="score">' + globalMana + '</span>';
     if (newMana) {
         let showAddingManaP = document.getElementById('showAddingMana');
         showAddingManaP.innerText = '+' + newMana;
         showAddingManaP.classList.add('triggerAnimation');
-        await timer(750);
+        await timer(1600);
         showAddingManaP.classList.remove('triggerAnimation');
+        showAddingManaP.innerText = '';
     }
+    document.getElementById('localManaCounter').innerHTML = 
+    '<span>Nyhøstet Mana</span> <span class="score">' + currentUser.localMana + '</span>';
+    document.getElementById('globalManaCounter').innerHTML = 
+    '<span>Samlet Mana</span> <span class="score">' + globalMana + '</span>';
 }
 
 

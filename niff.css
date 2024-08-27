@@ -126,14 +126,14 @@ canvas {
 #showAddingMana {
     position: absolute;
     left: 50%;
-    top: 90%;
+    top: 80%;
 }
 
 .triggerAnimation {
     /* visibility: hidden; */
     left: 150px;
     top: 400px;
-    font-size: x-large;
+    font-size: xx-large;
     position: relative;
     animation-name: addingMana;
     animation-duration: 1.5s;
@@ -141,9 +141,9 @@ canvas {
 }
 
 @keyframes addingMana {
-    0% {left: 50%; top: 90%; visibility: visible;}
-    70% {left: 50%; top: 90%; visibility: visible;}
-    100% {left: 80%; top: 0%; visibility: visible;}
+    0% {left: 50%; top: 80%;}
+    50% {left: 50%; top: 80%;}
+    100% {left: 80%; top: 0%;}
 }
 
 #navigationContainer {
