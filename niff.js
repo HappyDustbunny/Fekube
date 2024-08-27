@@ -145,11 +145,13 @@ async function updateManaCounters(newMana) {  // TODO Add newMana arg to all fun
     '<span>Nyhøstet Mana</span> <span class="score">' + currentUser.localMana + '</span>';
     document.getElementById('globalManaCounter').innerHTML = 
     '<span>Samlet Mana</span> <span class="score">' + globalMana + '</span>';
-    let showAddingManaP = document.getElementById('showAddingMana');
-    showAddingManaP.innerText = '+' + newMana;
-    showAddingManaP.classList.add('triggerAnimation');
-    await timer(750);
-    showAddingManaP.classList.remove('triggerAnimation');
+    if (newMana) {
+        let showAddingManaP = document.getElementById('showAddingMana');
+        showAddingManaP.innerText = '+' + newMana;
+        showAddingManaP.classList.add('triggerAnimation');
+        await timer(750);
+        showAddingManaP.classList.remove('triggerAnimation');
+    }
 }
 
 
@@ -170,7 +172,7 @@ function attackChance() {
 
 function whileAttacked() {
     currentUser.localMana -= 1;
-    updateManaCounters();
+    updateManaCounters(currentUser.localMana);
     
     if (isVictim === 0) {
         clearInterval(whileAttackedTimer);
@@ -273,8 +275,8 @@ function gameModeHasBeenClicked(event) {
             default:
                 currentUser = new niffUser(gameMode, []);
         }
+        updateManaCounters();
     }
-    updateManaCounters();
 }
 
 
@@ -323,7 +325,7 @@ function useQRcode(QrNumber) {
         switch(gameMode) {
             case 'T1M1G1': {  // Healer
                 currentUser.localMana += 10;
-                updateManaCounters()  // Todo: Remove the Healers scan-button for 10 seconds after each scan?
+                updateManaCounters(currentUser.localMana)  // Todo: Remove the Healers scan-button for 10 seconds after each scan?
                 break;
             }
             case 'T1M3G1': {  // Scan løs
@@ -334,14 +336,14 @@ function useQRcode(QrNumber) {
                     newDelta = Math.round(1/10000 * ((clockFaceCoor[QrNumber][0] - clockFaceCoor[lastScan][0]) * (clockFaceCoor[QrNumber][0] - clockFaceCoor[lastScan][0]) + (clockFaceCoor[QrNumber][1] - clockFaceCoor[lastScan][1]) * (clockFaceCoor[QrNumber][1] - clockFaceCoor[lastScan][1])));
                 }
                 currentUser.localMana += Number(newDelta);
-                updateManaCounters();
+                updateManaCounters(currentUser.localMana);
                 lastScan = QrNumber;
                 break;    
             }
             case 'T1M3G2': {  // Følg det viste mønster
                 if (Number(QrNumber) === currentUser.currentGoal) {
                     currentUser.localMana += 50;
-                    updateManaCounters();
+                    updateManaCounters(currentUser.localMana);
                     currentUser.updateGoal();
                     drawClockfaceOverlay(currentUser.currentGoal, 'green');
                 }
@@ -350,7 +352,7 @@ function useQRcode(QrNumber) {
             case 'T1M3G3': {  // Følg mønster efter tal
                 if (Number(QrNumber) === currentUser.currentGoal) {
                     currentUser.localMana += 50;
-                    updateManaCounters();
+                    updateManaCounters(currentUser.localMana);
                     currentUser.updateGoal();
                     showText = document.getElementById('showText');
                     showText.innerHTML = '<h2> Scan ' + currentUser.currentGoal + '</h2>';
@@ -367,7 +369,7 @@ function useQRcode(QrNumber) {
                 } else if (!currentUser.firstGuess && num * 5 === curGo[1]) {
                     drawClockHandOnOverlay(currentUser.smallHandNum, true, QrNumber, true);
                     currentUser.localMana += 100;
-                    updateManaCounters();
+                    updateManaCounters(currentUser.localMana);
                     document.getElementsByTagName('h2')[0].style.color = 'rgb(53, 219, 53)';
                     
                     setTimeout(() => {drawClockHandOnOverlay(6, false, 12, false)
@@ -398,7 +400,7 @@ function useQRcode(QrNumber) {
                         // TODO Show scanned number in green for 2 seconds
                     } else {
                         currentUser.localMana += 50 * currentUser.patternLenght;
-                        updateManaCounters();
+                        updateManaCounters(currentUser.localMana);
 
                         currentUser.currentPatternPosition = 0;
                         currentUser.currentGoalNumber = 0;

@@ -123,6 +123,12 @@ canvas {
     justify-content: center;
 }
 
+#showAddingMana {
+    position: absolute;
+    left: 50%;
+    top: 90%;
+}
+
 .triggerAnimation {
     /* visibility: hidden; */
     left: 150px;
@@ -130,14 +136,14 @@ canvas {
     font-size: x-large;
     position: relative;
     animation-name: addingMana;
-    animation-duration: 0.5s;
+    animation-duration: 1.5s;
     animation-timing-function: ease-in;
 }
 
 @keyframes addingMana {
-    0% {left: 150px; top: 400px; visibility: visible;}
-    20% {left: 150px; top: 400px; visibility: visible;}
-    100% {left: 300px; top: 0px; visibility: visible;}
+    0% {left: 50%; top: 90%; visibility: visible;}
+    70% {left: 50%; top: 90%; visibility: visible;}
+    100% {left: 80%; top: 0%; visibility: visible;}
 }
 
 #navigationContainer {
