@@ -451,6 +451,21 @@ function stopQrReading() {
 
 // DRAWING BELOW
 
+// Draw on cameraOverlay
+function drawOnCameraOverlay() {
+    let cameraOverlay = document.getElementById('cameraOverlay');
+    cameraOverlay.hidden = false;
+    let drawArea = cameraOverlay.getContext('2d');
+    cameraOverlay.width = 0.8 * winWidth;  
+    cameraOverlay.height = 0.8 * winHeight;
+    drawArea.scale(zoomFactor, zoomFactor);
+
+    drawArea.moveTo(winWidth / 2 + 50, winHeight / 2);
+    drawArea.arc(winWidth / 2, winHeight / 2, 50, 0, 2*pi);  // Draw disk-monster... Camera position needst to be changed to absolute after camera is started.
+    drawArea.fill();
+}
+
+
 // Draw clockface    TODO: Make colour gradients instead of arcs
 function drawClockface() {
     // Find and show Clockface
