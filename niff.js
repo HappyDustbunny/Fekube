@@ -162,7 +162,7 @@ let whileAttackedTimer = '';
 
 function attackChance() {
     if (isVictim === 0 && Math.random() < 0.001) {
-        isVictim = 5;
+        isVictim = 5;  // Requires 5 healing to be well. A healer can do it in one go. Scanning "0" five times works too
         document.getElementById('page').style.background = 'rgba(255, 0, 0, .36)';
         messageDiv.hidden = false;
         messageDiv.innerHTML = '<p>Du er blevet angrebet! <br> Skynd dig at blive healet ved at finde Healeren eller scanne 0 flere gange</p>'
@@ -334,10 +334,10 @@ function useQRcode(QrNumber) {
                 if (lastScan === 0) {
                     newDelta = QrNumber;
                 } else {
-                    newDelta = Math.round(1/10000 * ((clockFaceCoor[QrNumber][0] - clockFaceCoor[lastScan][0]) * (clockFaceCoor[QrNumber][0] - clockFaceCoor[lastScan][0]) + (clockFaceCoor[QrNumber][1] - clockFaceCoor[lastScan][1]) * (clockFaceCoor[QrNumber][1] - clockFaceCoor[lastScan][1])));
+                    newDelta = Math.round(5/10000 * ((clockFaceCoor[QrNumber][0] - clockFaceCoor[lastScan][0]) * (clockFaceCoor[QrNumber][0] - clockFaceCoor[lastScan][0]) + (clockFaceCoor[QrNumber][1] - clockFaceCoor[lastScan][1]) * (clockFaceCoor[QrNumber][1] - clockFaceCoor[lastScan][1])));
                 }
                 currentUser.localMana += Number(newDelta);
-                updateManaCounters(currentUser.localMana);
+                updateManaCounters(newDelta);
                 lastScan = QrNumber;
                 break;    
             }
@@ -434,7 +434,7 @@ function useQRcode(QrNumber) {
         msgTimeOut = setTimeout(function () {
             messageDiv.innerHTML = '';
             messageDiv.hidden = true;
-        }, 2000);
+        }, 3000);
     }
 }
 
