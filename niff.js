@@ -452,8 +452,8 @@ function stopQrReading() {
 // DRAWING BELOW
 
 // Draw on cameraOverlay
-function drawOnCameraOverlay() {
-    let cameraOverlay = document.getElementById('cameraOverlay');
+function drawOnCameraOverlay() {  // TODO: Draw on qr-canvas instead? Gets rid of positioning problems. Have to check if camera is active, but whatevs...
+    let cameraOverlay = document.getElementById('canvasCameraOverlay');
     cameraOverlay.hidden = false;
     let drawArea = cameraOverlay.getContext('2d');
     cameraOverlay.width = 0.8 * winWidth;  
