@@ -23,8 +23,8 @@ let healMsgs = [
     'Og ... sidste gang'
 ]
 
-let lastScan = 0;     // Used for T1M3G1
-let clockFaceCoor = { // Used for T1M3G1
+let lastScan = 0;     // Used for M3T1G1
+let clockFaceCoor = { // Used for M3T1G1
     0: [130 * 0.0 + 150, -130 * 0.0 + 150],
     1: [130 * 0.5 + 150, -130 * kv3h + 150],
     2: [130 * kv3h + 150, -130 * 0.5 + 150],
@@ -40,16 +40,32 @@ let clockFaceCoor = { // Used for T1M3G1
     12: [130 * 0.0 + 150, -130 * 1.0 + 150]
 } ;
 
-class niffUser {
+
+class NiffGame {
+    constructor(){
+        this.globalMana = 500;
+    }
+}
+
+
+class NiffUser extends NiffGame {  // Maybe execissive, but opens for change of gamemode during a game
     constructor(gameMode, goalArray) {
-        this.gameMode = gameMode;
-        this.globalMana = globalMana;
+        super();
         this.localMana = 0;
+    }
+    
+}
+
+
+class NiffGameMode extends NiffUser {
+    constructor(gameMode) {
+        super();
+        this.gameMode = gameMode;
         this.goalArray = goalArray;
         this.currentGoalNumber = 0; 
         this.currentGoal = goalArray[this.currentGoalNumber];
     }
-    
+
     updateGoal () {
         if (this.currentGoalNumber < this.goalArray.length - 1) {
             this.currentGoalNumber += 1;
@@ -82,12 +98,14 @@ document.getElementById('healButton').addEventListener('click', heal);
 
 console.clear();
 
+
 function setUpFunction() {
     document.getElementById('page').style.height = window.innerHeight - 30 + 'px';
     document.getElementById('canvasQrShow').style.left = '' + -0.8 * winWidth / 2 + 'px';
     document.getElementById('canvasClockface').style.left = '' + -0.8 * winWidth / 2 + 'px';
     document.getElementById('canvasClockfaceOverlay').style.left = '' + -0.8 * winWidth / 2 + 'px';
 }
+
 
 function closeIntro() {
     document.getElementById('intro').style.display = 'none';
@@ -140,7 +158,7 @@ function stopHealing() {
 }
 
 
-async function updateManaCounters(newMana) {  // TODO Add newMana arg to all functioncalls and debug animation
+async function updateManaCounters(newMana) {
     if (newMana) {
         let showAddingManaP = document.getElementById('showAddingMana');
         showAddingManaP.innerText = '+' + newMana;
@@ -157,8 +175,8 @@ async function updateManaCounters(newMana) {  // TODO Add newMana arg to all fun
 
 
 let attackTimer = setInterval(attackChance, 10000);
-let whileAttackedTimer = '';
 
+let whileAttackedTimer = '';                
 
 function attackChance() {
     if (isVictim === 0 && Math.random() < 0.001) {
@@ -182,7 +200,7 @@ function whileAttacked() {
 
 
 function gameModeHasBeenClicked(event) {
-    gameMode = event.target.id; // Id in the format T1M3G1 for Thinking level 1, Movement level 3 and Game 1
+    gameMode = event.target.id; // Id in the format M3T1G1 for Thinking level 1, Movement level 3 and Game 1
     console.log(gameMode);
     
     if (gameMode !== '' && gameMode !== 'selectGameModeContainer') {
@@ -195,35 +213,35 @@ function gameModeHasBeenClicked(event) {
         
         // Set up instructions for game modes that needs them
         switch(gameMode) {
-            case 'T1M1G1': {  // Healer
+            case 'M1T1G1': {  // Healer
                 generateQRcode("Thy shalst be healed!").append(document.getElementById("canvasQrShow"));
                 // ToDo: Add explaning text?
                 document.getElementById('healButton').hidden = false;
                 document.getElementById('uglyHackSpacer').hidden = false
                 clearInterval(attackTimer);  // Makes sure the Healer is not attacked
-                currentUser = new niffUser(gameMode, []);
+                currentUser = new NiffUser(gameMode, []);
                 break;    
             }
-            case 'T1M3G2': {  // Følg det viste mønster
+            case 'M3T1G2': {  // Følg det viste mønster
                 let arrayLen = 20;
                 let startNum = 0;
                 let tempArray = Array.from({length: arrayLen},()=> startNum += Math.ceil(Math.random()*6) + 2);  // Avoid the same number twice and neighboring numbers by stepping 2 to 8 steps forward. The next function brings the numbers back into 1-12
                 mod12 = (number) => number%12 + 1; // Plus 1 to avoid 12%12 = 0
                 goalArray = tempArray.map(mod12);
                 
-                currentUser = new niffUser(gameMode, goalArray);
+                currentUser = new NiffUser(gameMode, goalArray);
                 
                 drawClockfaceOverlay(currentUser.currentGoal, 'green');
                 break;
             }
-            case 'T1M3G3': {  // Følg mønster efter tal
+            case 'M3T1G3': {  // Følg mønster efter tal
                 let arrayLen = 20;
                 let startNum = 0;
                 let tempArray = Array.from({length: arrayLen},()=> startNum += Math.ceil(Math.random()*6) + 2);  // Avoid the same number twice and neighboring numbers by stepping 2 to 8 steps forward. The next function brings the numbers back into 1-12
                 mod12 = (number) => number%12 + 1; // Plus 1 to avoid 12%12 = 0
                 goalArray = tempArray.map(mod12);
                 
-                currentUser = new niffUser(gameMode, goalArray);
+                currentUser = new NiffUser(gameMode, goalArray);
                 
                 showText = document.getElementById('showText');
                 showText.hidden = false;
@@ -231,7 +249,7 @@ function gameModeHasBeenClicked(event) {
                 
                 break;
             }
-            case 'T2M2G1': {  // Indstil visere
+            case 'M2T2G1': {  // Indstil visere
                 let arrayLen = 20;
                 let goalArray = [];
                 for (i = 0; i < arrayLen; i++) {
@@ -240,7 +258,7 @@ function gameModeHasBeenClicked(event) {
                     goalArray.push([hour, min]);
                 }
                 
-                currentUser = new niffUser(gameMode, goalArray);
+                currentUser = new NiffUser(gameMode, goalArray);
                 
                 showText = document.getElementById('showText');
                 showText.hidden = false;
@@ -253,14 +271,14 @@ function gameModeHasBeenClicked(event) {
                 currentUser.firstGuess = true;
                 break;
             }
-            case 'T2M3G1': {  // Gentag mønster
+            case 'M3T2G1': {  // Gentag mønster
                 let arrayLen = 20;
                 let startNum = 0;
                 let tempArray = Array.from({length: arrayLen},()=> startNum += Math.ceil(Math.random()*6) + 2);  // Avoid the same number twice and neighboring numbers by stepping 2 to 8 steps forward. The next function brings the numbers back into 1-12
                 mod12 = (number) => number%12 + 1; // Plus 1 to avoid 12%12 = 0
                 goalArray = tempArray.map(mod12);
                 
-                currentUser = new niffUser(gameMode, goalArray);
+                currentUser = new NiffUser(gameMode, goalArray);
                 
                 showText = document.getElementById('showText');
                 showText.hidden = false;
@@ -274,7 +292,7 @@ function gameModeHasBeenClicked(event) {
                 break;
             }
             default:
-                currentUser = new niffUser(gameMode, []);
+                currentUser = new NiffUser(gameMode, []);
         }
         updateManaCounters();
     }
@@ -324,12 +342,12 @@ function useQRcode(QrNumber) {
         messageDiv.innerHTML = '<p> Du er skadet og skal heales før du kan andet <br> Find en Healer eller scan 0 flere gange </p>'
     } else if (-1 < QrNumber && QrNumber < 13) {
         switch(gameMode) {
-            case 'T1M1G1': {  // Healer
+            case 'M1T1G1': {  // Healer
                 currentUser.localMana += 10;
                 updateManaCounters(currentUser.localMana)  // Todo: Remove the Healers scan-button for 10 seconds after each scan?
                 break;
             }
-            case 'T1M3G1': {  // Scan løs
+            case 'M3T1G1': {  // Scan løs
                 let newDelta = 0;
                 if (lastScan === 0) {
                     newDelta = QrNumber;
@@ -341,7 +359,7 @@ function useQRcode(QrNumber) {
                 lastScan = QrNumber;
                 break;    
             }
-            case 'T1M3G2': {  // Følg det viste mønster
+            case 'M3T1G2': {  // Følg det viste mønster
                 if (Number(QrNumber) === currentUser.currentGoal) {
                     currentUser.localMana += 50;
                     updateManaCounters(currentUser.localMana);
@@ -350,7 +368,7 @@ function useQRcode(QrNumber) {
                 }
                 break;    
             }
-            case 'T1M3G3': {  // Følg mønster efter tal
+            case 'M3T1G3': {  // Følg mønster efter tal
                 if (Number(QrNumber) === currentUser.currentGoal) {
                     currentUser.localMana += 50;
                     updateManaCounters(currentUser.localMana);
@@ -360,7 +378,7 @@ function useQRcode(QrNumber) {
                 }
                 break;    
             }
-            case 'T2M2G1': {  // Indstil visere
+            case 'M2T2G1': {  // Indstil visere
                 let num = Number(QrNumber);
                 var curGo = currentUser.currentGoal;
                 if (currentUser.firstGuess && (num === curGo[0] || num + 12 === curGo[0] || (num === 12 && curGo[0] === 0))) {
@@ -392,7 +410,7 @@ function useQRcode(QrNumber) {
                 }
                 break;    
             }
-            case 'T2M3G1': {  // Gentag mønster
+            case 'M3T2G1': {  // Gentag mønster
                 let num = Number(QrNumber);
                 if (num === currentUser.goalArray[currentUser.currentGoalNumber]) {
                     if (currentUser.currentPatternPosition < currentUser.patternLenght - 1) {
@@ -422,7 +440,7 @@ function useQRcode(QrNumber) {
 
                 break;    
             }
-            case 'T1M3G': {
+            case 'M3T1G': {
                 break;    
             }
         }
