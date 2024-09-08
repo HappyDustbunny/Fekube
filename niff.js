@@ -60,18 +60,241 @@ class NiffUser extends NiffGame {  // Maybe execissive, but opens for change of 
 class NiffGameMode extends NiffUser {
     constructor(gameMode) {
         super();
-        this.gameMode = gameMode;
         this.goalArray = goalArray;
         this.currentGoalNumber = 0; 
         this.currentGoal = goalArray[this.currentGoalNumber];
     }
-
+    
     updateGoal () {
         if (this.currentGoalNumber < this.goalArray.length - 1) {
             this.currentGoalNumber += 1;
             this.currentGoal = this.goalArray[this.currentGoalNumber];
         }
     }
+}
+
+
+class M1T1G1 extends NiffGameMode {  // Healer
+    constructor() {
+        super();
+        this.gameMode = 'M1T1G1';
+
+        generateQRcode("Thy shalst be healed!").append(document.getElementById("canvasQrShow"));
+        // ToDo: Add explaning text?
+        document.getElementById('healButton').hidden = false;
+        document.getElementById('uglyHackSpacer').hidden = false
+        clearInterval(attackTimer);  // Makes sure the Healer is not attacked
+    }
+
+    useQRcode(QrNumber) {
+        this.localMana += 10;
+        updateManaCounters(this.localMana)  // Todo: Remove the Healers scan-button for 10 seconds after each scan?
+    }
+}
+
+
+class M2T2G1 extends NiffGameMode {  // Indstil visere
+    constructor() {
+        super();
+        this.gameMode = 'M2T2G1';
+        this.firstGuess = true;
+
+        let arrayLen = 20;
+        let goalArray = [];
+        for (i = 0; i < arrayLen; i++) {
+            let hour = Math.floor(Math.random() * 25);
+            let min = Math.floor(Math.random() * 12) * 5;
+            goalArray.push([hour, min]);
+        }
+        
+        showText = document.getElementById('showText');
+        showText.hidden = false;
+        showText.innerHTML = '<h2>' + this.currentGoal[0] + ':' + this.currentGoal[1] + '</h2> <span> (Sæt den lille viser først) </span>';
+        if (this.currentGoal[1] === 0 || this.currentGoal[1] === 5) {
+            showText.innerHTML = '<h2>' + this.currentGoal[0] + ':0' + this.currentGoal[1] + '</h2> <span> (Sæt den lille viser først) </span>';
+        }
+
+        drawClockHandOnOverlay(6, false, 12, false);  // Draw hands pointing to 6 and 12, not filled, as a placeholder/reminder
+    }
+
+    useQRcode(QrNumber) {
+        let num = Number(QrNumber);
+        var curGo = this.currentGoal;
+        if (this.firstGuess && (num === curGo[0] || num + 12 === curGo[0] || (num === 12 && curGo[0] === 0))) {
+            this.firstGuess = false;
+            this.smallHandNum = QrNumber;
+            drawClockHandOnOverlay(QrNumber, true, 12, false);
+        } else if (!this.firstGuess && num * 5 === curGo[1]) {
+            drawClockHandOnOverlay(this.smallHandNum, true, QrNumber, true);
+            this.localMana += 100;
+            updateManaCounters(this.localMana);
+            document.getElementsByTagName('h2')[0].style.color = 'rgb(53, 219, 53)';
+            
+            setTimeout(() => {drawClockHandOnOverlay(6, false, 12, false)
+                this.updateGoal();
+                var curGo = this.currentGoal;
+                showText = document.getElementById('showText');
+                showText.innerHTML = '<h2>' + curGo[0] + ':' + curGo[1] + '</h2> <span> (Sæt den lille viser først) </span>';
+                if (this.currentGoal[1] === 0 || this.currentGoal[1] === 5) {
+                    showText.innerHTML = '<h2>' + this.currentGoal[0] + ':0' + this.currentGoal[1] + '</h2> <span> (Sæt den lille viser først) </span>';
+                }
+                this.firstGuess = true;
+                document.getElementsByTagName('h2')[0].style.color = 'black';
+            }, 5000);
+        } else {
+            showText = document.getElementById('showText');
+            let oldText = showText.innerHTML;
+            showText.innerHTML = '<h1> Prøv igen &#x1F642; </h1>';
+            setTimeout(() => showText.innerHTML = oldText, 3000);
+        }
+    }
+}
+
+
+class M3T1G1 extends NiffGameMode {  // Scan løs
+    constructor() {
+        super();
+        this.gameMode = 'M1T1G1';
+        this.lastScan = 0;
+    }
+
+    useQRcode(QrNumber) {
+        let newDelta = 0;
+        if (this.lastScan === 0) {
+            newDelta = QrNumber;
+        } else {
+            newDelta = Math.round(5/10000 * ((clockFaceCoor[QrNumber][0] - clockFaceCoor[this.lastScan][0]) * (clockFaceCoor[QrNumber][0] - clockFaceCoor[this.lastScan][0]) + (clockFaceCoor[QrNumber][1] - clockFaceCoor[this.lastScan][1]) * (clockFaceCoor[QrNumber][1] - clockFaceCoor[this.lastScan][1])));
+        }
+        this.localMana += Number(newDelta);
+        updateManaCounters(newDelta);
+        lastScan = QrNumber;
+    }
+}
+
+
+class M3T1G2 extends NiffGameMode {  // Følg det viste mønster
+    constructor() {
+        super();
+        this.gameMode = 'M3T1G2';
+        
+        let arrayLen = 20;
+        let startNum = 0;
+        let tempArray = Array.from({length: arrayLen},()=> startNum += Math.ceil(Math.random()*6) + 2);  // Avoid the same number twice and neighboring numbers by stepping 2 to 8 steps forward. The next function brings the numbers back into 1-12
+        mod12 = (number) => number%12 + 1; // Plus 1 to avoid 12%12 = 0
+        this.goalArray = tempArray.map(mod12);
+        
+        drawClockfaceOverlay(this.currentGoal, 'green');
+    }
+
+    useQRcode(QrNumber) {
+        if (Number(QrNumber) === this.currentGoal) {
+            this.localMana += 50;
+            updateManaCounters(this.localMana);
+            this.updateGoal();
+            drawClockfaceOverlay(this.currentGoal, 'green');
+        }
+    }
+}
+
+
+class M3T1G3 extends NiffGameMode {  // Følg mønster efter tal
+    constructor() {
+        super();
+        this.gameMode = 'M3T1G3';
+
+        let arrayLen = 20;
+        let startNum = 0;
+        let tempArray = Array.from({length: arrayLen},()=> startNum += Math.ceil(Math.random()*6) + 2);  // Avoid the same number twice and neighboring numbers by stepping 2 to 8 steps forward. The next function brings the numbers back into 1-12
+        mod12 = (number) => number%12 + 1; // Plus 1 to avoid 12%12 = 0
+        this.goalArray = tempArray.map(mod12);
+        
+        showText = document.getElementById('showText');
+        showText.hidden = false;
+        showText.innerHTML = '<h2> Scan ' + this.currentGoal + '</h2>';
+    }
+
+    useQRcode(QrNumber) {
+        if (Number(QrNumber) === this.currentGoal) {
+            this.localMana += 50;
+            updateManaCounters(this.localMana);
+            this.updateGoal();
+            showText = document.getElementById('showText');
+            showText.innerHTML = '<h2> Scan ' + this.currentGoal + '</h2>';
+        }
+    }
+}
+
+
+class M3T2G1 extends NiffGameMode {  //  Gentag mønster
+    constructor() {
+        super();
+        this.gameMode = 'M3T2G1';
+
+        let arrayLen = 20;
+        let startNum = 0;
+        let tempArray = Array.from({length: arrayLen},()=> startNum += Math.ceil(Math.random()*6) + 2);  // Avoid the same number twice and neighboring numbers by stepping 2 to 8 steps forward. The next function brings the numbers back into 1-12
+        mod12 = (number) => number%12 + 1; // Plus 1 to avoid 12%12 = 0
+        goalArray = tempArray.map(mod12);
+        
+        showText = document.getElementById('showText');
+        showText.hidden = false;
+        showText.innerHTML = '<h3> Scan i samme rækkefølge </h3>';
+        
+        this.currentPatternPosition = 0;
+        this.patternLenght = 2;
+
+        document.getElementById('showPatternButton').hidden = false;
+        document.getElementById('scanButton').hidden = true;
+    }
+
+    useQRcode(QrNumber) {
+        let num = Number(QrNumber);
+        if (num === this.goalArray[this.currentGoalNumber]) {
+            if (this.currentPatternPosition < this.patternLenght - 1) {
+                this.updateGoal();
+                this.currentPatternPosition += 1;
+                // TODO Show scanned number in green for 2 seconds
+            } else {
+                this.localMana += 50 * this.patternLenght;
+                updateManaCounters(this.localMana);
+
+                this.currentPatternPosition = 0;
+                this.currentGoalNumber = 0;
+                this.patternLenght += 1;
+                document.getElementById('showPatternButton').hidden = false;
+                document.getElementById('scanButton').hidden = true;
+            }
+        } else {
+            showError(num);  // Show scanned number in red for 2 seconds
+            showText = document.getElementById('showText');
+            let oldText = showText.innerHTML;
+            showText.innerHTML = '<h1> Ups! Start forfra &#x1FAE4; </h1>';
+            setTimeout(() => showText.innerHTML = oldText, 3000);
+
+            this.currentPatternPosition = 0;
+            showPattern(this.patternLenght);
+        }
+    }
+}
+
+// class M1T1G1 extends NiffGameMode {  // 
+//     constructor() {
+//         super();
+//         this.gameMode = 'M1T1G1';
+
+//     }
+
+//     useQRcode(QrNumber) {
+//     }
+// }
+
+const gameModes = {
+    'M1T1G1': M1T1G1,
+    'M2T2G1': M2T2G1,
+    'M3T1G1': M3T1G1,
+    'M3T1G2': M3T1G2,
+    'M3T1G3': M3T1G3,
+    'M3T2G1': M3T2G1,
 }
 
 
@@ -210,90 +433,10 @@ function gameModeHasBeenClicked(event) {
         document.getElementById('localManaCounter').style.visibility = 'visible';
         document.getElementById('QrContainer').hidden = false;
         document.getElementById('navigationContainer').style.visibility = 'visible';
+
+        let gameModeClass = gameModes[gameMode];
+        currentUser = new gameModeClass();
         
-        // Set up instructions for game modes that needs them
-        switch(gameMode) {
-            case 'M1T1G1': {  // Healer
-                generateQRcode("Thy shalst be healed!").append(document.getElementById("canvasQrShow"));
-                // ToDo: Add explaning text?
-                document.getElementById('healButton').hidden = false;
-                document.getElementById('uglyHackSpacer').hidden = false
-                clearInterval(attackTimer);  // Makes sure the Healer is not attacked
-                currentUser = new NiffUser(gameMode, []);
-                break;    
-            }
-            case 'M3T1G2': {  // Følg det viste mønster
-                let arrayLen = 20;
-                let startNum = 0;
-                let tempArray = Array.from({length: arrayLen},()=> startNum += Math.ceil(Math.random()*6) + 2);  // Avoid the same number twice and neighboring numbers by stepping 2 to 8 steps forward. The next function brings the numbers back into 1-12
-                mod12 = (number) => number%12 + 1; // Plus 1 to avoid 12%12 = 0
-                goalArray = tempArray.map(mod12);
-                
-                currentUser = new NiffUser(gameMode, goalArray);
-                
-                drawClockfaceOverlay(currentUser.currentGoal, 'green');
-                break;
-            }
-            case 'M3T1G3': {  // Følg mønster efter tal
-                let arrayLen = 20;
-                let startNum = 0;
-                let tempArray = Array.from({length: arrayLen},()=> startNum += Math.ceil(Math.random()*6) + 2);  // Avoid the same number twice and neighboring numbers by stepping 2 to 8 steps forward. The next function brings the numbers back into 1-12
-                mod12 = (number) => number%12 + 1; // Plus 1 to avoid 12%12 = 0
-                goalArray = tempArray.map(mod12);
-                
-                currentUser = new NiffUser(gameMode, goalArray);
-                
-                showText = document.getElementById('showText');
-                showText.hidden = false;
-                showText.innerHTML = '<h2> Scan ' + currentUser.currentGoal + '</h2>';
-                
-                break;
-            }
-            case 'M2T2G1': {  // Indstil visere
-                let arrayLen = 20;
-                let goalArray = [];
-                for (i = 0; i < arrayLen; i++) {
-                    let hour = Math.floor(Math.random() * 25);
-                    let min = Math.floor(Math.random() * 12) * 5;
-                    goalArray.push([hour, min]);
-                }
-                
-                currentUser = new NiffUser(gameMode, goalArray);
-                
-                showText = document.getElementById('showText');
-                showText.hidden = false;
-                showText.innerHTML = '<h2>' + currentUser.currentGoal[0] + ':' + currentUser.currentGoal[1] + '</h2> <span> (Sæt den lille viser først) </span>';
-                if (currentUser.currentGoal[1] === 0 || currentUser.currentGoal[1] === 5) {
-                    showText.innerHTML = '<h2>' + currentUser.currentGoal[0] + ':0' + currentUser.currentGoal[1] + '</h2> <span> (Sæt den lille viser først) </span>';
-                }
-
-                drawClockHandOnOverlay(6, false, 12, false);  // Draw hands pointing to 6 and 12, not filled, as a placeholder/reminder
-                currentUser.firstGuess = true;
-                break;
-            }
-            case 'M3T2G1': {  // Gentag mønster
-                let arrayLen = 20;
-                let startNum = 0;
-                let tempArray = Array.from({length: arrayLen},()=> startNum += Math.ceil(Math.random()*6) + 2);  // Avoid the same number twice and neighboring numbers by stepping 2 to 8 steps forward. The next function brings the numbers back into 1-12
-                mod12 = (number) => number%12 + 1; // Plus 1 to avoid 12%12 = 0
-                goalArray = tempArray.map(mod12);
-                
-                currentUser = new NiffUser(gameMode, goalArray);
-                
-                showText = document.getElementById('showText');
-                showText.hidden = false;
-                showText.innerHTML = '<h3> Scan i samme rækkefølge </h3>';
-                
-                currentUser.currentPatternPosition = 0;
-                currentUser.patternLenght = 2;
-
-                document.getElementById('showPatternButton').hidden = false;
-                document.getElementById('scanButton').hidden = true;
-                break;
-            }
-            default:
-                currentUser = new NiffUser(gameMode, []);
-        }
         updateManaCounters();
     }
 }
@@ -341,109 +484,7 @@ function useQRcode(QrNumber) {
     } else if (isVictim !== 0 && -1 < QrNumber && QrNumber < 13) {
         messageDiv.innerHTML = '<p> Du er skadet og skal heales før du kan andet <br> Find en Healer eller scan 0 flere gange </p>'
     } else if (-1 < QrNumber && QrNumber < 13) {
-        switch(gameMode) {
-            case 'M1T1G1': {  // Healer
-                currentUser.localMana += 10;
-                updateManaCounters(currentUser.localMana)  // Todo: Remove the Healers scan-button for 10 seconds after each scan?
-                break;
-            }
-            case 'M3T1G1': {  // Scan løs
-                let newDelta = 0;
-                if (lastScan === 0) {
-                    newDelta = QrNumber;
-                } else {
-                    newDelta = Math.round(5/10000 * ((clockFaceCoor[QrNumber][0] - clockFaceCoor[lastScan][0]) * (clockFaceCoor[QrNumber][0] - clockFaceCoor[lastScan][0]) + (clockFaceCoor[QrNumber][1] - clockFaceCoor[lastScan][1]) * (clockFaceCoor[QrNumber][1] - clockFaceCoor[lastScan][1])));
-                }
-                currentUser.localMana += Number(newDelta);
-                updateManaCounters(newDelta);
-                lastScan = QrNumber;
-                break;    
-            }
-            case 'M3T1G2': {  // Følg det viste mønster
-                if (Number(QrNumber) === currentUser.currentGoal) {
-                    currentUser.localMana += 50;
-                    updateManaCounters(currentUser.localMana);
-                    currentUser.updateGoal();
-                    drawClockfaceOverlay(currentUser.currentGoal, 'green');
-                }
-                break;    
-            }
-            case 'M3T1G3': {  // Følg mønster efter tal
-                if (Number(QrNumber) === currentUser.currentGoal) {
-                    currentUser.localMana += 50;
-                    updateManaCounters(currentUser.localMana);
-                    currentUser.updateGoal();
-                    showText = document.getElementById('showText');
-                    showText.innerHTML = '<h2> Scan ' + currentUser.currentGoal + '</h2>';
-                }
-                break;    
-            }
-            case 'M2T2G1': {  // Indstil visere
-                let num = Number(QrNumber);
-                var curGo = currentUser.currentGoal;
-                if (currentUser.firstGuess && (num === curGo[0] || num + 12 === curGo[0] || (num === 12 && curGo[0] === 0))) {
-                    currentUser.firstGuess = false;
-                    currentUser.smallHandNum = QrNumber;
-                    drawClockHandOnOverlay(QrNumber, true, 12, false);
-                } else if (!currentUser.firstGuess && num * 5 === curGo[1]) {
-                    drawClockHandOnOverlay(currentUser.smallHandNum, true, QrNumber, true);
-                    currentUser.localMana += 100;
-                    updateManaCounters(currentUser.localMana);
-                    document.getElementsByTagName('h2')[0].style.color = 'rgb(53, 219, 53)';
-                    
-                    setTimeout(() => {drawClockHandOnOverlay(6, false, 12, false)
-                        currentUser.updateGoal();
-                        var curGo = currentUser.currentGoal;
-                        showText = document.getElementById('showText');
-                        showText.innerHTML = '<h2>' + curGo[0] + ':' + curGo[1] + '</h2> <span> (Sæt den lille viser først) </span>';
-                        if (currentUser.currentGoal[1] === 0 || currentUser.currentGoal[1] === 5) {
-                            showText.innerHTML = '<h2>' + currentUser.currentGoal[0] + ':0' + currentUser.currentGoal[1] + '</h2> <span> (Sæt den lille viser først) </span>';
-                        }
-                        currentUser.firstGuess = true;
-                        document.getElementsByTagName('h2')[0].style.color = 'black';
-                    }, 5000);
-                } else {
-                    showText = document.getElementById('showText');
-                    let oldText = showText.innerHTML;
-                    showText.innerHTML = '<h1> Prøv igen &#x1F642; </h1>';
-                    setTimeout(() => showText.innerHTML = oldText, 3000);
-                }
-                break;    
-            }
-            case 'M3T2G1': {  // Gentag mønster
-                let num = Number(QrNumber);
-                if (num === currentUser.goalArray[currentUser.currentGoalNumber]) {
-                    if (currentUser.currentPatternPosition < currentUser.patternLenght - 1) {
-                        currentUser.updateGoal();
-                        currentUser.currentPatternPosition += 1;
-                        // TODO Show scanned number in green for 2 seconds
-                    } else {
-                        currentUser.localMana += 50 * currentUser.patternLenght;
-                        updateManaCounters(currentUser.localMana);
-
-                        currentUser.currentPatternPosition = 0;
-                        currentUser.currentGoalNumber = 0;
-                        currentUser.patternLenght += 1;
-                        document.getElementById('showPatternButton').hidden = false;
-                        document.getElementById('scanButton').hidden = true;
-                    }
-                } else {
-                    showError(num);  // Show scanned number in red for 2 seconds
-                    showText = document.getElementById('showText');
-                    let oldText = showText.innerHTML;
-                    showText.innerHTML = '<h1> Ups! Start forfra &#x1FAE4; </h1>';
-                    setTimeout(() => showText.innerHTML = oldText, 3000);
-
-                    currentUser.currentPatternPosition = 0;
-                    showPattern(currentUser.patternLenght);
-                }
-
-                break;    
-            }
-            case 'M3T1G': {
-                break;    
-            }
-        }
+        currentUser.useQRcode(QrNumber);
     } else {
         messageDiv.innerHTML = '<p> Denne QR kode er dårlig magi! <br> Scan en anden </p>';
         messageDiv.hidden = false;
