@@ -88,10 +88,12 @@ class M1T1G1 extends NiffGameMode {  // Healer
         clearInterval(attackTimer);  // Makes sure the Healer is not attacked
     }
 
-    useQRcode(QrNumber) {
-        let newDelta = 10;
-        this.localMana += Number(newDelta);
-        updateManaCounters(newDelta); // Todo: Remove the Healers scan-button for 10 seconds after each scan?
+    applyQrCode(QrNumber) {
+        if (QrNumber === 'center') {
+            let newDelta = 10;
+            this.localMana += Number(newDelta);
+            updateManaCounters(newDelta); // Todo: Remove the Healers scan-button for 10 seconds after each scan?
+        }
     }
 }
 
@@ -104,7 +106,7 @@ class M2T2G1 extends NiffGameMode {  // Indstil visere
 
         let arrayLen = 20;
         this.goalArray = [];
-        for (i = 0; i < arrayLen; i++) {
+        for (var i = 0; i < arrayLen; i++) {
             let hour = Math.floor(Math.random() * 25);
             let min = Math.floor(Math.random() * 12) * 5;
             this.goalArray.push([hour, min]);
@@ -121,14 +123,14 @@ class M2T2G1 extends NiffGameMode {  // Indstil visere
         drawClockHandOnOverlay(6, false, 12, false);  // Draw hands pointing to 6 and 12, not filled, as a placeholder/reminder
     }
 
-    useQRcode(QrNumber) {
+    applyQrCode(QrNumber) {
         let num = Number(QrNumber);
         var curGo = this.currentGoal;
         if (this.firstGuess && (num === curGo[0] || num + 12 === curGo[0] || (num === 12 && curGo[0] === 0))) {
             this.firstGuess = false;
             this.smallHandNum = QrNumber;
             drawClockHandOnOverlay(QrNumber, true, 12, false);
-        } else if (!this.firstGuess && num * 5 === curGo[1]) {
+        } else if (!this.firstGuess && (num * 5 === curGo[1] || (curGo[1] === 0 && num === 12))) {
             drawClockHandOnOverlay(this.smallHandNum, true, QrNumber, true);
             let newDelta = 100;
             this.localMana += Number(newDelta);
@@ -163,7 +165,7 @@ class M3T1G1 extends NiffGameMode {  // Scan løs
         this.lastScan = 0;
     }
 
-    useQRcode(QrNumber) {
+    applyQrCode(QrNumber) {
         let newDelta = 0;
         if (this.lastScan === 0) {
             newDelta = QrNumber;
@@ -192,7 +194,7 @@ class M3T1G2 extends NiffGameMode {  // Følg det viste mønster
         drawClockfaceOverlay(this.currentGoal, 'green');
     }
 
-    async useQRcode(QrNumber) {
+    async applyQrCode(QrNumber) {
         if (Number(QrNumber) === this.currentGoal) {
             let newDelta = 50;
             this.localMana += Number(newDelta);
@@ -225,7 +227,7 @@ class M3T1G3 extends NiffGameMode {  // Følg mønster efter tal
         showText.innerHTML = '<h2> Scan ' + this.currentGoal + '</h2>';
     }
     
-    async useQRcode(QrNumber) {
+    async applyQrCode(QrNumber) {
         showText = document.getElementById('showText');
         if (Number(QrNumber) === this.currentGoal) {
             let newDelta = 50;
@@ -266,9 +268,8 @@ class M3T2G1 extends NiffGameMode {  //  Gentag mønster
     }
 
 
-    // Game modes above
-
-    useQRcode(QrNumber) {
+    
+    applyQrCode(QrNumber) {
         let num = Number(QrNumber);
         if (num === this.goalArray[this.currentGoalNumber]) {
             if (this.currentPatternPosition < this.patternLenght - 1) {
@@ -279,7 +280,7 @@ class M3T2G1 extends NiffGameMode {  //  Gentag mønster
                 let newDelta = 50 * this.patternLenght;
                 this.localMana += Number(newDelta);
                 updateManaCounters(newDelta);
-
+                
                 this.currentPatternPosition = 0;
                 this.currentGoalNumber = 0;
                 this.patternLenght += 1;
@@ -292,12 +293,15 @@ class M3T2G1 extends NiffGameMode {  //  Gentag mønster
             let oldText = showText.innerHTML;
             showText.innerHTML = '<h1> Ups! Start forfra &#x1FAE4; </h1>'; // Smiley :-/
             setTimeout(() => showText.innerHTML = oldText, 3000);
-
+            
             this.currentPatternPosition = 0;
             showPattern(this.patternLenght);
         }
     }
 }
+
+// Game modes above
+
 
 // class M1T1G1 extends NiffGameMode {  // 
 //     constructor() {
@@ -306,7 +310,7 @@ class M3T2G1 extends NiffGameMode {  //  Gentag mønster
 
 //     }
 
-//     useQRcode(QrNumber) {
+//     applyQrCode(QrNumber) {
 //     }
 // }
 
@@ -339,6 +343,7 @@ document.getElementById('showPatternButton').addEventListener('click', function(
 })
 document.getElementById('cancelScanButton').addEventListener('click', stopScan);
 document.getElementById('healButton').addEventListener('click', heal);
+document.getElementById('stopHealButton').addEventListener('click', stopHealing);
 // End of eventlisteners
 
 console.clear();
@@ -383,22 +388,41 @@ function stopScan() {
 let healingDrainTimer = '';
 
 function heal() {
-    setTimeout(stopHealing, 5000);
-    document.getElementById('canvasQrShow').hidden = false;
-    document.getElementById('healButton').hidden = true;
-    healingDrainTimer = setInterval(whileHealing, 1000);
+    if (9 < currentUser.localMana || 9 < currentUser.globalMana) {
+        stopStopHealingTimeOut = setTimeout(stopHealing, 5000);
+        document.getElementById('canvasQrShow').hidden = false;
+        document.getElementById('healButton').hidden = true;
+        document.getElementById('stopHealButton').hidden = false;
+        healingDrainTimer = setInterval(whileHealing, 1000);
+    } else {  // If there is no mana, the QR code should not be shown
+        whileHealing();
+    }
 }
 
 
 function whileHealing() {
-    globalMana -= 10;
-    updateManaCounters();
-    // Todo: What happens if global mana is depleated? Should the Healer be able to top up global mana by scanning 0?
+    if (10 < currentUser.localMana) {
+        let newDelta = 10;
+        currentUser.localMana -= Number(newDelta);
+        updateManaCounters(newDelta); 
+    } else if (9 < currentUser.globalMana) {
+        currentUser.globalMana -= 10;
+        updateManaCounters();
+    } else {
+        stopHealing();
+        showText = document.getElementById('showText');
+        let oldText = showText.innerHTML;
+        showText.hidden = false;
+        showText.innerHTML = '<h1> Beklager, der er ikke mere mana <br><br> Skaf ny mana, før du kan heale andre <br> <br> (Skan QR koden \'0\') &#x1F642; </h1>';  // Smiley :-)
+        setTimeout(() => {showText.innerHTML = oldText; showText.hidden = true}, 3000);
+    }
 }
 
 function stopHealing() {
     document.getElementById('canvasQrShow').hidden = true;
     clearInterval(healingDrainTimer);
+    clearInterval(stopStopHealingTimeOut);
+    document.getElementById('stopHealButton').hidden = true;
     document.getElementById('healButton').hidden = false;
 }
 
@@ -415,7 +439,7 @@ async function updateManaCounters(newMana) {
     document.getElementById('localManaCounter').innerHTML = 
     '<span>Nyhøstet Mana</span> <span class="score">' + currentUser.localMana + '</span>';
     document.getElementById('globalManaCounter').innerHTML = 
-    '<span>Samlet Mana</span> <span class="score">' + globalMana + '</span>';
+    '<span>Samlet Mana</span> <span class="score">' + currentUser.globalMana + '</span>';
 }
 
 
@@ -488,7 +512,7 @@ async function showError(number) {
 
 function useQRcode(QrNumber) {
     if (-1 < QrNumber && QrNumber < 13) {
-        currentUser.useQRcode(QrNumber);
+        currentUser.applyQrCode(QrNumber);
     } else if (isVictim !== 0 && -1 < QrNumber && QrNumber < 13) {
         messageDiv.innerHTML = '<p> Du er skadet og skal heales før du kan andet <br> Find en Healer eller scan 0 flere gange </p>'
 
@@ -643,8 +667,7 @@ function drawClockHandOnOverlay(smallHandNum, sFill, bigHandNum, bFill) {
     
         // Transform coordinates back into the unit circle, resize clock hand and transform back
         let xh = ((xNum  - 150) / 130 * handSize) * 130 + 150; 
-        let yh = ((yNum -  
-            150) / 130 * handSize) * 130 + 150;
+        let yh = ((yNum - 150) / 130 * handSize) * 130 + 150;
     
         drawArea.beginPath();
         drawArea.moveTo(xc + 5 * xt, yc + 5 * yt);
