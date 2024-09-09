@@ -41,6 +41,8 @@ let clockFaceCoor = { // Used for M3T1G1
 } ;
 
 
+// Gamemodes below
+
 class NiffGame {
     constructor(){
         this.globalMana = 500;
@@ -60,9 +62,9 @@ class NiffUser extends NiffGame {  // Maybe execissive, but opens for change of 
 class NiffGameMode extends NiffUser {
     constructor(gameMode) {
         super();
-        this.goalArray = goalArray;
+        this.goalArray = ['dummyGoal'];
         this.currentGoalNumber = 0; 
-        this.currentGoal = goalArray[this.currentGoalNumber];
+        this.currentGoal = this.goalArray[this.currentGoalNumber];
     }
     
     updateGoal () {
@@ -87,8 +89,9 @@ class M1T1G1 extends NiffGameMode {  // Healer
     }
 
     useQRcode(QrNumber) {
-        this.localMana += 10;
-        updateManaCounters(this.localMana)  // Todo: Remove the Healers scan-button for 10 seconds after each scan?
+        let newDelta = 10;
+        this.localMana += Number(newDelta);
+        updateManaCounters(newDelta); // Todo: Remove the Healers scan-button for 10 seconds after each scan?
     }
 }
 
@@ -100,12 +103,13 @@ class M2T2G1 extends NiffGameMode {  // Indstil visere
         this.firstGuess = true;
 
         let arrayLen = 20;
-        let goalArray = [];
+        this.goalArray = [];
         for (i = 0; i < arrayLen; i++) {
             let hour = Math.floor(Math.random() * 25);
             let min = Math.floor(Math.random() * 12) * 5;
-            goalArray.push([hour, min]);
+            this.goalArray.push([hour, min]);
         }
+        this.currentGoal = this.goalArray[this.currentGoalNumber];
         
         showText = document.getElementById('showText');
         showText.hidden = false;
@@ -126,8 +130,9 @@ class M2T2G1 extends NiffGameMode {  // Indstil visere
             drawClockHandOnOverlay(QrNumber, true, 12, false);
         } else if (!this.firstGuess && num * 5 === curGo[1]) {
             drawClockHandOnOverlay(this.smallHandNum, true, QrNumber, true);
-            this.localMana += 100;
-            updateManaCounters(this.localMana);
+            let newDelta = 100;
+            this.localMana += Number(newDelta);
+            updateManaCounters(newDelta);
             document.getElementsByTagName('h2')[0].style.color = 'rgb(53, 219, 53)';
             
             setTimeout(() => {drawClockHandOnOverlay(6, false, 12, false)
@@ -144,7 +149,7 @@ class M2T2G1 extends NiffGameMode {  // Indstil visere
         } else {
             showText = document.getElementById('showText');
             let oldText = showText.innerHTML;
-            showText.innerHTML = '<h1> Prøv igen &#x1F642; </h1>';
+            showText.innerHTML = '<h1> Prøv igen &#x1F642; </h1>';  // Smiley :-)
             setTimeout(() => showText.innerHTML = oldText, 3000);
         }
     }
@@ -167,7 +172,7 @@ class M3T1G1 extends NiffGameMode {  // Scan løs
         }
         this.localMana += Number(newDelta);
         updateManaCounters(newDelta);
-        lastScan = QrNumber;
+        this.lastScan = QrNumber;
     }
 }
 
@@ -180,17 +185,23 @@ class M3T1G2 extends NiffGameMode {  // Følg det viste mønster
         let arrayLen = 20;
         let startNum = 0;
         let tempArray = Array.from({length: arrayLen},()=> startNum += Math.ceil(Math.random()*6) + 2);  // Avoid the same number twice and neighboring numbers by stepping 2 to 8 steps forward. The next function brings the numbers back into 1-12
-        mod12 = (number) => number%12 + 1; // Plus 1 to avoid 12%12 = 0
+        let mod12 = (number) => number%12 + 1; // Plus 1 to avoid 12%12 = 0
         this.goalArray = tempArray.map(mod12);
+        this.currentGoal = this.goalArray[this.currentGoalNumber];
         
         drawClockfaceOverlay(this.currentGoal, 'green');
     }
 
-    useQRcode(QrNumber) {
+    async useQRcode(QrNumber) {
         if (Number(QrNumber) === this.currentGoal) {
-            this.localMana += 50;
-            updateManaCounters(this.localMana);
+            let newDelta = 50;
+            this.localMana += Number(newDelta);
+            updateManaCounters(newDelta);
             this.updateGoal();
+            drawClockfaceOverlay(this.currentGoal, 'green');
+        } else {
+            drawClockfaceOverlay(QrNumber, 'red');
+            await timer(600);
             drawClockfaceOverlay(this.currentGoal, 'green');
         }
     }
@@ -201,25 +212,31 @@ class M3T1G3 extends NiffGameMode {  // Følg mønster efter tal
     constructor() {
         super();
         this.gameMode = 'M3T1G3';
-
+        
         let arrayLen = 20;
         let startNum = 0;
         let tempArray = Array.from({length: arrayLen},()=> startNum += Math.ceil(Math.random()*6) + 2);  // Avoid the same number twice and neighboring numbers by stepping 2 to 8 steps forward. The next function brings the numbers back into 1-12
-        mod12 = (number) => number%12 + 1; // Plus 1 to avoid 12%12 = 0
+        let mod12 = (number) => number%12 + 1; // Plus 1 to avoid 12%12 = 0
         this.goalArray = tempArray.map(mod12);
+        this.currentGoal = this.goalArray[this.currentGoalNumber];
         
         showText = document.getElementById('showText');
         showText.hidden = false;
         showText.innerHTML = '<h2> Scan ' + this.currentGoal + '</h2>';
     }
-
-    useQRcode(QrNumber) {
+    
+    async useQRcode(QrNumber) {
+        showText = document.getElementById('showText');
         if (Number(QrNumber) === this.currentGoal) {
-            this.localMana += 50;
-            updateManaCounters(this.localMana);
+            let newDelta = 50;
+            this.localMana += Number(newDelta);
+            updateManaCounters(newDelta);
             this.updateGoal();
-            showText = document.getElementById('showText');
-            showText.innerHTML = '<h2> Scan ' + this.currentGoal + '</h2>';
+            showText.innerHTML = '<h2> Skan ' + this.currentGoal + '</h2>';
+        } else {
+            showText.innerHTML = '<h2> Det var ikke ' + this.currentGoal + '<br>  &#x1FAE4;</h2>';  // Smiley :-/
+            await timer(1000);
+            showText.innerHTML = '<h2> Skan ' + this.currentGoal + '</h2>';
         }
     }
 }
@@ -233,8 +250,9 @@ class M3T2G1 extends NiffGameMode {  //  Gentag mønster
         let arrayLen = 20;
         let startNum = 0;
         let tempArray = Array.from({length: arrayLen},()=> startNum += Math.ceil(Math.random()*6) + 2);  // Avoid the same number twice and neighboring numbers by stepping 2 to 8 steps forward. The next function brings the numbers back into 1-12
-        mod12 = (number) => number%12 + 1; // Plus 1 to avoid 12%12 = 0
-        goalArray = tempArray.map(mod12);
+        let mod12 = (number) => number%12 + 1; // Plus 1 to avoid 12%12 = 0
+        this.goalArray = tempArray.map(mod12);
+        this.currentGoal = this.goalArray[this.currentGoalNumber];
         
         showText = document.getElementById('showText');
         showText.hidden = false;
@@ -247,6 +265,9 @@ class M3T2G1 extends NiffGameMode {  //  Gentag mønster
         document.getElementById('scanButton').hidden = true;
     }
 
+
+    // Game modes above
+
     useQRcode(QrNumber) {
         let num = Number(QrNumber);
         if (num === this.goalArray[this.currentGoalNumber]) {
@@ -255,8 +276,9 @@ class M3T2G1 extends NiffGameMode {  //  Gentag mønster
                 this.currentPatternPosition += 1;
                 // TODO Show scanned number in green for 2 seconds
             } else {
-                this.localMana += 50 * this.patternLenght;
-                updateManaCounters(this.localMana);
+                let newDelta = 50 * this.patternLenght;
+                this.localMana += Number(newDelta);
+                updateManaCounters(newDelta);
 
                 this.currentPatternPosition = 0;
                 this.currentGoalNumber = 0;
@@ -268,7 +290,7 @@ class M3T2G1 extends NiffGameMode {  //  Gentag mønster
             showError(num);  // Show scanned number in red for 2 seconds
             showText = document.getElementById('showText');
             let oldText = showText.innerHTML;
-            showText.innerHTML = '<h1> Ups! Start forfra &#x1FAE4; </h1>';
+            showText.innerHTML = '<h1> Ups! Start forfra &#x1FAE4; </h1>'; // Smiley :-/
             setTimeout(() => showText.innerHTML = oldText, 3000);
 
             this.currentPatternPosition = 0;
@@ -423,7 +445,7 @@ function whileAttacked() {
 
 
 function gameModeHasBeenClicked(event) {
-    gameMode = event.target.id; // Id in the format M3T1G1 for Thinking level 1, Movement level 3 and Game 1
+    gameMode = event.target.id; // Id in the format M3T1G1 for Movement level 3, Thinking level 1 and Game number 1
     console.log(gameMode);
     
     if (gameMode !== '' && gameMode !== 'selectGameModeContainer') {
@@ -465,26 +487,27 @@ async function showError(number) {
 
 
 function useQRcode(QrNumber) {
-    if (isVictim !== 0  && QrNumber === 'center' || QrNumber === 'Thy shalst be healed!') {
-        if (QrNumber === 'Thy shalst be healed') {
+    if (-1 < QrNumber && QrNumber < 13) {
+        currentUser.useQRcode(QrNumber);
+    } else if (isVictim !== 0 && -1 < QrNumber && QrNumber < 13) {
+        messageDiv.innerHTML = '<p> Du er skadet og skal heales før du kan andet <br> Find en Healer eller scan 0 flere gange </p>'
+
+    } else if (isVictim !== 0  && QrNumber === 'center') {
+        isVictim -= 1;
+        if (isVictim < 0.00001) {
+            isVictim = 0;
+            messageDiv.innerHTML = '';
+            messageDiv.hidden = true;
+        }
+        document.getElementById('page').style.background = 'rgba(255, 0, 0, '+ isVictim / 14 + ')';
+        messageDiv.innerHTML = '<p> ' + healMsgs[isVictim] + ' <br> Scan 0 igen</p>' 
+
+    } else if (isVictim !== 0  && QrNumber === 'Thy shalst be healed') {
             isVictim = 0;
             document.getElementById('page').style.background = 'white';
             messageDiv.innerHTML = '';
             messageDiv.hidden = true;
-        } else {
-            isVictim -= 1;
-            if (isVictim < 0.00001) {
-                isVictim = 0;
-                messageDiv.innerHTML = '';
-                messageDiv.hidden = true;
-            }
-            document.getElementById('page').style.background = 'rgba(255, 0, 0, '+ isVictim / 14 + ')';
-            messageDiv.innerHTML = '<p> ' + healMsgs[isVictim] + ' <br> Scan 0 igen</p>'
-        }
-    } else if (isVictim !== 0 && -1 < QrNumber && QrNumber < 13) {
-        messageDiv.innerHTML = '<p> Du er skadet og skal heales før du kan andet <br> Find en Healer eller scan 0 flere gange </p>'
-    } else if (-1 < QrNumber && QrNumber < 13) {
-        currentUser.useQRcode(QrNumber);
+
     } else {
         messageDiv.innerHTML = '<p> Denne QR kode er dårlig magi! <br> Scan en anden </p>';
         messageDiv.hidden = false;
