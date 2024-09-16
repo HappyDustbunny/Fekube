@@ -691,18 +691,98 @@ function drawClockHandOnOverlay(smallHandNum, sFill, bigHandNum, bFill) {
 }
 
 
-function drawArcOnOverlay(C, R, v1, v2) {
+class NiffPuzzle {
+    constructor() {
+        this.pieces = [];
+        this.usedAnchors = [1];
+
+        this.generatePieces();
+    }
+    
+
+    generatePieces() {
+        let lastAnchor;
+        let nextAnchor;
+        for (var n = 1; n < 6; n++) {
+            lastAnchor = this.usedAnchors[this.usedAnchors.length - 1];
+            nextAnchor = lastAnchor + Math.floor(Math.random() * 3) + 1;
+            const currentPuzzlePiece = new NiffPuzzlePiece(n, this, lastAnchor, nextAnchor);
+            this.pieces.push(currentPuzzlePiece);
+        }
+    }
+}
+
+class NiffPuzzlePiece {
+    constructor(pieceID, puzzle, lastAnchor, nextAnchor) {
+        this.pieceID = pieceID;
+        this.puzzle = puzzle;
+        this.anchors = [lastAnchor, nextAnchor];
+        this.possibleNewAnchors = [];
+        
+        this.puzzle.usedAnchors.push(nextAnchor);
+
+        this.anchors.push(nextAnchor, lastAnchor);
+    }
+}
+
+class NiffArc {
+    constructor(cx, cy, R, v1, v2, A, B, Ma, MaL, MaR) {
+        this.cx = cx; // Center x coordinate
+        this.cy = cy; // Center y coordinate
+        this.R = R; // Radius of the arc
+        this.v1 = v1; // First angle with x-axis
+        this.v2 = v2; // Second angle with x-axis
+        this.A = A; // Coordinates for the first endpoint of the arc
+        this.B = B; // Coordinates for the second endpoint of the arc
+        this.Ma = Ma;  // Coordinates for center of arc
+        this.MaL = MaL; // Coordinates for the center of the left part of the arc
+        this.MaR = MaR; // Coordinates for the center of the right part of the arc
+    }
+}
+
+function drawPuzzle(puzzle) {
     drawClockface();
-    // Find and show ClockfaceOverlay
     let canvasClockfaceOverlay = document.getElementById("canvasClockfaceOverlay");
     canvasClockfaceOverlay.hidden = false;
     let drawArea = canvasClockfaceOverlay.getContext("2d");
     canvasClockfaceOverlay.width = 0.8 * winWidth;
     canvasClockfaceOverlay.height = 0.8 * winHeight;
     drawArea.scale(zoomFactor, zoomFactor);
+    
+    drawArea.beginPath();
+
+    for (var puzzlePiece of puzzle.pieces) {
+        for (var i = 0; i < puzzlePiece.anchors.length; i += 2) {
+            let arc = getCenterAndAngles(puzzlePiece.anchors[i], puzzlePiece.anchors[i + 1], 130);
+            drawArea.arc(arc.cx, arc.cy, arc.R, arc.v1, arc.v2);
+        }
+    }
+    
+    drawArea.stroke();
+
+    // let arc = getCenterAndAngles(clockFaceCoor[A], clockFaceCoor[B], 130);
+    // drawArea.arc(arc.cx, arc.cy, arc.R, arc.v1, arc.v2);
+    // for (var n = -15; n < 21; n+=5) {
+    //     // drawArcOnOverlay(arc.cx, arc.cy, arc.R, arc.v1, arc.v2, drawArea)    
+    //     drawArea.arc(arc.cx, arc.cy, arc.R, arc.v1, arc.v2);
+    // }
+
+    // drawArea.fill();
+}
+
+
+function drawArcOnOverlay(cx, cy, R, v1, v2, drawArea) {
+    drawClockface();
+    // Find and show ClockfaceOverlay
+    // let canvasClockfaceOverlay = document.getElementById("canvasClockfaceOverlay");
+    // canvasClockfaceOverlay.hidden = false;
+    // let drawArea = canvasClockfaceOverlay.getContext("2d");
+    // canvasClockfaceOverlay.width = 0.8 * winWidth;
+    // canvasClockfaceOverlay.height = 0.8 * winHeight;
+    // drawArea.scale(zoomFactor, zoomFactor);
 
     drawArea.beginPath();
-    drawArea.arc(C[0], C[1], R, v1, v2);
+    drawArea.arc(cx, cy, R, v1, v2);
     drawArea.stroke();
 }
 
@@ -713,6 +793,7 @@ function getCenterAndAngles(A, B, R) {  // Return the center and the two angles 
         B = clockFaceCoor[B];
     }
     let distAB = dist(A, B);
+    if (R < distAB / 2) {R = distAB / 2 + 1; console.log('Radius too small. R set to ' + R)};
     let distABtoC = Math.sqrt(R * R - (distAB/2) * (distAB/2));
     let AB = vecAB(A, B);
     let hatAB = hatVector(AB);
@@ -721,19 +802,23 @@ function getCenterAndAngles(A, B, R) {  // Return the center and the two angles 
     let CA = vecAB(C, A);
     let CB = vecAB(C, B);
     let i = [1, 0];  // Unit vector along x-axis
-    angleACB = Math.acos(dotProd(CA, CB)/(vectorLength(CA)*vectorLength(CB))); // Angle spanned by the arc
-    angleBCO = Math.acos(dotProd(CB, i)/(vectorLength(CB)*vectorLength(i)));  // The angle between the x-axis and the first vector
+    angleACO = Math.acos(dotProd(CA, i)/(vectorLength(CA)*vectorLength(i))); // The angle between the x-axis and the first vector
+    angleBCO = Math.acos(dotProd(CB, i)/(vectorLength(CB)*vectorLength(i)));  // The angle between the x-axis and the second vector
     if (A[1] < C[1]) {
-        return [C, 2 * pi - angleBCO, (2 * pi - angleBCO) - angleACB];
-    } else {
-        return [C, angleBCO, angleBCO - angleACB];
+        angleACO = 2 * pi - angleACO;
+    } 
+    if (B[1] < C[1]) {
+        angleBCO = 2 * pi - angleBCO;
     }
 
-    // if(10 < dist(clockFaceCoor[0], C)) {
-    //     return [C, -angleBCO, -angleBCO + angleACB];
-    // } else {
-    //     return [C, angleBCO, angleACB + angleBCO];  // From angleBCO to angleACB + angleBCO clockwise. Absolute angles, the latter is NOT relative to the first. Doh.
-    // }
+    let angleSpan = angleACO - angleBCO;
+    let Ma = [C[0] + R * Math.cos(angleSpan/2 + angleBCO), C[1] + R * Math.sin(angleSpan/2 + angleBCO)];
+    let MaL = [C[0] + R * Math.cos(3 * angleSpan/4 + angleBCO), C[1] + R * Math.sin(3 * angleSpan/4 + angleBCO)];
+    let MaR = [C[0] + R * Math.cos(angleSpan/4 + angleBCO), C[1] + R * Math.sin(angleSpan/4 + angleBCO)];
+
+    let arc = new NiffArc(C[0], C[1], R, angleBCO, angleACO, A, B, Ma, MaL, MaR);
+    
+    return arc;
 }
 
 
