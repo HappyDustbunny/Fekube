@@ -749,16 +749,21 @@ function drawPuzzle(puzzle) {
     canvasClockfaceOverlay.height = 0.8 * winHeight;
     drawArea.scale(zoomFactor, zoomFactor);
     
-    drawArea.beginPath();
-
-    for (var puzzlePiece of puzzle.pieces) {
+    
+    for (var [index, puzzlePiece] of puzzle.pieces.entries()) {
+        drawArea.beginPath();
+        drawArea.fillStyle = ['red', 'blue', 'green', 'yellow', 'magenta'][index];
         for (var i = 0; i < puzzlePiece.anchors.length; i += 2) {
-            let arc = getCenterAndAngles(puzzlePiece.anchors[i], puzzlePiece.anchors[i + 1], 130);
+            let anch1 = puzzlePiece.anchors[i];
+            let anch2 = puzzlePiece.anchors[i + 1];
+            let arc = getCenterAndAngles(anch1, anch2, 130);
+            drawArea.moveTo(clockFaceCoor[anch2][0], clockFaceCoor[anch2][1]);
             drawArea.arc(arc.cx, arc.cy, arc.R, arc.v1, arc.v2);
         }
+        drawArea.fill();
     }
     
-    drawArea.stroke();
+    // drawArea.stroke();
 
     // let arc = getCenterAndAngles(clockFaceCoor[A], clockFaceCoor[B], 130);
     // drawArea.arc(arc.cx, arc.cy, arc.R, arc.v1, arc.v2);
