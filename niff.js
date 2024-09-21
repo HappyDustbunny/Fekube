@@ -694,34 +694,50 @@ function drawClockHandOnOverlay(smallHandNum, sFill, bigHandNum, bFill) {
 class NiffPuzzle {
     constructor() {
         this.pieces = [];
-        this.usedAnchors = [1];
+        this.usedRimAnchors = [1];  // TODO: Oups. Currently anchors is numbers around the clock. Refactor to make them coordinates
+        this.potentialAnchors = [];
 
         this.generatePieces();
     }
     
 
     generatePieces() {
-        let lastAnchor;
+        let firstAnchor;
         let nextAnchor;
         for (var n = 1; n < 6; n++) {
-            lastAnchor = this.usedAnchors[this.usedAnchors.length - 1];
-            nextAnchor = lastAnchor + Math.floor(Math.random() * 3) + 1;
-            const currentPuzzlePiece = new NiffPuzzlePiece(n, this, lastAnchor, nextAnchor);
+            const bigPiece = Math.random();
+            if (0 < this.potentialAnchors.length && bigPiece < 0.9) {
+                firstAnchor = this.potentialAnchors[1];
+            } else {
+                firstAnchor = this.usedRimAnchors[this.usedRimAnchors.length - 1];
+                nextAnchor = firstAnchor + Math.floor(Math.random() * 2 ) + 2;
+                this.usedRimAnchors.push(nextAnchor);
+            }
+            // nextAnchor = firstAnchor + Math.floor(Math.random() * 3) + 1;
+            const currentPuzzlePiece = new NiffPuzzlePiece(n, this, clockFaceCoor[firstAnchor], clockFaceCoor[nextAnchor]);
             this.pieces.push(currentPuzzlePiece);
+
+            const centerAndAngles = getCenterAndAngles(firstAnchor, nextAnchor, 130);
+            this.potentialAnchors.push(centerAndAngles.Ma);
+            this.potentialAnchors.push(centerAndAngles.MaL);
+            this.potentialAnchors.push(centerAndAngles.MaR);
+            this.potentialAnchors.push(this.usedRimAnchors[this.usedRimAnchors.length - 1] + 1);
+            this.potentialAnchors.push(this.usedRimAnchors[this.usedRimAnchors.length - 1] + 2);
+            this.potentialAnchors.push(this.usedRimAnchors[this.usedRimAnchors.length - 1] + 3);
         }
     }
 }
 
 class NiffPuzzlePiece {
-    constructor(pieceID, puzzle, lastAnchor, nextAnchor) {
+    constructor(pieceID, puzzle, firstAnchor, nextAnchor) {
         this.pieceID = pieceID;
         this.puzzle = puzzle;
-        this.anchors = [lastAnchor, nextAnchor];
+        this.anchors = [firstAnchor, nextAnchor];
         this.possibleNewAnchors = [];
         
-        this.puzzle.usedAnchors.push(nextAnchor);
+        this.puzzle.usedRimAnchors.push(nextAnchor);
 
-        this.anchors.push(nextAnchor, lastAnchor);
+        this.anchors.push(nextAnchor, firstAnchor);
     }
 }
 
