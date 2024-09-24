@@ -12,6 +12,7 @@ const html5Qrcode = new Html5Qrcode("reader");
 let gameMode = '';
 let globalMana = 500;  // Start with some mana to heal attacked players
 let localMana = 0;
+let amulet = false;
 let currentUser = '';
 let isVictim = 0;  // Change to 5 if player is attacked and needs healing. Is healed fully by Healer, but need a few scans of '0' to heal alone
 
@@ -54,6 +55,7 @@ class NiffUser extends NiffGame {  // Maybe execissive, but opens for change of 
     constructor(gameMode, goalArray) {
         super();
         this.localMana = 0;
+        this.amulet = false;
     }
     
 }
@@ -334,6 +336,9 @@ document.getElementById('closeIntro4').addEventListener('click', closeIntro);
 document.getElementById('selectGameModeContainer').addEventListener('click', 
     function(event) { gameModeHasBeenClicked(event); }, true);
 
+document.getElementById('chooseGameMode').addEventListener('click', 
+    function(event) { chooseGameModeHasBeenClicked(event); }, true);
+
 document.getElementById('scanButton').addEventListener('click', function() {
     document.getElementById('scanButton').hidden = true;
     document.getElementById('cancelScanButton').hidden = false;
@@ -362,7 +367,11 @@ function setUpFunction() {
 function closeIntro() {
     document.getElementById('intro').style.display = 'none';
     document.getElementById('closeIntro4').style.display = 'none';
-    document.getElementById('selectGameModeContainer').hidden = false;
+    document.getElementById('chooseGameMode').style.display = 'block';
+    // document.getElementById('startInstruktion').hidden = false;
+    // document.getElementById('selectGameModeContainer').style.display = 'grid';
+    // await timer(600);
+    // document.getElementById('secondInstruction').style.visibility = 'visible';
 }
 
 
@@ -445,12 +454,12 @@ async function updateManaCounters(newMana) {
 }
 
 
-let attackTimer = setInterval(attackChance, 10000);
+let attackTimer = setInterval(attackChance, 10000);  // TODO: Move to Start Main Game routine
 
 let whileAttackedTimer = '';                
 
 function attackChance() {
-    if (isVictim === 0 && Math.random() < 0.001) {
+    if (!currentUser.amulet && isVictim === 0 && Math.random() < 0.001) {
         isVictim = 5;  // Requires 5 healing to be well. A healer can do it in one go. Scanning "0" five times works too
         document.getElementById('page').style.background = 'rgba(255, 0, 0, .36)';
         messageDiv.hidden = false;
@@ -470,13 +479,30 @@ function whileAttacked() {
 }
 
 
+async function chooseGameModeHasBeenClicked(event) {
+    if (event.target.id === 'normal') {
+        localMana = 0;
+        amulet = false;
+    } else if (event.target.id === 'buyAmulet') {
+        localMana = -200;
+        amulet = true;
+    }
+    document.getElementById('chooseGameMode').hidden = true;
+    document.getElementById('selectGameModeContainer').style.display = 'grid';
+    await timer(600);
+    document.getElementById('startInstruktion').hidden = false;
+    document.getElementById('secondInstruction').style.visibility = 'visible';
+}
+
+
 function gameModeHasBeenClicked(event) {
     gameMode = event.target.id; // Id in the format M3T1G1 for Movement level 3, Thinking level 1 and Game number 1
     console.log(gameMode);
     
     if (gameMode !== '' && gameMode !== 'selectGameModeContainer') {
         // Adjust layout to game mode
-        document.getElementById('selectGameModeContainer').hidden = true;
+        document.getElementById('selectGameModeContainer').style.display = 'none';
+        document.getElementById('startInstruktion').hidden = true;
         document.getElementById('globalManaCounter').style.visibility = 'visible';
         document.getElementById('localManaCounter').style.visibility = 'visible';
         document.getElementById('QrContainer').hidden = false;
@@ -484,6 +510,10 @@ function gameModeHasBeenClicked(event) {
 
         let gameModeClass = gameModes[gameMode];
         currentUser = new gameModeClass();
+        currentUser.localMana = localMana;
+        currentUser.amulet = amulet;
+
+        navigator.vibrate(200);  // Just to test it. Will not work in Firefox :-/
         
         updateManaCounters();
     }
@@ -695,7 +725,7 @@ class NiffPuzzle {
     constructor() {
         this.pieces = [];
         this.usedRimAnchors = [1];  // TODO: Oups. Currently anchors is numbers around the clock. Refactor to make them coordinates
-        this.potentialAnchors = [];
+        this.potentialAnchors = [];  // Hmm. A lot of debugging needed. Remember: rap = new NiffPuzzle(); drawPuzzle(rap) to test puzzle in browser
 
         this.generatePieces();
     }
@@ -704,7 +734,7 @@ class NiffPuzzle {
     generatePieces() {
         let firstAnchor;
         let nextAnchor;
-        for (var n = 1; n < 6; n++) {
+        for (var n = 1; n < 6; n++) {  // Ouch. Still confusion if clockposition numbers or coordinates are being used...
             const bigPiece = Math.random();
             if (0 < this.potentialAnchors.length && bigPiece < 0.9) {
                 firstAnchor = this.potentialAnchors[1];
@@ -717,7 +747,7 @@ class NiffPuzzle {
             const currentPuzzlePiece = new NiffPuzzlePiece(n, this, clockFaceCoor[firstAnchor], clockFaceCoor[nextAnchor]);
             this.pieces.push(currentPuzzlePiece);
 
-            const centerAndAngles = getCenterAndAngles(firstAnchor, nextAnchor, 130);
+            const centerAndAngles = getCenterAndAngles(clockFaceCoor[firstAnchor][0], clockFaceCoor[firstAnchor][1], 130);
             this.potentialAnchors.push(centerAndAngles.Ma);
             this.potentialAnchors.push(centerAndAngles.MaL);
             this.potentialAnchors.push(centerAndAngles.MaR);
@@ -772,8 +802,9 @@ function drawPuzzle(puzzle) {
         for (var i = 0; i < puzzlePiece.anchors.length; i += 2) {
             let anch1 = puzzlePiece.anchors[i];
             let anch2 = puzzlePiece.anchors[i + 1];
-            let arc = getCenterAndAngles(anch1, anch2, 130);
-            drawArea.moveTo(clockFaceCoor[anch2][0], clockFaceCoor[anch2][1]);
+            let arc = getCenterAndAngles(anch1[0], anch1[1], 130);
+            drawArea.moveTo(anch2[0], anch2[1]);
+            // drawArea.moveTo(clockFaceCoor[anch2][0], clockFaceCoor[anch2][1]);
             drawArea.arc(arc.cx, arc.cy, arc.R, arc.v1, arc.v2);
         }
         drawArea.fill();
@@ -809,10 +840,10 @@ function drawArcOnOverlay(cx, cy, R, v1, v2, drawArea) {
 
 
 function getCenterAndAngles(A, B, R) {  // Return the center and the two angles necessarty for drawing an arc defined by its endpoints A[xa, ya] and B[xb, yb] and radius R
-    if (typeof(A) === "number") {
-        A = clockFaceCoor[A];  // Bad practice to allow two input formats, I know, I know, but it saves a lot of lines and makes testing way easier ...
-        B = clockFaceCoor[B];
-    }
+    // if (typeof(A) === "number") {
+    //     A = clockFaceCoor[A];  // Bad practice to allow two input formats, I know, I know, but it saves a lot of lines and makes testing way easier ...
+    //     B = clockFaceCoor[B];
+    // }
     let distAB = dist(A, B);
     if (R < distAB / 2) {R = distAB / 2 + 1; console.log('Radius too small. R set to ' + R)};
     let distABtoC = Math.sqrt(R * R - (distAB/2) * (distAB/2));

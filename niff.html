@@ -36,7 +36,7 @@
                 <p> Sæt derefter det sidste Portal-anker ("0"), op i midten af cirkelen </p>
         
                 <div class="closeIntroDiv">
-                    <button id="closeIntro1"> GÅ VIDERE TIL VALG AF ROLLER </button>
+                    <button id="closeIntro1" class="startButton"> Start </button>
                 </div>
                 <br>
                 <br>
@@ -84,7 +84,7 @@
                     har valgt rollen som healer).
                 </p>
                 <div class="closeIntroDiv">
-                    <button id="closeIntro2"> GÅ VIDERE TIL VALG AF ROLLER </button>
+                    <button id="closeIntro2" class="startButton"> Start </button>
                 </div>
                 <br>
                 <br>
@@ -121,7 +121,7 @@
                     vi begge gladere :-D </p>
 
                 <div class="closeIntroDiv">
-                    <button id="closeIntro3"> GÅ VIDERE TIL VALG AF ROLLER </button>
+                    <button id="closeIntro3" class="startButton"> Start </button>
                 </div>
             </details>
 
@@ -130,11 +130,38 @@
 
         </div>
         <div id="lastCloseIntro" class="closeIntroDiv">
-            <button id="closeIntro4" tabindex="1"> GÅ VIDERE TIL VALG AF ROLLER </button>
+            <button id="closeIntro4" class="startButton" tabindex="1"> Start </button>
+        </div>
+
+        <div id="chooseGameMode">
+            <p>Vælg game mode</p>
+            <Button id="normal" class="gameModeChoise" tabindex="1"> Normal </Button> <br> <br>
+            <button id="buyAmulet"> Start med amulet mod monstre* </button>
+            <br>
+            <br>
+            <br>
+            <details>
+                <summary class="frontpageSummary">*</summary>
+                <p class="footnote"> Monstre kan en gang imellem såre feer der samler mana, men det er ikke alvorligt. <br> 
+                    Feerne kan let blive healet <br>
+                    Vælg kun en amulet, hvis du <em>slet</em> ikke bryder dig om tanken om at monstre kan nå dig
+                </p>
+                <p> Vær opmærksom på at</p>
+                <ul>
+                    <li>En amulet mod monstre koster 200 Mana, så du starter med at skylde lidt Mana</li>
+                    <li>En amulet er ikke nødvendig, hvis der er vagter på holdet</li>
+                    <li>Du kan ikke vælge at være vagt, hvis du har en amulet der skræmmer monstre væk</li>
+                </ul>
+            </details>
+            </p>
         </div>
         
+        <div id="startInstruktion" hidden>
+            <p>Vælg aktivitetsniveau </p> 
+            <p id="secondInstruction"> ... og så sværhedsgrad <br></p>
+        </div>
+
         <div id="selectGameModeContainer" hidden>
-            <p>Vælg aktivitetsniveau og derefter sværhedsgrad </p>
             <details> <summary class="summaryHeading"> &#x1f9cd;&#x200d;&#x2640;&#xFE0F; &#x1FA91;</summary>
                 <details><summary class="summarySubHeading">&#x1F914;</summary>
                     <details><summary class="summarySubSubHeading">Healer</summary>

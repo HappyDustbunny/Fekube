@@ -57,6 +57,37 @@ kbd {
     grid-template-rows: 1fr 6fr 1fr 6fr 1fr;
 }
 
+#selectGameModeContainer {
+    display: none;
+    grid-area: txtCont;
+}
+
+#startInstruktion {
+    text-align: center;
+}
+
+#secondInstruction {
+    visibility: hidden;
+}
+
+#chooseGameMode {
+    display: none;
+}
+
+ul {
+    margin-top: 0px;
+}
+
+li {
+    font: icon;
+    font-size: 14px;
+}
+
+.footnote {
+    font-size: unset;
+    margin-bottom: 0px;
+}
+
 #output {
     background-color: aqua;
 }
@@ -157,7 +188,7 @@ kbd {
     visibility: hidden;
 }
 
-#scanButton {
+#scanButton, .startButton, .gameModeChoise {
     align-self: center;
     border-radius: 25px;
     width: 50px;
