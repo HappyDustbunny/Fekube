@@ -13,6 +13,7 @@ let gameMode = '';
 let globalMana = 500;  // Start with some mana to heal attacked players
 let localMana = 0;
 let amulet = false;
+let coordinator = false;
 let currentUser = '';
 let isVictim = 0;  // Change to 5 if player is attacked and needs healing. Is healed fully by Healer, but need a few scans of '0' to heal alone
 
@@ -47,6 +48,7 @@ let clockFaceCoor = { // Used for M3T1G1
 class NiffGame {
     constructor(){
         this.globalMana = 500;
+        this.playerList = [];
     }
 }
 
@@ -56,6 +58,7 @@ class NiffUser extends NiffGame {  // Maybe execissive, but opens for change of 
         super();
         this.localMana = 0;
         this.amulet = false;
+        this.coordinator = false;
     }
     
 }
@@ -328,10 +331,7 @@ const gameModes = {
 
 
 // Eventlisteners
-document.getElementById('closeIntro1').addEventListener('click', closeIntro);
-document.getElementById('closeIntro2').addEventListener('click', closeIntro);
-document.getElementById('closeIntro3').addEventListener('click', closeIntro);
-document.getElementById('closeIntro4').addEventListener('click', closeIntro);
+// document.getElementById('closeIntro').addEventListener('click', closeIntro);
 
 document.getElementById('selectGameModeContainer').addEventListener('click', 
     function(event) { gameModeHasBeenClicked(event); }, true);
@@ -482,12 +482,13 @@ function whileAttacked() {
 async function chooseGameModeHasBeenClicked(event) {
     if (event.target.id === 'normal') {
         localMana = 0;
-        amulet = false;
     } else if (event.target.id === 'buyAmulet') {
         localMana = -200;
         amulet = true;
+    } else if (event.target.id === 'coordinator') {
+        coordinator = true;
     }
-    document.getElementById('chooseGameMode').hidden = true;
+    document.getElementById('intro').style.display = 'none';
     document.getElementById('selectGameModeContainer').style.display = 'grid';
     await timer(600);
     document.getElementById('startInstruktion').hidden = false;
@@ -512,6 +513,13 @@ function gameModeHasBeenClicked(event) {
         currentUser = new gameModeClass();
         currentUser.localMana = localMana;
         currentUser.amulet = amulet;
+        currentUser.coordinator = coordinator;
+
+        if (coordinator) {
+            // Display instructions to scan other phones  TODO!
+        } else {
+            // Show QR code and display instructions to let phone be scanned by coordinator
+        }
 
         navigator.vibrate(200);  // Just to test it. Will not work in Firefox :-/
         

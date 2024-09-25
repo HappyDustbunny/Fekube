@@ -46,7 +46,7 @@ kbd {
     font-size: x-large;
 }
 
-#page {
+/* #page {
     display: grid;
     grid-template-areas:
         'header '
@@ -55,7 +55,7 @@ kbd {
         'comCont'
         'navCont';
     grid-template-rows: 1fr 6fr 1fr 6fr 1fr;
-}
+} */
 
 #selectGameModeContainer {
     display: none;
@@ -70,9 +70,10 @@ kbd {
     visibility: hidden;
 }
 
-#chooseGameMode {
-    display: none;
-}
+/* #chooseGameMode {
+    display: grid;
+    align-content: center;
+} */
 
 ul {
     margin-top: 0px;
@@ -188,7 +189,7 @@ li {
     visibility: hidden;
 }
 
-#scanButton, .startButton, .gameModeChoise {
+#scanButton, .startButton {
     align-self: center;
     border-radius: 25px;
     width: 50px;
