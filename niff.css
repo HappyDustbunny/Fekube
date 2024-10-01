@@ -57,7 +57,7 @@ kbd {
     grid-template-rows: 1fr 6fr 1fr 6fr 1fr;
 } */
 
-#selectGameModeContainer {
+#selectRoleContainer {
     display: none;
     grid-area: txtCont;
 }

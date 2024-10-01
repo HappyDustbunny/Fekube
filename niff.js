@@ -53,12 +53,13 @@ class NiffGame {
 }
 
 
-class NiffUser extends NiffGame {  // Maybe execissive, but opens for change of gamemode during a game
+class NiffUser extends NiffGame {  // Maybe execissive, but opens for change of gamemode during a game - OR NOT? May need a decoupling like the puzzle class
     constructor(gameMode, goalArray) {
         super();
         this.localMana = 0;
         this.amulet = false;
         this.coordinator = false;
+        this.ID = Math.floor(Math.random() * 1000000);
     }
     
 }
@@ -333,11 +334,11 @@ const gameModes = {
 // Eventlisteners
 // document.getElementById('closeIntro').addEventListener('click', closeIntro);
 
-document.getElementById('selectGameModeContainer').addEventListener('click', 
-    function(event) { gameModeHasBeenClicked(event); }, true);
-
 document.getElementById('chooseGameMode').addEventListener('click', 
-    function(event) { chooseGameModeHasBeenClicked(event); }, true);
+    function(event) { chooseGameModeHasBeenClicked(event); }, true);  // Normal/BuyAmulet/coordinator
+
+document.getElementById('selectRoleContainer').addEventListener('click', 
+    function(event) { roleHasBeenClicked(event); }, true);
 
 document.getElementById('scanButton').addEventListener('click', function() {
     document.getElementById('scanButton').hidden = true;
@@ -369,7 +370,7 @@ function closeIntro() {
     document.getElementById('closeIntro4').style.display = 'none';
     document.getElementById('chooseGameMode').style.display = 'block';
     // document.getElementById('startInstruktion').hidden = false;
-    // document.getElementById('selectGameModeContainer').style.display = 'grid';
+    // document.getElementById('selectRoleContainer').style.display = 'grid';
     // await timer(600);
     // document.getElementById('secondInstruction').style.visibility = 'visible';
 }
@@ -489,20 +490,20 @@ async function chooseGameModeHasBeenClicked(event) {
         coordinator = true;
     }
     document.getElementById('intro').style.display = 'none';
-    document.getElementById('selectGameModeContainer').style.display = 'grid';
+    document.getElementById('selectRoleContainer').style.display = 'grid';
     await timer(600);
     document.getElementById('startInstruktion').hidden = false;
     document.getElementById('secondInstruction').style.visibility = 'visible';
 }
 
 
-function gameModeHasBeenClicked(event) {
+function roleHasBeenClicked(event) {
     gameMode = event.target.id; // Id in the format M3T1G1 for Movement level 3, Thinking level 1 and Game number 1
     console.log(gameMode);
     
-    if (gameMode !== '' && gameMode !== 'selectGameModeContainer') {
+    if (gameMode !== '' && gameMode !== 'selectRoleContainer') {
         // Adjust layout to game mode
-        document.getElementById('selectGameModeContainer').style.display = 'none';
+        document.getElementById('selectRoleContainer').style.display = 'none';
         document.getElementById('startInstruktion').hidden = true;
         document.getElementById('globalManaCounter').style.visibility = 'visible';
         document.getElementById('localManaCounter').style.visibility = 'visible';
@@ -512,6 +513,7 @@ function gameModeHasBeenClicked(event) {
         let gameModeClass = gameModes[gameMode];
         currentUser = new gameModeClass();
         currentUser.localMana = localMana;
+        currentUser.globalMana = globalMana;
         currentUser.amulet = amulet;
         currentUser.coordinator = coordinator;
 
@@ -521,9 +523,9 @@ function gameModeHasBeenClicked(event) {
             // Show QR code and display instructions to let phone be scanned by coordinator
         }
 
-        navigator.vibrate(200);  // Just to test it. Will not work in Firefox :-/
-        
         updateManaCounters();
+        
+        navigator.vibrate(200);  // Just to test it. Will not work in Firefox :-/
     }
 }
 
