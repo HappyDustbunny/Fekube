@@ -20,11 +20,11 @@
 
 <body onload="setUpFunction()">
     <div id="page">
-        <div id="headContainer">
+        <header id="headContainer">
             <div id="globalManaCounter"> <span>Samlet Mana</span> <span class="score"> 0 </span> </div>
             <h1 id="gameName">Niff</h1>
             <div id="localManaCounter"> <span>Nyhøstet Mana</span> <span class="score"> 0 </span> </div>
-        </div>
+        </header>
 
 
         <div id="intro">
@@ -144,106 +144,107 @@
             <br>
             <br>
         </div>
+
+        <div id="selectRole">
+            <div id="startInstruktion">
+                <p>Vælg aktivitetsniveau </p> 
+                <p id="secondInstruction"> ... og så sværhedsgrad <br></p>
+            </div>
     
-        <!-- <div id="lastCloseIntro" class="closeIntroDiv">
-            <button id="closeIntro" class="startButton" tabindex="1"> Start </button>
-        </div> -->
-        
-        <div id="startInstruktion" hidden>
-            <p>Vælg aktivitetsniveau </p> 
-            <p id="secondInstruction"> ... og så sværhedsgrad <br></p>
-        </div>
-
-        <div id="selectRoleContainer" hidden>
-            <details> <summary class="summaryHeading"> &#x1f9cd;&#x200d;&#x2640;&#xFE0F; &#x1FA91;</summary>
-                <details><summary class="summarySubHeading">&#x1F914;</summary>
-                    <details><summary class="summarySubSubHeading">Healer</summary>
-                        Vær klar til at hjælpe feer der er kommet til <br> skade ved at lade dem scanne din 
-                        skærm. <br> Saml mana ved at scanne "0" en gang imellem
-                        <button id="M1T1G1"> Vælg </button>
+            <div id="selectRoleContainer">
+                <details> <summary class="summaryHeading"> &#x1f9cd;&#x200d;&#x2640;&#xFE0F; &#x1FA91;</summary>
+                    <details><summary class="summarySubHeading">&#x1F914;</summary>
+                        <details><summary class="summarySubSubHeading">Healer</summary>
+                            Vær klar til at hjælpe feer der er kommet til <br> skade ved at lade dem scanne din 
+                            skærm. <br> Saml mana ved at scanne "0" en gang imellem
+                            <button id="M1T1G1"> Vælg </button>
+                        </details>
+                    </details>
+                    <details><summary class="summarySubHeading">&#x1F914;&#x1F914;</summary>
+                    </details>
+                    <details><summary class="summarySubHeading">&#x1F914;&#x1F914;&#x1F914;</summary>
                     </details>
                 </details>
-                <details><summary class="summarySubHeading">&#x1F914;&#x1F914;</summary>
-                </details>
-                <details><summary class="summarySubHeading">&#x1F914;&#x1F914;&#x1F914;</summary>
-                </details>
-            </details>
-
-            <details> <summary class="summaryHeading">&#x1f6b6;&#x1F3fF; &#x1F469;&#x200D;&#x1F9BC;&#x200D;&#xFE0F;</summary>
-                <details><summary class="summarySubHeading">&#x1F914;</summary>
-                </details>
-                <details><summary class="summarySubHeading">&#x1F914;&#x1F914;</summary>
-                    <details><summary class="summarySubSubHeading">Indstil visere</summary>
-                        Indstil viserne, så de viser samme tid som digitaluret 
-                        <button id="M2T2G1"> Vælg </button>
+    
+                <details> <summary class="summaryHeading">&#x1f6b6;&#x1F3fF; &#x1F469;&#x200D;&#x1F9BC;&#x200D;&#xFE0F;</summary>
+                    <details><summary class="summarySubHeading">&#x1F914;</summary>
+                    </details>
+                    <details><summary class="summarySubHeading">&#x1F914;&#x1F914;</summary>
+                        <details><summary class="summarySubSubHeading">Indstil visere</summary>
+                            Indstil viserne, så de viser samme tid som digitaluret 
+                            <button id="M2T2G1"> Vælg </button>
+                        </details>
+                    </details>
+                    <details><summary class="summarySubHeading">&#x1F914;&#x1F914;&#x1F914;</summary>
                     </details>
                 </details>
-                <details><summary class="summarySubHeading">&#x1F914;&#x1F914;&#x1F914;</summary>
-                </details>
-            </details>
-
-            <details> <summary class="summaryHeading">&#x1f3c3;&#x1F3Fe;&#x200d;&#x2640;&#xFE0F; &#x1f9D1;&#x1F3fD;&#x200D;&#x1F9BD; </summary>
-                <details><summary class="summarySubHeading">&#x1F914;</summary>
-                    <details><summary class="summarySubSubHeading">Skan løs</summary>
-                        Scan så mange QR-koder som muligt. <br> Jo længere QR-koderne ligger fra hinanden, jo mere mana samles der ind
-                        <button id="M3T1G1"> Vælg </button>
+    
+                <details> <summary class="summaryHeading">&#x1f3c3;&#x1F3Fe;&#x200d;&#x2640;&#xFE0F; &#x1f9D1;&#x1F3fD;&#x200D;&#x1F9BD; </summary>
+                    <details><summary class="summarySubHeading">&#x1F914;</summary>
+                        <details><summary class="summarySubSubHeading">Skan løs</summary>
+                            Scan så mange QR-koder som muligt. <br> Jo længere QR-koderne ligger fra hinanden, jo mere mana samles der ind
+                            <button id="M3T1G1"> Vælg </button>
+                        </details>
+                        <details><summary class="summarySubSubHeading">Følg det viste mønster</summary>
+                            Scan QR-koder i den rækkefølge din skærm viser. <br> Efter hvert scan lyser den næste QR-kode op
+                            <button id="M3T1G2"> Vælg </button>
+                        </details>
+                        <details><summary class="summarySubSubHeading">Følg mønster efter tal</summary>
+                            Scan QR-koder i den rækkefølge din skærm viser <br> (F.eks. 1, 9, 6, 2, 11, ..)
+                            <button id="M3T1G3"> Vælg </button>
+                        </details>
                     </details>
-                    <details><summary class="summarySubSubHeading">Følg det viste mønster</summary>
-                        Scan QR-koder i den rækkefølge din skærm viser. <br> Efter hvert scan lyser den næste QR-kode op
-                        <button id="M3T1G2"> Vælg </button>
+                    <details><summary class="summarySubHeading">&#x1F914;&#x1F914;</summary>
+                        <details><summary class="summarySubSubHeading">Gentag mønster</summary>
+                            Scan QR-koder i samme rækkefølge som skærmen viser
+                            <button id="M3T2G1"> Vælg </button>
+                        </details>
                     </details>
-                    <details><summary class="summarySubSubHeading">Følg mønster efter tal</summary>
-                        Scan QR-koder i den rækkefølge din skærm viser <br> (F.eks. 1, 9, 6, 2, 11, ..)
-                        <button id="M3T1G3"> Vælg </button>
-                    </details>
-                </details>
-                <details><summary class="summarySubHeading">&#x1F914;&#x1F914;</summary>
-                    <details><summary class="summarySubSubHeading">Gentag mønster</summary>
-                        Scan QR-koder i samme rækkefølge som skærmen viser
-                        <button id="M3T2G1"> Vælg </button>
-                    </details>
-                </details>
-                <details><summary class="summarySubHeading">&#x1F914;&#x1F914;&#x1F914;</summary>
-                    <details><summary class="summarySubSubHeading">Vikl ud</summary>
-                        Flyt knudepunkter så ingen linjer krydser <br>
-                        Scan den knude der skal flyttes, og derefter det anker den skal flyttes til
-                        <button id="M3T3G1"> Vælg </button>
+                    <details><summary class="summarySubHeading">&#x1F914;&#x1F914;&#x1F914;</summary>
+                        <details><summary class="summarySubSubHeading">Vikl ud</summary>
+                            Flyt knudepunkter så ingen linjer krydser <br>
+                            Scan den knude der skal flyttes, og derefter det anker den skal flyttes til
+                            <button id="M3T3G1"> Vælg </button>
+                        </details>
                     </details>
                 </details>
-            </details>
-        </div>
-
-        <div id="QrContainer" hidden>
-            <div id="reader"></div> <br>
-            <div id="messageDiv" hidden></div>
-            <canvas id="canvasCameraOverlay" hidden></canvas> <!-- For showing monsters... -->
-        </div>
-
-        <!-- Container for displaying single line text -->
-        <div id="textContainer">
-            <div id="showText" hidden></div>
-        </div>
-
-        <p id="showAddingMana"></p>
-
-        <!-- Contanier for communicating with player and meta-game -->
-        <div id="communicationContainer" hidden>
-            <div id="canvasQrShow" hidden></div>
-            <div id="canvasStack">
-                <canvas id="canvasClockface" hidden>Canvas here. If you can see this, the game is not playable on your device </canvas>
-                <canvas id="canvasClockfaceOverlay" hidden>Canvas here. If you can see this, the game is not playable on your device </canvas>
             </div>
         </div>
         
-        <!-- Contanier for interacting with game-states -->
-        <div id="navigationContainer" hidden>
-            <button id="scanButton" type="button">Scan</button> <br>
-            <button id="cancelScanButton" type="button" hidden>Stop scan</button> <br>
-            <button id="showPatternButton" type="button" hidden> Vis mønster </button> <br>
-            <div id="uglyHackSpacer" hidden></div>
-            <button id="healButton" type="button" hidden>Heal</button> <br>
-            <button id="stopHealButton" type="button" hidden>Stop healing</button> <br>
+        <div id="gameMode">
+            <div id="QrContainer">
+                <div id="reader"></div> <br>
+                <div id="messageDiv"    ></div>
+                <canvas id="canvasCameraOverlay"></canvas> <!-- For showing monsters... -->
+            </div>
+    
+            <!-- Container for displaying single line text -->
+            <div id="textContainer">
+                <div id="showText"></div>
+            </div>
+    
+            <p id="showAddingMana"></p>
+    
+            <!-- Contanier for communicating with player and meta-game -->
+            <div id="communicationContainer">
+                <div id="canvasQrShow" hidden></div>
+                <div id="canvasStack" hidden>
+                    <canvas id="canvasClockface">Canvas here. If you can see this, the game is not playable on your device </canvas>
+                    <canvas id="canvasClockfaceOverlay">Canvas here. If you can see this, the game is not playable on your device </canvas>
+                </div>
+            </div>
+            
+            <!-- Contanier for interacting with game-states -->
+            <div id="navigationContainer">
+                <button id="scanButton" type="button">Scan</button> <br>
+                <button id="cancelScanButton" type="button" hidden>Stop scan</button> <br>
+                <button id="showPatternButton" type="button" hidden> Vis mønster </button> <br>
+                <div id="uglyHackSpacer" hidden></div>
+                <button id="healButton" type="button" hidden>Heal</button> <br>
+                <button id="stopHealButton" type="button" hidden>Stop healing</button> <br>
+            </div>
         </div>
+
     </div>
 </body>
 </html>

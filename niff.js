@@ -167,7 +167,7 @@ class M2T2G1 extends NiffGameMode {  // Indstil visere
 class M3T1G1 extends NiffGameMode {  // Scan løs
     constructor() {
         super();
-        this.gameMode = 'M1T1G1';
+        this.gameMode = 'M3T1G1';
         this.lastScan = 0;
     }
 
@@ -362,18 +362,19 @@ function setUpFunction() {
     document.getElementById('canvasQrShow').style.left = '' + -0.8 * winWidth / 2 + 'px';
     document.getElementById('canvasClockface').style.left = '' + -0.8 * winWidth / 2 + 'px';
     document.getElementById('canvasClockfaceOverlay').style.left = '' + -0.8 * winWidth / 2 + 'px';
+
+    location.hash = '#intro';
 }
 
 
-function closeIntro() {
-    document.getElementById('intro').style.display = 'none';
-    document.getElementById('closeIntro4').style.display = 'none';
-    document.getElementById('chooseGameMode').style.display = 'block';
-    // document.getElementById('startInstruktion').hidden = false;
-    // document.getElementById('selectRoleContainer').style.display = 'grid';
-    // await timer(600);
-    // document.getElementById('secondInstruction').style.visibility = 'visible';
-}
+// function closeIntro() {
+//     document.getElementById('intro').style.display = 'none';
+//     document.getElementById('chooseGameMode').style.display = 'block';
+//     // document.getElementById('startInstruktion').hidden = false;
+//     // document.getElementById('selectRoleContainer').style.display = 'grid';
+//     // await timer(600);
+//     // document.getElementById('secondInstruction').style.visibility = 'visible';
+// }
 
 
 function scanQRcode() {
@@ -489,10 +490,11 @@ async function chooseGameModeHasBeenClicked(event) {
     } else if (event.target.id === 'coordinator') {
         coordinator = true;
     }
-    document.getElementById('intro').style.display = 'none';
-    document.getElementById('selectRoleContainer').style.display = 'grid';
+    location.hash = '#selectRole';
+    // document.getElementById('intro').style.display = 'none';
+    // document.getElementById('selectRoleContainer').style.display = 'grid';
     await timer(600);
-    document.getElementById('startInstruktion').hidden = false;
+    // document.getElementById('startInstruktion').hidden = false;
     document.getElementById('secondInstruction').style.visibility = 'visible';
 }
 
@@ -503,12 +505,13 @@ function roleHasBeenClicked(event) {
     
     if (gameMode !== '' && gameMode !== 'selectRoleContainer') {
         // Adjust layout to game mode
-        document.getElementById('selectRoleContainer').style.display = 'none';
-        document.getElementById('startInstruktion').hidden = true;
+        location.hash = '#gameMode';
+        // document.getElementById('selectRoleContainer').style.display = 'none';
+        // document.getElementById('startInstruktion').hidden = true;
         document.getElementById('globalManaCounter').style.visibility = 'visible';
         document.getElementById('localManaCounter').style.visibility = 'visible';
-        document.getElementById('QrContainer').hidden = false;
-        document.getElementById('navigationContainer').style.visibility = 'visible';
+        // document.getElementById('QrContainer').hidden = false;
+        // document.getElementById('navigationContainer').style.visibility = 'visible';
 
         let gameModeClass = gameModes[gameMode];
         currentUser = new gameModeClass();

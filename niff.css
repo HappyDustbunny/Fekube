@@ -49,17 +49,38 @@ kbd {
 /* #page {
     display: grid;
     grid-template-areas:
-        'header '
-        'QrCont '
-        'txtCont'
-        'comCont'
+    'header '
+    'QrCont '
+    'txtCont'
+    'comCont'
         'navCont';
-    grid-template-rows: 1fr 6fr 1fr 6fr 1fr;
+        grid-template-rows: 1fr 6fr 1fr 6fr 1fr;
 } */
 
-#selectRoleContainer {
+#intro {
     display: none;
-    grid-area: txtCont;
+    /* align-content: center; */
+
+    &:target {
+        display: block;
+    }
+}
+        
+#selectRole {
+    display: none;
+    /* grid-area: txtCont; */
+    
+    &:target {
+        display: block;
+    }
+}
+
+#gameMode {
+    display: none;
+    
+    &:target {
+        display: block;
+    }
 }
 
 #startInstruktion {
@@ -186,7 +207,7 @@ li {
     justify-content: center;
     align-content: center;
     background-color: rgba(127, 255, 0, .15);
-    visibility: hidden;
+    /* visibility: hidden; */
 }
 
 #scanButton, .startButton {
@@ -221,11 +242,6 @@ li {
     justify-self: right;
     height: 50px;
     background-color: rgba(127, 255, 0, 1);
-}
-
-#intro {
-    display: grid;
-    align-content: center;
 }
 
 #lastCloseIntro {
