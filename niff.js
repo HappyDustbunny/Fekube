@@ -2,8 +2,8 @@ const pi = Math.PI;
 const kv3h = Math.sqrt(3)/2;
 const timer = ms => new Promise(res => setTimeout(res, ms));
 const winWidth = window.screen.width;
-const winHeight = winWidth;  // These two variables are currently used together to make square displays
 const zoomFactor = winWidth * 0.8 / 300;
+const winHeight = winWidth;  // These two variables are currently used together to make square displays
 const config = {fps: 10, qrbox: {width: 0.8 * winWidth, height: 0.8 * winHeight}};
 // Initialize QR-code reader
 const html5Qrcode = new Html5Qrcode("reader");
@@ -376,6 +376,9 @@ function setUpFunction() {
 //     // document.getElementById('secondInstruction').style.visibility = 'visible';
 // }
 
+// ToDO: Change the non-functioning config parameter or incorporate the following line:
+// document.getElementsByTagName('video')[0].style.width = "" + 0.8 * winWidth + "px";
+
 
 function scanQRcode() {
     html5Qrcode.start({facingMode: "environment"}, config, (decodedText, decodedResult) => {
@@ -468,6 +471,9 @@ function attackChance() {
         messageDiv.innerHTML = '<p>Du er blevet angrebet! <br> Skynd dig at blive healet ved at finde Healeren eller scanne 0 flere gange</p>'
         whileAttackedTimer = setInterval(whileAttacked, 1000);
     }
+    if (document.getElementsByTagName('video')) {
+        document.getElementsByTagName('video')[0].style.width = "" + 0.8 * winWidth + "px";  // Ugly hack!
+    }
 }
 
 
@@ -510,7 +516,7 @@ function roleHasBeenClicked(event) {
         // document.getElementById('startInstruktion').hidden = true;
         document.getElementById('globalManaCounter').style.visibility = 'visible';
         document.getElementById('localManaCounter').style.visibility = 'visible';
-        // document.getElementById('QrContainer').hidden = false;
+        document.getElementById('QrContainer').hidden = false;
         // document.getElementById('navigationContainer').style.visibility = 'visible';
 
         let gameModeClass = gameModes[gameMode];
