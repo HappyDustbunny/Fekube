@@ -111,6 +111,7 @@ class M2T2G1 extends NiffGameMode {  // Indstil visere
         this.firstGuess = true;
 
         let arrayLen = 20;
+        let showText;
         this.goalArray = [];
         for (var i = 0; i < arrayLen; i++) {
             let hour = Math.floor(Math.random() * 25);
@@ -257,6 +258,7 @@ class M3T2G1 extends NiffGameMode {  //  Gentag mønster
 
         let arrayLen = 20;
         let startNum = 0;
+        let showText;
         let tempArray = Array.from({length: arrayLen},()=> startNum += Math.ceil(Math.random()*6) + 2);  // Avoid the same number twice and neighboring numbers by stepping 2 to 8 steps forward. The next function brings the numbers back into 1-12
         let mod12 = (number) => number%12 + 1; // Plus 1 to avoid 12%12 = 0
         this.goalArray = tempArray.map(mod12);
@@ -387,6 +389,9 @@ function scanQRcode() {
         useQRcode(decodedText);
     }, (errorMessage) => {
         console.log('Camera says ' + errorMessage);
+        if (document.getElementsByTagName('video')[0]) {
+            document.getElementsByTagName('video')[0].style.width = "" + 0.8 * winWidth + "px";  // Ugly hack!
+        }
     }).catch((err) => {
         console.log('Camera failed to start');
     });
@@ -426,7 +431,7 @@ function whileHealing() {
         updateManaCounters();
     } else {
         stopHealing();
-        showText = document.getElementById('showText');
+        let showText = document.getElementById('showText');
         let oldText = showText.innerHTML;
         showText.hidden = false;
         showText.innerHTML = '<h1> Beklager, der er ikke mere mana <br><br> Skaf ny mana, før du kan heale andre <br> <br> (Skan QR koden \'0\') &#x1F642; </h1>';  // Smiley :-)
@@ -470,9 +475,6 @@ function attackChance() {
         messageDiv.hidden = false;
         messageDiv.innerHTML = '<p>Du er blevet angrebet! <br> Skynd dig at blive healet ved at finde Healeren eller scanne 0 flere gange</p>'
         whileAttackedTimer = setInterval(whileAttacked, 1000);
-    }
-    if (document.getElementsByTagName('video')) {
-        document.getElementsByTagName('video')[0].style.width = "" + 0.8 * winWidth + "px";  // Ugly hack!
     }
 }
 

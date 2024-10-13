@@ -92,7 +92,13 @@ summary::marker {
     display: none;
     
     &:target {
-        display: block;
+        display: grid;
+        grid-template-rows: auto auto auto;
+        grid-template-areas:
+        'QrCont  '
+        'textCont'
+        'comCont'
+        'navCont';
     }
 }
 
@@ -134,7 +140,7 @@ li {
 }
 
 #canvasStack {
-    position: absolute;
+    position: relative;
     left: 50%;
 }
 
@@ -189,6 +195,8 @@ li {
     display: flex;
     justify-content: center;
     margin-bottom: 1em;
+
+    grid-area: textCont;
 }
 
 #communicationContainer {
@@ -196,6 +204,7 @@ li {
     grid-area: comCont;
     align-content: center;
     justify-content: center;
+    position: relative;
 }
 
 #showAddingMana {
