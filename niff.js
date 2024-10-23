@@ -88,9 +88,11 @@ class M1T1G1 extends NiffGameMode {  // Healer
         this.gameMode = 'M1T1G1';
 
         generateQRcode("Thy shalst be healed!").append(document.getElementById("canvasQrShow"));
+        document.getElementById('canvasQrShow').style.display = 'none';
         // ToDo: Add explaning text?
+        document.getElementById('scanButton').hidden = true;
         document.getElementById('healButton').hidden = false;
-        document.getElementById('uglyHackSpacer').hidden = false
+        // document.getElementById('uglyHackSpacer').hidden = false
         clearInterval(attackTimer);  // Makes sure the Healer is not attacked
     }
 
@@ -127,6 +129,8 @@ class M2T2G1 extends NiffGameMode {  // Indstil visere
             showText.innerHTML = '<h2>' + this.currentGoal[0] + ':0' + this.currentGoal[1] + '</h2> <span> (Sæt den lille viser først) </span>';
         }
 
+        document.getElementById('canvasStack').style.display = 'block';
+
         drawClockHandOnOverlay(6, false, 12, false);  // Draw hands pointing to 6 and 12, not filled, as a placeholder/reminder
     }
 
@@ -143,6 +147,7 @@ class M2T2G1 extends NiffGameMode {  // Indstil visere
             this.localMana += Number(newDelta);
             updateManaCounters(newDelta);
             document.getElementsByTagName('h2')[0].style.color = 'rgb(53, 219, 53)';
+            document.getElementById('scanButton').hidden = true;  // Scanning the last digit multiple times shouldn't be possible
             
             setTimeout(() => {drawClockHandOnOverlay(6, false, 12, false)
                 this.updateGoal();
@@ -154,7 +159,8 @@ class M2T2G1 extends NiffGameMode {  // Indstil visere
                 }
                 this.firstGuess = true;
                 document.getElementsByTagName('h2')[0].style.color = 'black';
-            }, 5000);
+                document.getElementById('scanButton').hidden = false;
+            }, 3000);
         } else {
             showText = document.getElementById('showText');
             let oldText = showText.innerHTML;
@@ -197,7 +203,8 @@ class M3T1G2 extends NiffGameMode {  // Følg det viste mønster
         let mod12 = (number) => number%12 + 1; // Plus 1 to avoid 12%12 = 0
         this.goalArray = tempArray.map(mod12);
         this.currentGoal = this.goalArray[this.currentGoalNumber];
-        
+
+        document.getElementById('canvasStack').style.display = 'block';
         drawClockfaceOverlay(this.currentGoal, [0, 255, 0]);
     }
 
@@ -209,7 +216,7 @@ class M3T1G2 extends NiffGameMode {  // Følg det viste mønster
             this.updateGoal();
             drawClockfaceOverlay(this.currentGoal, [0, 255, 0]);
         } else {
-            drawClockfaceOverlay(QrNumber, 'red');
+            drawClockfaceOverlay(QrNumber, [255, 0, 0]);
             await timer(600);
             drawClockfaceOverlay(this.currentGoal, [0, 255, 0]);
         }
@@ -266,13 +273,14 @@ class M3T2G1 extends NiffGameMode {  //  Gentag mønster
         
         showText = document.getElementById('showText');
         showText.hidden = false;
-        showText.innerHTML = '<h3> Scan i samme rækkefølge </h3>';
+        showText.innerHTML = '<h3> Scan i samme rækkefølge </h3> <span> (Tryk på <em>Vis mønster</em> knappen for at se mønsteret) </span>';
         
         this.currentPatternPosition = 0;
         this.patternLenght = 2;
 
+        document.getElementById('scanButton').hidden = false;
         document.getElementById('showPatternButton').hidden = false;
-        document.getElementById('scanButton').hidden = true;
+        document.getElementById('uglyHackSpacer').hidden = false;
     }
 
 
@@ -348,7 +356,7 @@ document.getElementById('scanButton').addEventListener('click', function() {
     scanQRcode();
 });
 document.getElementById('showPatternButton').addEventListener('click', function() {
-    document.getElementById('showPatternButton').hidden = true;
+    // document.getElementById('showPatternButton').hidden = true;
     showPattern(currentUser.patternLenght);
 })
 document.getElementById('cancelScanButton').addEventListener('click', stopScan);
@@ -411,7 +419,7 @@ let healingDrainTimer = '';
 function heal() {
     if (9 < currentUser.localMana || 9 < currentUser.globalMana) {
         stopStopHealingTimeOut = setTimeout(stopHealing, 5000);
-        document.getElementById('canvasQrShow').hidden = false;
+        document.getElementById('canvasQrShow').style.display = 'block';
         document.getElementById('healButton').hidden = true;
         document.getElementById('stopHealButton').hidden = false;
         healingDrainTimer = setInterval(whileHealing, 1000);
@@ -440,7 +448,7 @@ function whileHealing() {
 }
 
 function stopHealing() {
-    document.getElementById('canvasQrShow').hidden = true;
+    document.getElementById('canvasQrShow').style.display = 'none';
     clearInterval(healingDrainTimer);
     clearInterval(stopStopHealingTimeOut);
     document.getElementById('stopHealButton').hidden = true;
@@ -532,6 +540,7 @@ function roleHasBeenClicked(event) {
             // Display instructions to scan other phones  TODO!
         } else {
             // Show QR code and display instructions to let phone be scanned by coordinator
+            // If healer --> sligthly more risk of monsters
         }
 
         updateManaCounters();
@@ -549,8 +558,9 @@ async function showPattern(patternLenght){
         await timer(1000);
     }
     document.getElementById("canvasClockfaceOverlay").hidden = true
-    document.getElementById('showPatternButton').hidden = true;
+    // document.getElementById('showPatternButton').hidden = true;
     document.getElementById('scanButton').hidden = false;
+    // ToDo: Remove 10 mana if the pattern is showed more than one time (-10, -20, -30?)
 }
 
 
@@ -665,6 +675,7 @@ function drawClockfaceOverlay(number, rgb) {
     //     green = 0;
     // }
     // Find and show ClockfaceOverlay
+    document.getElementById('canvasStack').style.display = 'block';
     let canvasClockfaceOverlay = document.getElementById("canvasClockfaceOverlay");
     canvasClockfaceOverlay.hidden = false;
     let drawArea = canvasClockfaceOverlay.getContext("2d");
@@ -699,6 +710,7 @@ function drawClockfaceOverlay(number, rgb) {
 function drawClockHandOnOverlay(smallHandNum, sFill, bigHandNum, bFill) {
     drawClockface();
     // Find and show ClockfaceOverlay
+    document.getElementById('canvasStack').style.display = 'block';
     let canvasClockfaceOverlay = document.getElementById("canvasClockfaceOverlay");
     canvasClockfaceOverlay.hidden = false;
     let drawArea = canvasClockfaceOverlay.getContext("2d");
