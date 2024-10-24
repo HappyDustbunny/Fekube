@@ -244,12 +244,11 @@ li {
     /* visibility: hidden; */
 }
 
-#scanButton, .startButton {
+#scanButton {
     align-self: center;
     border-radius: 25px;
     width: 50px;
     height: 50px;
-    background-color: rgba(127, 255, 0, .5);
     z-index: 100;
 }
 
@@ -283,14 +282,22 @@ li {
     grid-area: navCont;
 }
 
-.score {
-    font-size: large;
-}
-
 .frontpageSummary {
     font-size: 2em;
     border-radius: 15px;
     background-color: rgb(128, 255, 255);
+}
+
+.activeButton {
+    background-color: rgba(127, 255, 0, .5);
+}
+
+.inactiveButton {
+    background-color: rgba(119, 142, 96, 0.5);
+}
+
+.score {
+    font-size: large;
 }
 
 .summaryHeading {

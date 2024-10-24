@@ -90,7 +90,7 @@ class M1T1G1 extends NiffGameMode {  // Healer
         generateQRcode("Thy shalst be healed!").append(document.getElementById("canvasQrShow"));
         document.getElementById('canvasQrShow').style.display = 'none';
         // ToDo: Add explaning text?
-        document.getElementById('scanButton').hidden = true;
+        setScanButton('hidden');
         document.getElementById('healButton').hidden = false;
         // document.getElementById('uglyHackSpacer').hidden = false
         clearInterval(attackTimer);  // Makes sure the Healer is not attacked
@@ -147,7 +147,7 @@ class M2T2G1 extends NiffGameMode {  // Indstil visere
             this.localMana += Number(newDelta);
             updateManaCounters(newDelta);
             document.getElementsByTagName('h2')[0].style.color = 'rgb(53, 219, 53)';
-            document.getElementById('scanButton').hidden = true;  // Scanning the last digit multiple times shouldn't be possible
+            setScanButton('inactiveButton');  // Scanning the last digit multiple times shouldn't be possible
             
             setTimeout(() => {drawClockHandOnOverlay(6, false, 12, false)
                 this.updateGoal();
@@ -159,7 +159,7 @@ class M2T2G1 extends NiffGameMode {  // Indstil visere
                 }
                 this.firstGuess = true;
                 document.getElementsByTagName('h2')[0].style.color = 'black';
-                document.getElementById('scanButton').hidden = false;
+                setScanButton('active');
             }, 3000);
         } else {
             showText = document.getElementById('showText');
@@ -278,7 +278,7 @@ class M3T2G1 extends NiffGameMode {  //  Gentag mønster
         this.currentPatternPosition = 0;
         this.patternLenght = 2;
 
-        document.getElementById('scanButton').hidden = false;
+        setScanButton('active');
         document.getElementById('showPatternButton').hidden = false;
         document.getElementById('uglyHackSpacer').hidden = false;
     }
@@ -301,7 +301,7 @@ class M3T2G1 extends NiffGameMode {  //  Gentag mønster
                 this.currentGoalNumber = 0;
                 this.patternLenght += 1;
                 document.getElementById('showPatternButton').hidden = false;
-                document.getElementById('scanButton').hidden = true;
+                setScanButton('hidden');
             }
         } else {
             showText = document.getElementById('showText');
@@ -351,9 +351,11 @@ document.getElementById('selectRoleContainer').addEventListener('click',
     function(event) { roleHasBeenClicked(event); }, true);
 
 document.getElementById('scanButton').addEventListener('click', function() {
-    document.getElementById('scanButton').hidden = true;
-    document.getElementById('cancelScanButton').hidden = false;
-    scanQRcode();
+    if (!document.getElementById('scanButton').classList.contains('inactiveButton')) { // ! not
+        setScanButton('hidden');
+        document.getElementById('cancelScanButton').hidden = false;
+        scanQRcode();
+    }
 });
 document.getElementById('showPatternButton').addEventListener('click', function() {
     // document.getElementById('showPatternButton').hidden = true;
@@ -407,9 +409,26 @@ function scanQRcode() {
 
 function stopScan() {
     if (html5Qrcode.getState() === 2) {  // 1 is not-scanning, 2 is scanning
-        document.getElementById('scanButton').hidden = false;
+        setScanButton('hidden');
         document.getElementById('cancelScanButton').hidden = true;
         stopQrReading();
+    }
+}
+
+function setScanButton(state) {
+    let scanButton = document.getElementById('scanButton');
+    if (state === 'active') {
+        scanButton.hidden = false;
+        scanButton.classList.add('activeButton');
+        scanButton.classList.remove('inactiveButton');
+    } else if (state === 'inactiveButton') {
+        scanButton.classList.add('inactiveButton');
+        scanButton.classList.remove('activeButton');
+    } else if (state === 'hidden') {
+        scanButton.hidden = true;
+        scanButton.classList.remove('inactiveButton');
+    } else {
+        console.log('Wrong statement for setScanButton');
     }
 }
 
@@ -559,7 +578,7 @@ async function showPattern(patternLenght){
     }
     document.getElementById("canvasClockfaceOverlay").hidden = true
     // document.getElementById('showPatternButton').hidden = true;
-    document.getElementById('scanButton').hidden = false;
+    setScanButton('active');
     // ToDo: Remove 10 mana if the pattern is showed more than one time (-10, -20, -30?)
 }
 
@@ -616,7 +635,7 @@ function useQRcode(QrNumber) {
 
 function stopQrReading() {
     html5Qrcode.stop().then((ignore) => {
-        document.getElementById('scanButton').hidden = false;
+        setScanButton('active');
         document.getElementById('cancelScanButton').hidden = true;
         console.log('QR scanning stopped');
     }).catch((err) => {
