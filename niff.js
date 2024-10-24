@@ -216,8 +216,11 @@ class M3T1G2 extends NiffGameMode {  // Følg det viste mønster
             this.updateGoal();
             drawClockfaceOverlay(this.currentGoal, [0, 255, 0]);
         } else {
-            drawClockfaceOverlay(QrNumber, [255, 0, 0]);
-            await timer(600);
+            showError(QrNumber);
+            await timer(1600);
+            currentUser.localMana -= 10;
+            updateManaCounters(-10);
+            await timer(300);
             drawClockfaceOverlay(this.currentGoal, [0, 255, 0]);
         }
     }
@@ -262,6 +265,7 @@ class M3T2G1 extends NiffGameMode {  //  Gentag mønster
     constructor() {
         super();
         this.gameMode = 'M3T2G1';
+        this.showedPattern = false;
 
         let arrayLen = 20;
         let startNum = 0;
@@ -288,10 +292,12 @@ class M3T2G1 extends NiffGameMode {  //  Gentag mønster
     async applyQrCode(QrNumber) {
         let num = Number(QrNumber);
         if (num === this.goalArray[this.currentGoalNumber]) {
+            drawClockfaceOverlay(currentUser.goalArray[this.currentPatternPosition], [255, 255, 0]);
+            await timer(1000);
+            document.getElementById("canvasClockfaceOverlay").hidden = true;
             if (this.currentPatternPosition < this.patternLenght - 1) {
                 this.updateGoal();
                 this.currentPatternPosition += 1;
-                // TODO Show scanned number in Yellow for 2 seconds
             } else {
                 let newDelta = 50 * this.patternLenght;
                 this.localMana += Number(newDelta);
@@ -300,6 +306,7 @@ class M3T2G1 extends NiffGameMode {  //  Gentag mønster
                 this.currentPatternPosition = 0;
                 this.currentGoalNumber = 0;
                 this.patternLenght += 1;
+                this.showedPattern = false;
                 document.getElementById('showPatternButton').hidden = false;
                 setScanButton('hidden');
             }
@@ -477,8 +484,10 @@ function stopHealing() {
 
 async function updateManaCounters(newMana) {
     if (newMana) {
+        let sign  = '';
         let showAddingManaP = document.getElementById('showAddingMana');
-        showAddingManaP.innerText = '+' + newMana;
+        if (0 < newMana) {sign = '+';}
+        showAddingManaP.innerText = sign + newMana;
         showAddingManaP.classList.add('triggerAnimation');
         await timer(1600);
         showAddingManaP.classList.remove('triggerAnimation');
@@ -577,23 +586,27 @@ async function showPattern(patternLenght){
         await timer(1000);
     }
     document.getElementById("canvasClockfaceOverlay").hidden = true
-    // document.getElementById('showPatternButton').hidden = true;
     setScanButton('active');
-    // ToDo: Remove 10 mana if the pattern is showed more than one time (-10, -20, -30?)
+    if (currentUser.showedPattern) {
+        currentUser.localMana -= 20;
+        updateManaCounters(-20);
+    } else {
+        currentUser.showedPattern = true;
+    }
 }
 
 
-async function showError(number) {
+async function showError(number) {  // Blink number red two times
     drawClockface();
-    await timer(500);
+    await timer(300);
     drawClockfaceOverlay(number, [255, 0, 0]);
-    await timer(500);
+    await timer(300);
     drawClockfaceOverlay(number, [255, 255, 255]);
-    await timer(500);
+    await timer(300);
     drawClockfaceOverlay(number, [255, 0, 0]);
-    await timer(500);
+    await timer(300);
     drawClockfaceOverlay(number, [255, 255, 255]);
-    await timer(500);
+    await timer(300);
     document.getElementById("canvasClockfaceOverlay").hidden = true
 }
 
