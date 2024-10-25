@@ -2,9 +2,10 @@ const pi = Math.PI;
 const kv3h = Math.sqrt(3)/2;
 const timer = ms => new Promise(res => setTimeout(res, ms));
 const winWidth = window.screen.width;
-const zoomFactor = winWidth * 0.8 / 300;
+const sizeFactor = 0.64;
+const zoomFactor = sizeFactor * winWidth / 300;
 const winHeight = winWidth;  // These two variables are currently used together to make square displays
-const config = {fps: 10, qrbox: {width: 0.8 * winWidth, height: 0.8 * winHeight}};
+const config = {fps: 10, qrbox: {width: sizeFactor * winWidth, height: sizeFactor * winHeight}};
 // Initialize QR-code reader
 const html5Qrcode = new Html5Qrcode("reader");
 
@@ -18,11 +19,13 @@ let currentUser = '';
 let isVictim = 0;  // Change to 5 if player is attacked and needs healing. Is healed fully by Healer, but need a few scans of '0' to heal alone
 
 let messageDiv = document.getElementById('messageDiv');
+let showText = document.getElementById('showText');
 let healMsgs = [
-    'Det var bedre!',
-    'Det hjælper',
+    '',  // No message when healing has occured
+    'Og ... sidste gang',
     'Lidt mere',
-    'Og ... sidste gang'
+    'Det hjælper',
+    'Det var bedre!',
 ]
 
 let lastScan = 0;     // Used for M3T1G1
@@ -49,6 +52,7 @@ class NiffGame {
     constructor(){
         this.globalMana = 500;
         this.playerList = [];
+        this.healerParticipates = false;
     }
 }
 
@@ -378,9 +382,9 @@ console.clear();
 
 function setUpFunction() {
     document.getElementById('page').style.height = window.innerHeight - 30 + 'px';
-    document.getElementById('canvasQrShow').style.left = '' + -0.8 * winWidth / 2 + 'px';
-    document.getElementById('canvasClockface').style.left = '' + -0.8 * winWidth / 2 + 'px';
-    document.getElementById('canvasClockfaceOverlay').style.left = '' + -0.8 * winWidth / 2 + 'px';
+    document.getElementById('canvasQrShow').style.left = '' + -sizeFactor * winWidth / 2 + 'px';
+    document.getElementById('canvasClockface').style.left = '' + -sizeFactor * winWidth / 2 + 'px';
+    document.getElementById('canvasClockfaceOverlay').style.left = '' + -sizeFactor * winWidth / 2 + 'px';
 
     location.hash = '#intro';
 }
@@ -396,7 +400,7 @@ function setUpFunction() {
 // }
 
 // ToDO: Change the non-functioning config parameter or incorporate the following line:
-// document.getElementsByTagName('video')[0].style.width = "" + 0.8 * winWidth + "px";
+// document.getElementsByTagName('video')[0].style.width = "" + sizeFactor * winWidth + "px";
 
 
 function scanQRcode() {
@@ -407,7 +411,7 @@ function scanQRcode() {
     }, (errorMessage) => {
         console.log('Camera says ' + errorMessage);
         if (document.getElementsByTagName('video')[0]) {
-            document.getElementsByTagName('video')[0].style.width = "" + 0.8 * winWidth + "px";  // Ugly hack!
+            document.getElementsByTagName('video')[0].style.width = "" + sizeFactor * winWidth + "px";  // Ugly hack!
         }
     }).catch((err) => {
         console.log('Camera failed to start');
@@ -509,7 +513,12 @@ function attackChance() {
         isVictim = 5;  // Requires 5 healing to be well. A healer can do it in one go. Scanning "0" five times works too
         document.getElementById('page').style.background = 'rgba(255, 0, 0, .36)';
         messageDiv.hidden = false;
-        messageDiv.innerHTML = '<p>Du er blevet angrebet! <br> Skynd dig at blive healet ved at finde Healeren eller scanne 0 flere gange</p>'
+        showText.hidden = true;
+        if (currentUser.healerParticipates) {
+            messageDiv.innerHTML = '<p>Du er blevet angrebet! <br> Skynd dig at blive healet ved at finde Healeren </p>'
+        } else {
+            messageDiv.innerHTML = '<p>Du er blevet angrebet! <br> Skynd dig at blive healet ved at scanne 0 flere gange </p>'
+        }
         whileAttackedTimer = setInterval(whileAttacked, 1000);
     }
 }
@@ -517,7 +526,7 @@ function attackChance() {
 
 function whileAttacked() {
     currentUser.localMana -= 1;
-    updateManaCounters(currentUser.localMana);
+    updateManaCounters();
     
     if (isVictim === 0) {
         clearInterval(whileAttackedTimer);
@@ -623,24 +632,28 @@ function useQRcode(QrNumber) {
             isVictim = 0;
             messageDiv.innerHTML = '';
             messageDiv.hidden = true;
+            showText.hidden = false;
         }
         document.getElementById('page').style.background = 'rgba(255, 0, 0, '+ isVictim / 14 + ')';
         messageDiv.innerHTML = '<p> ' + healMsgs[isVictim] + ' <br> Scan 0 igen</p>' 
-
+        
     } else if (isVictim !== 0  && QrNumber === 'Thy shalst be healed') {
-            isVictim = 0;
-            document.getElementById('page').style.background = 'white';
-            messageDiv.innerHTML = '';
-            messageDiv.hidden = true;
-
+        isVictim = 0;
+        document.getElementById('page').style.background = 'white';
+        messageDiv.innerHTML = '';
+        messageDiv.hidden = true;
+        showText.hidden = false;
+        
     } else {
         messageDiv.innerHTML = '<p> Denne QR kode er dårlig magi! <br> Scan en anden </p>';
         messageDiv.hidden = false;
-
+        showText.hidden = true;
+        
         // Then remove message after 2 sec
         msgTimeOut = setTimeout(function () {
             messageDiv.innerHTML = '';
             messageDiv.hidden = true;
+            showText.hidden = false;
         }, 3000);
     }
 }
@@ -663,8 +676,8 @@ function drawOnCameraOverlay() {  // TODO: Draw on qr-canvas instead? Gets rid o
     let cameraOverlay = document.getElementById('canvasCameraOverlay');
     cameraOverlay.hidden = false;
     let drawArea = cameraOverlay.getContext('2d');
-    cameraOverlay.width = 0.8 * winWidth;  
-    cameraOverlay.height = 0.8 * winHeight;
+    cameraOverlay.width = sizeFactor * winWidth;  
+    cameraOverlay.height = sizeFactor * winHeight;
     drawArea.scale(zoomFactor, zoomFactor);
 
     drawArea.moveTo(winWidth / 2 + 50, winHeight / 2);
@@ -679,8 +692,8 @@ function drawClockface() {
     let canvasClockface = document.getElementById("canvasClockface");
     canvasClockface.hidden = false;
     let drawArea = canvasClockface.getContext("2d");
-    canvasClockface.width = 0.8 * winWidth;
-    canvasClockface.height = 0.8 * winHeight;
+    canvasClockface.width = sizeFactor * winWidth;
+    canvasClockface.height = sizeFactor * winHeight;
     drawArea.scale(zoomFactor, zoomFactor);
 
     let r = 10;
@@ -711,8 +724,8 @@ function drawClockfaceOverlay(number, rgb) {
     let canvasClockfaceOverlay = document.getElementById("canvasClockfaceOverlay");
     canvasClockfaceOverlay.hidden = false;
     let drawArea = canvasClockfaceOverlay.getContext("2d");
-    canvasClockfaceOverlay.width = 0.8 * winWidth;
-    canvasClockfaceOverlay.height = 0.8 * winHeight;
+    canvasClockfaceOverlay.width = sizeFactor * winWidth;
+    canvasClockfaceOverlay.height = sizeFactor * winHeight;
     drawArea.scale(zoomFactor, zoomFactor);
 
     let r = 10;
@@ -746,8 +759,8 @@ function drawClockHandOnOverlay(smallHandNum, sFill, bigHandNum, bFill) {
     let canvasClockfaceOverlay = document.getElementById("canvasClockfaceOverlay");
     canvasClockfaceOverlay.hidden = false;
     let drawArea = canvasClockfaceOverlay.getContext("2d");
-    canvasClockfaceOverlay.width = 0.8 * winWidth;
-    canvasClockfaceOverlay.height = 0.8 * winHeight;
+    canvasClockfaceOverlay.width = sizeFactor * winWidth;
+    canvasClockfaceOverlay.height = sizeFactor * winHeight;
     drawArea.scale(zoomFactor, zoomFactor);
 
     for (let i = 0; i < 2; i++) {
@@ -856,8 +869,8 @@ function drawPuzzle(puzzle) {
     let canvasClockfaceOverlay = document.getElementById("canvasClockfaceOverlay");
     canvasClockfaceOverlay.hidden = false;
     let drawArea = canvasClockfaceOverlay.getContext("2d");
-    canvasClockfaceOverlay.width = 0.8 * winWidth;
-    canvasClockfaceOverlay.height = 0.8 * winHeight;
+    canvasClockfaceOverlay.width = sizeFactor * winWidth;
+    canvasClockfaceOverlay.height = sizeFactor * winHeight;
     drawArea.scale(zoomFactor, zoomFactor);
     
     
@@ -894,8 +907,8 @@ function drawArcOnOverlay(cx, cy, R, v1, v2, drawArea) {
     // let canvasClockfaceOverlay = document.getElementById("canvasClockfaceOverlay");
     // canvasClockfaceOverlay.hidden = false;
     // let drawArea = canvasClockfaceOverlay.getContext("2d");
-    // canvasClockfaceOverlay.width = 0.8 * winWidth;
-    // canvasClockfaceOverlay.height = 0.8 * winHeight;
+    // canvasClockfaceOverlay.width = sizeFactor * winWidth;
+    // canvasClockfaceOverlay.height = sizeFactor * winHeight;
     // drawArea.scale(zoomFactor, zoomFactor);
 
     drawArea.beginPath();

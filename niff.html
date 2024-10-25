@@ -30,11 +30,9 @@
         <div id="intro">
             <div id="chooseGameMode">
                 <p>Vælg game mode</p>
-                <Button id="normal" tabindex="1"> Normal </Button>
-                <!-- <button id="buyAmulet"> Start med amulet mod monstre* </button> -->
                 <button id="coordinator"> Tovholder * </button>
                 <br>
-                <br>
+                <Button id="normal" tabindex="1"> Normal </Button>
             </div>
         
             <details> <summary class="frontpageSummary"> Introduktion </summary> 
@@ -223,12 +221,12 @@
         <div id="gameMode">
             <div id="QrContainer">
                 <div id="reader"></div> <br>
-                <div id="messageDiv"    ></div>
                 <canvas id="canvasCameraOverlay" hidden></canvas> <!-- For showing monsters... -->
             </div>
-    
+            
             <!-- Container for displaying single line text -->
             <div id="textContainer">
+                <div id="messageDiv"></div>
                 <div id="showText"></div>
             </div>
     
