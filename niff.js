@@ -382,6 +382,7 @@ console.clear();
 
 function setUpFunction() {
     document.getElementById('page').style.height = window.innerHeight - 30 + 'px';
+    document.getElementById('gameMode').style.height = window.innerHeight - 90 + 'px'; 
     document.getElementById('canvasQrShow').style.left = '' + -sizeFactor * winWidth / 2 + 'px';
     document.getElementById('canvasClockface').style.left = '' + -sizeFactor * winWidth / 2 + 'px';
     document.getElementById('canvasClockfaceOverlay').style.left = '' + -sizeFactor * winWidth / 2 + 'px';
