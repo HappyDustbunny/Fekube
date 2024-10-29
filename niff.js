@@ -94,10 +94,12 @@ class M1T1G1 extends NiffGameMode {  // Healer
         generateQRcode("Thy shalst be healed!").append(document.getElementById("canvasQrShow"));
         document.getElementById('canvasQrShow').style.display = 'none';
         // ToDo: Add explaning text?
-        setScanButton('hidden');
-        document.getElementById('healButton').hidden = false;
+        setActionButton('Skan', 'hidden');
+        // document.getElementById('healButton').hidden = false;
         // document.getElementById('uglyHackSpacer').hidden = false
         clearInterval(attackTimer);  // Makes sure the Healer is not attacked
+
+        setActionButton('Heal', 'active');
     }
 
     applyQrCode(QrNumber) {
@@ -117,16 +119,15 @@ class M2T2G1 extends NiffGameMode {  // Indstil visere
         this.firstGuess = true;
 
         let arrayLen = 20;
-        let showText;
+        // let showText;
         this.goalArray = [];
         for (var i = 0; i < arrayLen; i++) {
-            let hour = Math.floor(Math.random() * 25);
+            let hour = Math.floor(Math.random() * 24);
             let min = Math.floor(Math.random() * 12) * 5;
             this.goalArray.push([hour, min]);
         }
         this.currentGoal = this.goalArray[this.currentGoalNumber];
         
-        showText = document.getElementById('showText');
         showText.hidden = false;
         showText.innerHTML = '<h2>' + this.currentGoal[0] + ':' + this.currentGoal[1] + '</h2> <span> (Sæt den lille viser først) </span>';
         if (this.currentGoal[1] === 0 || this.currentGoal[1] === 5) {
@@ -136,6 +137,8 @@ class M2T2G1 extends NiffGameMode {  // Indstil visere
         document.getElementById('canvasStack').style.display = 'block';
 
         drawClockHandOnOverlay(6, false, 12, false);  // Draw hands pointing to 6 and 12, not filled, as a placeholder/reminder
+
+        setActionButton('Skan', 'active');
     }
 
     applyQrCode(QrNumber) {
@@ -151,22 +154,20 @@ class M2T2G1 extends NiffGameMode {  // Indstil visere
             this.localMana += Number(newDelta);
             updateManaCounters(newDelta);
             document.getElementsByTagName('h2')[0].style.color = 'rgb(53, 219, 53)';
-            setScanButton('inactiveButton');  // Scanning the last digit multiple times shouldn't be possible
+            setActionButton('Skan', 'inactiveButton');  // Scanning the last digit multiple times shouldn't be possible
             
             setTimeout(() => {drawClockHandOnOverlay(6, false, 12, false)
                 this.updateGoal();
                 var curGo = this.currentGoal;
-                showText = document.getElementById('showText');
                 showText.innerHTML = '<h2>' + curGo[0] + ':' + curGo[1] + '</h2> <span> (Sæt den lille viser først) </span>';
                 if (this.currentGoal[1] === 0 || this.currentGoal[1] === 5) {
                     showText.innerHTML = '<h2>' + this.currentGoal[0] + ':0' + this.currentGoal[1] + '</h2> <span> (Sæt den lille viser først) </span>';
                 }
                 this.firstGuess = true;
                 document.getElementsByTagName('h2')[0].style.color = 'black';
-                setScanButton('active');
+                setActionButton('Skan', 'active');
             }, 3000);
         } else {
-            showText = document.getElementById('showText');
             let oldText = showText.innerHTML;
             showText.innerHTML = '<h1> Prøv igen &#x1F642; </h1>';  // Smiley :-)
             setTimeout(() => showText.innerHTML = oldText, 3000);
@@ -180,6 +181,8 @@ class M3T1G1 extends NiffGameMode {  // Scan løs
         super();
         this.gameMode = 'M3T1G1';
         this.lastScan = 0;
+
+        setActionButton('Skan', 'active');
     }
 
     applyQrCode(QrNumber) {
@@ -210,6 +213,8 @@ class M3T1G2 extends NiffGameMode {  // Følg det viste mønster
 
         document.getElementById('canvasStack').style.display = 'block';
         drawClockfaceOverlay(this.currentGoal, [0, 255, 0]);
+
+        setActionButton('Skan', 'active');
     }
 
     async applyQrCode(QrNumber) {
@@ -243,13 +248,13 @@ class M3T1G3 extends NiffGameMode {  // Følg mønster efter tal
         this.goalArray = tempArray.map(mod12);
         this.currentGoal = this.goalArray[this.currentGoalNumber];
         
-        showText = document.getElementById('showText');
         showText.hidden = false;
         showText.innerHTML = '<h2> Scan ' + this.currentGoal + '</h2>';
+
+        setActionButton('Skan', 'active');
     }
     
     async applyQrCode(QrNumber) {
-        showText = document.getElementById('showText');
         if (Number(QrNumber) === this.currentGoal) {
             let newDelta = 50;
             this.localMana += Number(newDelta);
@@ -265,7 +270,7 @@ class M3T1G3 extends NiffGameMode {  // Følg mønster efter tal
 }
 
 
-class M3T2G1 extends NiffGameMode {  //  Gentag mønster
+class M3T2G1 extends NiffGameMode {  //  Gentag mønster  TODO: Debug when buttons are shown and change first ShowPatternButton to green, then yellow
     constructor() {
         super();
         this.gameMode = 'M3T2G1';
@@ -273,22 +278,21 @@ class M3T2G1 extends NiffGameMode {  //  Gentag mønster
 
         let arrayLen = 20;
         let startNum = 0;
-        let showText;
         let tempArray = Array.from({length: arrayLen},()=> startNum += Math.ceil(Math.random()*6) + 2);  // Avoid the same number twice and neighboring numbers by stepping 2 to 8 steps forward. The next function brings the numbers back into 1-12
         let mod12 = (number) => number%12 + 1; // Plus 1 to avoid 12%12 = 0
         this.goalArray = tempArray.map(mod12);
         this.currentGoal = this.goalArray[this.currentGoalNumber];
         
-        showText = document.getElementById('showText');
         showText.hidden = false;
         showText.innerHTML = '<h3> Scan i samme rækkefølge </h3> <span> (Tryk på <em>Vis mønster</em> knappen for at se mønsteret) </span>';
         
         this.currentPatternPosition = 0;
         this.patternLenght = 2;
 
-        setScanButton('active');
-        document.getElementById('showPatternButton').hidden = false;
-        document.getElementById('uglyHackSpacer').hidden = false;
+        setActionButton('Skan', 'active');
+        setInfoButton('Vis Mønster', 'active');
+        // document.getElementById('showPatternButton').hidden = false;
+        // document.getElementById('uglyHackSpacer').hidden = false;
     }
 
 
@@ -311,11 +315,11 @@ class M3T2G1 extends NiffGameMode {  //  Gentag mønster
                 this.currentGoalNumber = 0;
                 this.patternLenght += 1;
                 this.showedPattern = false;
+                setInfoButton('Vis Mønster', 'active');
                 document.getElementById('showPatternButton').hidden = false;
-                setScanButton('hidden');
+                setActionButton('Skan', 'hidden');
             }
         } else {
-            showText = document.getElementById('showText');
             let oldText = showText.innerHTML;
             showText.innerHTML = '<h1> Ups! Start forfra &#x1FAE4; </h1>'; // Smiley :-/
             setTimeout(() => showText.innerHTML = oldText, 3000);
@@ -361,23 +365,63 @@ document.getElementById('chooseGameMode').addEventListener('click',
 document.getElementById('selectRoleContainer').addEventListener('click', 
     function(event) { roleHasBeenClicked(event); }, true);
 
-document.getElementById('scanButton').addEventListener('click', function() {
-    if (!document.getElementById('scanButton').classList.contains('inactiveButton')) { // ! not
-        setScanButton('hidden');
-        document.getElementById('cancelScanButton').hidden = false;
-        scanQRcode();
-    }
-});
-document.getElementById('showPatternButton').addEventListener('click', function() {
-    // document.getElementById('showPatternButton').hidden = true;
-    showPattern(currentUser.patternLenght);
-})
-document.getElementById('cancelScanButton').addEventListener('click', stopScan);
-document.getElementById('healButton').addEventListener('click', heal);
-document.getElementById('stopHealButton').addEventListener('click', stopHealing);
+document.getElementById('actionButton').addEventListener('click', function(event) {
+    actionButtonHasBeenClicked(event); }, true);
+//     if (!document.getElementById('actionButton').classList.contains('inactiveButton')) { // ! not
+//         setActionButton('Stop Skan', 'active');
+//         // document.getElementById('cancelScanButton').hidden = false;
+//         scanQRcode();
+//     }
+// });
+document.getElementById('infoButton').addEventListener('click', function(event) {
+    infoButtonHasBeenClicked(event); }, true);
+
+// document.getElementById('showPatternButton').addEventListener('click', function() {
+//     // document.getElementById('showPatternButton').hidden = true;
+//     showPattern(currentUser.patternLenght);
+// })
+// document.getElementById('cancelScanButton').addEventListener('click', stopScan);
+// document.getElementById('healButton').addEventListener('click', heal);
+// document.getElementById('stopHealButton').addEventListener('click', stopHealing);
 // End of eventlisteners
 
 console.clear();
+
+
+function actionButtonHasBeenClicked(event) {
+    let actionButton = document.getElementById('actionButton'); 
+    if (!actionButton.classList.contains('inactiveButton')) { // ! not
+        switch(actionButton.textContent) {
+            case 'Skan':
+                setActionButton('Stop Skan', 'active');
+                scanQRcode();
+                break;
+            case 'Stop Skan':
+                setActionButton('Skan', 'active');
+                stopScan();
+                break;
+            case 'Heal':
+                setActionButton('Stop Healing', 'active');
+                heal();
+                break;
+            case 'Stop Healing':
+                setActionButton('Heal', 'active');
+                break;
+        }
+    }
+}
+
+
+function infoButtonHasBeenClicked(event) {
+    let infoButton = document.getElementById('infoButton');
+    if (!infoButton.classList.contains('inactiveButton')) {  // ! not
+        switch(infoButton.textContent) {
+            case 'Vis Mønster':
+                setInfoButton('Vis Mønster', 'inactiveButton');
+                showPattern(currentUser.patternLenght);
+        }
+    }
+}
 
 
 function setUpFunction() {
@@ -421,28 +465,68 @@ function scanQRcode() {
 
 function stopScan() {
     if (html5Qrcode.getState() === 2) {  // 1 is not-scanning, 2 is scanning
-        setScanButton('hidden');
-        document.getElementById('cancelScanButton').hidden = true;
+        setActionButton('Skan', 'hidden');
+        // document.getElementById('cancelScanButton').hidden = true;
         stopQrReading();
     }
 }
 
-function setScanButton(state) {
-    let scanButton = document.getElementById('scanButton');
+function setActionButton(text, state) {
+    let actionButton = document.getElementById('actionButton');
+    if (text != '') {
+        actionButton.textContent = text;
+    }
     if (state === 'active') {
-        scanButton.hidden = false;
-        scanButton.classList.add('activeButton');
-        scanButton.classList.remove('inactiveButton');
+        actionButton.hidden = false;
+        actionButton.classList.add('activeButton');
+        actionButton.classList.remove('inactiveButton');
     } else if (state === 'inactiveButton') {
-        scanButton.classList.add('inactiveButton');
-        scanButton.classList.remove('activeButton');
+        actionButton.classList.add('inactiveButton');
+        actionButton.classList.remove('activeButton');
     } else if (state === 'hidden') {
-        scanButton.hidden = true;
-        scanButton.classList.remove('inactiveButton');
+        actionButton.hidden = true;
+        actionButton.classList.remove('inactiveButton');
     } else {
-        console.log('Wrong statement for setScanButton');
+        console.log('Wrong statement for setactionButton');
     }
 }
+
+
+function setInfoButton(text, state) {
+    let infoButton = document.getElementById('infoButton');
+    if (text != '') {
+        infoButton.textContent = text;
+    }
+    if (state === 'active') {
+        infoButton.hidden = false;
+        infoButton.classList.add('activeButton');
+        infoButton.classList.remove('inactiveButton');
+    } else if (state === 'inactiveButton') {
+        infoButton.classList.add('inactiveButton');
+        infoButton.classList.remove('activeButton');
+    } else if (state === 'hidden') {
+        infoButton.hidden = true;
+        infoButton.classList.remove('inactiveButton');
+    } else {
+        console.log('Wrong statement for setInfoButton');
+    }
+}
+// function setScanButton(state) {
+//     let scanButton = document.getElementById('scanButton');
+//     if (state === 'active') {
+//         scanButton.hidden = false;
+//         scanButton.classList.add('activeButton');
+//         scanButton.classList.remove('inactiveButton');
+//     } else if (state === 'inactiveButton') {
+//         scanButton.classList.add('inactiveButton');
+//         scanButton.classList.remove('activeButton');
+//     } else if (state === 'hidden') {
+//         scanButton.hidden = true;
+//         scanButton.classList.remove('inactiveButton');
+//     } else {
+//         console.log('Wrong statement for setScanButton');
+//     }
+// }
 
 
 let healingDrainTimer = '';
@@ -451,8 +535,9 @@ function heal() {
     if (9 < currentUser.localMana || 9 < currentUser.globalMana) {
         stopStopHealingTimeOut = setTimeout(stopHealing, 5000);
         document.getElementById('canvasQrShow').style.display = 'block';
-        document.getElementById('healButton').hidden = true;
-        document.getElementById('stopHealButton').hidden = false;
+        setActionButton('Stop Healing');
+        // document.getElementById('healButton').hidden = true;
+        // document.getElementById('stopHealButton').hidden = false;
         healingDrainTimer = setInterval(whileHealing, 1000);
     } else {  // If there is no mana, the QR code should not be shown
         whileHealing();
@@ -470,7 +555,6 @@ function whileHealing() {
         updateManaCounters();
     } else {
         stopHealing();
-        let showText = document.getElementById('showText');
         let oldText = showText.innerHTML;
         showText.hidden = false;
         showText.innerHTML = '<h1> Beklager, der er ikke mere mana <br><br> Skaf ny mana, før du kan heale andre <br> <br> (Skan QR koden \'0\') &#x1F642; </h1>';  // Smiley :-)
@@ -482,8 +566,9 @@ function stopHealing() {
     document.getElementById('canvasQrShow').style.display = 'none';
     clearInterval(healingDrainTimer);
     clearInterval(stopStopHealingTimeOut);
-    document.getElementById('stopHealButton').hidden = true;
-    document.getElementById('healButton').hidden = false;
+    setActionButton('Ḧeal');
+    // document.getElementById('stopHealButton').hidden = true;
+    // document.getElementById('healButton').hidden = false;
 }
 
 
@@ -560,12 +645,9 @@ function roleHasBeenClicked(event) {
     if (gameMode !== '' && gameMode !== 'selectRoleContainer') {
         // Adjust layout to game mode
         location.hash = '#gameMode';
-        // document.getElementById('selectRoleContainer').style.display = 'none';
-        // document.getElementById('startInstruktion').hidden = true;
         document.getElementById('globalManaCounter').style.visibility = 'visible';
         document.getElementById('localManaCounter').style.visibility = 'visible';
         document.getElementById('QrContainer').hidden = false;
-        // document.getElementById('navigationContainer').style.visibility = 'visible';
 
         let gameModeClass = gameModes[gameMode];
         currentUser = new gameModeClass();
@@ -576,6 +658,7 @@ function roleHasBeenClicked(event) {
 
         if (coordinator) {
             // Display instructions to scan other phones  TODO!
+            showText.innerHTML = '<h2> Scan de andre deltageres QR koder </h2> <br> Og tryk så på <em>Videre</em>';
         } else {
             // Show QR code and display instructions to let phone be scanned by coordinator
             // If healer --> sligthly more risk of monsters
@@ -583,7 +666,7 @@ function roleHasBeenClicked(event) {
 
         updateManaCounters();
         
-        navigator.vibrate(200);  // Just to test it. Will not work in Firefox :-/
+        // navigator.vibrate(200);  // Just to test it. Will not work in Firefox :-/ TODO: Seems to not work in Chrome
     }
 }
 
@@ -596,13 +679,14 @@ async function showPattern(patternLenght){
         await timer(1000);
     }
     document.getElementById("canvasClockfaceOverlay").hidden = true
-    setScanButton('active');
+    // setActionButton('Skan', 'active');
     if (currentUser.showedPattern) {
         currentUser.localMana -= 20;
         updateManaCounters(-20);
     } else {
         currentUser.showedPattern = true;
     }
+    setInfoButton('Vis Mønster', 'active');
 }
 
 
@@ -625,10 +709,11 @@ function useQRcode(QrNumber) {
     if (-1 < QrNumber && QrNumber < 13) {
         currentUser.applyQrCode(QrNumber);
     } else if (isVictim !== 0 && -1 < QrNumber && QrNumber < 13) {
+        showText.hidden = true;
         messageDiv.innerHTML = '<p> Du er skadet og skal heales før du kan andet <br> Find en Healer eller scan 0 flere gange </p>'
 
     } else if (isVictim !== 0  && QrNumber === 'center') {
-        isVictim -= 1;
+        isVictim -= 1;  // Heal a little
         if (isVictim < 0.00001) {
             isVictim = 0;
             messageDiv.innerHTML = '';
@@ -639,7 +724,7 @@ function useQRcode(QrNumber) {
         messageDiv.innerHTML = '<p> ' + healMsgs[isVictim] + ' <br> Scan 0 igen</p>' 
         
     } else if (isVictim !== 0  && QrNumber === 'Thy shalst be healed') {
-        isVictim = 0;
+        isVictim = 0;  // Heal fully
         document.getElementById('page').style.background = 'white';
         messageDiv.innerHTML = '';
         messageDiv.hidden = true;
@@ -662,8 +747,8 @@ function useQRcode(QrNumber) {
 
 function stopQrReading() {
     html5Qrcode.stop().then((ignore) => {
-        setScanButton('active');
-        document.getElementById('cancelScanButton').hidden = true;
+        setActionButton('Skan', 'active');
+        // document.getElementById('cancelScanButton').hidden = true;
         console.log('QR scanning stopped');
     }).catch((err) => {
         console.log('QR scanning did not stop for some reason');

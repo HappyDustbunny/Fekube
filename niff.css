@@ -249,17 +249,17 @@ li {
     justify-content: center;
     align-content: center;
     background-color: rgba(127, 255, 0, .15);
-    /* visibility: hidden; */
+    justify-content: space-evenly;
 }
 
-#scanButton {
+#actionButton {
     align-self: center;
     border-radius: 25px;
     width: 50px;
     height: 50px;
     z-index: 100;
 }
-
+/* 
 #showPatternButton {
     align-self: center;
     border-radius: 10px;
@@ -283,7 +283,7 @@ li {
     justify-self: right;
     height: 50px;
     background-color: rgba(127, 255, 0, 1);
-}
+} */
 
 #lastCloseIntro {
     display: grid;
