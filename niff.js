@@ -11,6 +11,7 @@ const html5Qrcode = new Html5Qrcode("reader");
 
 
 let gameMode = '';
+let gameState = 'chooseCoordinator';
 let globalMana = 500;  // Start with some mana to heal attacked players
 let localMana = 0;
 let amulet = false;
@@ -154,7 +155,7 @@ class M2T2G1 extends NiffGameMode {  // Indstil visere
             this.localMana += Number(newDelta);
             updateManaCounters(newDelta);
             document.getElementsByTagName('h2')[0].style.color = 'rgb(53, 219, 53)';
-            setActionButton('Skan', 'inactiveButton');  // Scanning the last digit multiple times shouldn't be possible
+            setActionButton('Skan', 'inactive');  // Scanning the last digit multiple times shouldn't be possible
             
             setTimeout(() => {drawClockHandOnOverlay(6, false, 12, false)
                 this.updateGoal();
@@ -357,38 +358,26 @@ const gameModes = {
 
 
 // Eventlisteners
-// document.getElementById('closeIntro').addEventListener('click', closeIntro);
 
 document.getElementById('chooseGameMode').addEventListener('click', 
-    function(event) { chooseGameModeHasBeenClicked(event); }, true);  // Normal/BuyAmulet/coordinator
+    function(event) { chooseGameModeHasBeenClicked(event); }, true);  // Normal/coordinator
 
 document.getElementById('selectRoleContainer').addEventListener('click', 
     function(event) { roleHasBeenClicked(event); }, true);
 
-document.getElementById('actionButton').addEventListener('click', function(event) {
-    actionButtonHasBeenClicked(event); }, true);
-//     if (!document.getElementById('actionButton').classList.contains('inactiveButton')) { // ! not
-//         setActionButton('Stop Skan', 'active');
-//         // document.getElementById('cancelScanButton').hidden = false;
-//         scanQRcode();
-//     }
-// });
-document.getElementById('infoButton').addEventListener('click', function(event) {
-    infoButtonHasBeenClicked(event); }, true);
+document.getElementById('actionButton').addEventListener('click', actionButtonHasBeenClicked);
 
-// document.getElementById('showPatternButton').addEventListener('click', function() {
-//     // document.getElementById('showPatternButton').hidden = true;
-//     showPattern(currentUser.patternLenght);
-// })
-// document.getElementById('cancelScanButton').addEventListener('click', stopScan);
-// document.getElementById('healButton').addEventListener('click', heal);
-// document.getElementById('stopHealButton').addEventListener('click', stopHealing);
+document.getElementById('infoButton').addEventListener('click', infoButtonHasBeenClicked);
+
+document.getElementById('advanceGameStateButton').addEventListener('click', 
+    advanceGameStateButtonHasBeenClicked);
+
 // End of eventlisteners
 
 console.clear();
 
 
-function actionButtonHasBeenClicked(event) {
+function actionButtonHasBeenClicked() {
     let actionButton = document.getElementById('actionButton'); 
     if (!actionButton.classList.contains('inactiveButton')) { // ! not
         switch(actionButton.textContent) {
@@ -412,15 +401,28 @@ function actionButtonHasBeenClicked(event) {
 }
 
 
-function infoButtonHasBeenClicked(event) {
+function infoButtonHasBeenClicked() {
     let infoButton = document.getElementById('infoButton');
     if (!infoButton.classList.contains('inactiveButton')) {  // ! not
         switch(infoButton.textContent) {
             case 'Vis Mønster':
-                setInfoButton('Vis Mønster', 'inactiveButton');
+                setInfoButton('Vis Mønster', 'inactive');
                 showPattern(currentUser.patternLenght);
+            }
         }
     }
+    
+    function advanceGameStateButtonHasBeenClicked(event) {
+        let advanceGameStateButton = document.getElementById('advanceGameStateButton');
+        if (coordinator && gameState === '????') {  // ToDo: Fix this
+            stopScan();
+            let participantComposition = 'rap';  // ToDo: Fix this
+            generateQRcode(participantComposition).append(document.getElementById("canvasQrShow"));
+            setActionButton('Skan', 'hidden');
+        } else {
+            setActionButton('Skan', 'hidden');
+            setInfoButton('Videre', 'active');
+        }
 }
 
 
@@ -434,15 +436,6 @@ function setUpFunction() {
     location.hash = '#intro';
 }
 
-
-// function closeIntro() {
-//     document.getElementById('intro').style.display = 'none';
-//     document.getElementById('chooseGameMode').style.display = 'block';
-//     // document.getElementById('startInstruktion').hidden = false;
-//     // document.getElementById('selectRoleContainer').style.display = 'grid';
-//     // await timer(600);
-//     // document.getElementById('secondInstruction').style.visibility = 'visible';
-// }
 
 // ToDO: Change the non-functioning config parameter or incorporate the following line:
 // document.getElementsByTagName('video')[0].style.width = "" + sizeFactor * winWidth + "px";
@@ -480,7 +473,7 @@ function setActionButton(text, state) {
         actionButton.hidden = false;
         actionButton.classList.add('activeButton');
         actionButton.classList.remove('inactiveButton');
-    } else if (state === 'inactiveButton') {
+    } else if (state === 'inactive') {
         actionButton.classList.add('inactiveButton');
         actionButton.classList.remove('activeButton');
     } else if (state === 'hidden') {
@@ -501,7 +494,7 @@ function setInfoButton(text, state) {
         infoButton.hidden = false;
         infoButton.classList.add('activeButton');
         infoButton.classList.remove('inactiveButton');
-    } else if (state === 'inactiveButton') {
+    } else if (state === 'inactive') {
         infoButton.classList.add('inactiveButton');
         infoButton.classList.remove('activeButton');
     } else if (state === 'hidden') {
@@ -511,22 +504,6 @@ function setInfoButton(text, state) {
         console.log('Wrong statement for setInfoButton');
     }
 }
-// function setScanButton(state) {
-//     let scanButton = document.getElementById('scanButton');
-//     if (state === 'active') {
-//         scanButton.hidden = false;
-//         scanButton.classList.add('activeButton');
-//         scanButton.classList.remove('inactiveButton');
-//     } else if (state === 'inactiveButton') {
-//         scanButton.classList.add('inactiveButton');
-//         scanButton.classList.remove('activeButton');
-//     } else if (state === 'hidden') {
-//         scanButton.hidden = true;
-//         scanButton.classList.remove('inactiveButton');
-//     } else {
-//         console.log('Wrong statement for setScanButton');
-//     }
-// }
 
 
 let healingDrainTimer = '';
@@ -535,7 +512,7 @@ function heal() {
     if (9 < currentUser.localMana || 9 < currentUser.globalMana) {
         stopStopHealingTimeOut = setTimeout(stopHealing, 5000);
         document.getElementById('canvasQrShow').style.display = 'block';
-        setActionButton('Stop Healing');
+        setActionButton('Stop Healing', 'active');
         // document.getElementById('healButton').hidden = true;
         // document.getElementById('stopHealButton').hidden = false;
         healingDrainTimer = setInterval(whileHealing, 1000);
@@ -566,7 +543,7 @@ function stopHealing() {
     document.getElementById('canvasQrShow').style.display = 'none';
     clearInterval(healingDrainTimer);
     clearInterval(stopStopHealingTimeOut);
-    setActionButton('Ḧeal');
+    setActionButton('Ḧeal', 'active');
     // document.getElementById('stopHealButton').hidden = true;
     // document.getElementById('healButton').hidden = false;
 }
@@ -623,12 +600,13 @@ function whileAttacked() {
 async function chooseGameModeHasBeenClicked(event) {
     if (event.target.id === 'normal') {
         localMana = 0;
-    } else if (event.target.id === 'buyAmulet') {
-        localMana = -200;
-        amulet = true;
+    // } else if (event.target.id === 'buyAmulet') {
+    //     localMana = -200;
+    //     amulet = true;
     } else if (event.target.id === 'coordinator') {
         coordinator = true;
     }
+    gameState = 'selectRole';
     location.hash = '#selectRole';
     // document.getElementById('intro').style.display = 'none';
     // document.getElementById('selectRoleContainer').style.display = 'grid';
@@ -643,31 +621,45 @@ function roleHasBeenClicked(event) {
     console.log(gameMode);
     
     if (gameMode !== '' && gameMode !== 'selectRoleContainer') {
-        // Adjust layout to game mode
-        location.hash = '#gameMode';
-        document.getElementById('globalManaCounter').style.visibility = 'visible';
-        document.getElementById('localManaCounter').style.visibility = 'visible';
-        document.getElementById('QrContainer').hidden = false;
-
-        let gameModeClass = gameModes[gameMode];
-        currentUser = new gameModeClass();
-        currentUser.localMana = localMana;
-        currentUser.globalMana = globalMana;
-        currentUser.amulet = amulet;
-        currentUser.coordinator = coordinator;
-
+        
         if (coordinator) {
-            // Display instructions to scan other phones  TODO!
             showText.innerHTML = '<h2> Scan de andre deltageres QR koder </h2> <br> Og tryk så på <em>Videre</em>';
+            setActionButton('Skan', 'active');
+            setInfoButton('Videre', 'active');
         } else {
-            // Show QR code and display instructions to let phone be scanned by coordinator
-            // If healer --> sligthly more risk of monsters
+            generateQRcode(gameMode).append(document.getElementById("canvasQrShow"));
+            document.getElementById('canvasQrShow').style.display = 'block';
+            showText.innerHTML = '<h2> Lad tovholderen skanne din QR kode </h2> <br> Og tryk så på <em>Videre</em>';
+            setActionButton('Skan', 'hidden');
+            setInfoButton('Videre', 'active');
         }
 
-        updateManaCounters();
-        
+        gameState = 'shareStartInfo';
+
+        location.hash = '#gameMode';
+
         // navigator.vibrate(200);  // Just to test it. Will not work in Firefox :-/ TODO: Seems to not work in Chrome
     }
+}
+
+
+function beginRound() {
+    gameState = 'firstRound';
+    location.hash = '#gameMode'; // Adjust layout to game mode
+    
+    document.getElementById('globalManaCounter').style.visibility = 'visible';
+    document.getElementById('localManaCounter').style.visibility = 'visible';
+    document.getElementById('QrContainer').hidden = false;
+    
+    // If healer --> sligthly more risk of monsters
+    let gameModeClass = gameModes[gameMode];
+    currentUser = new gameModeClass();
+    currentUser.localMana = localMana;
+    currentUser.globalMana = globalMana;
+    currentUser.amulet = amulet;
+    currentUser.coordinator = coordinator;
+
+    updateManaCounters();
 }
 
 
