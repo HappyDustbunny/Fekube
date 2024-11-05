@@ -12,6 +12,7 @@ const html5Qrcode = new Html5Qrcode("reader");
 
 let gameMode = '';
 let gameState = 'chooseCoordinator';
+let participantList = [];
 let globalMana = 500;  // Start with some mana to heal attacked players
 let localMana = 0;
 let amulet = false;
@@ -382,7 +383,7 @@ function actionButtonHasBeenClicked() {
     if (!actionButton.classList.contains('inactiveButton')) { // ! not
         switch(actionButton.textContent) {
             case 'Skan':
-                setActionButton('Stop Skan', 'active');
+                setActionButton('Stop Skan', 'obs');
                 scanQRcode();
                 break;
             case 'Stop Skan':
@@ -390,7 +391,7 @@ function actionButtonHasBeenClicked() {
                 stopScan();
                 break;
             case 'Heal':
-                setActionButton('Stop Healing', 'active');
+                setActionButton('Stop Healing', 'obs');
                 heal();
                 break;
             case 'Stop Healing':
@@ -408,21 +409,28 @@ function infoButtonHasBeenClicked() {
             case 'Vis Mønster':
                 setInfoButton('Vis Mønster', 'inactive');
                 showPattern(currentUser.patternLenght);
-            }
         }
     }
-    
-    function advanceGameStateButtonHasBeenClicked(event) {
-        let advanceGameStateButton = document.getElementById('advanceGameStateButton');
-        if (coordinator && gameState === '????') {  // ToDo: Fix this
-            stopScan();
-            let participantComposition = 'rap';  // ToDo: Fix this
-            generateQRcode(participantComposition).append(document.getElementById("canvasQrShow"));
-            setActionButton('Skan', 'hidden');
-        } else {
-            setActionButton('Skan', 'hidden');
-            setInfoButton('Videre', 'active');
-        }
+}
+   
+
+function advanceGameStateButtonHasBeenClicked(event) {
+    let advanceGameStateButton = document.getElementById('advanceGameStateButton');
+    if (coordinator && gameState === 'shareStartInfo') {  // ToDo: Fix this
+        stopScan();
+        let participantComposition = 'rap';  // ToDo: Fix this
+        generateQRcode(participantComposition).append(document.getElementById("canvasQrShow"));
+
+    } else {
+
+    }
+    setActionButton('Skan', 'hidden');
+    setAdvanceGameStateButton('Videre', 'hidden');
+
+    canvasQrShow = document.getElementById("canvasQrShow");
+    canvasQrShow.removeChild(canvasQrShow.firstChild);
+
+    beginRound();
 }
 
 
@@ -469,7 +477,9 @@ function setActionButton(text, state) {
     if (text != '') {
         actionButton.textContent = text;
     }
-    if (state === 'active') {
+
+    toggleButton(actionButton, state);
+/*     if (state === 'active') {
         actionButton.hidden = false;
         actionButton.classList.add('activeButton');
         actionButton.classList.remove('inactiveButton');
@@ -481,7 +491,7 @@ function setActionButton(text, state) {
         actionButton.classList.remove('inactiveButton');
     } else {
         console.log('Wrong statement for setactionButton');
-    }
+    } */
 }
 
 
@@ -490,7 +500,9 @@ function setInfoButton(text, state) {
     if (text != '') {
         infoButton.textContent = text;
     }
-    if (state === 'active') {
+
+    toggleButton(infoButton, state);
+/*     if (state === 'active') {
         infoButton.hidden = false;
         infoButton.classList.add('activeButton');
         infoButton.classList.remove('inactiveButton');
@@ -502,8 +514,43 @@ function setInfoButton(text, state) {
         infoButton.classList.remove('inactiveButton');
     } else {
         console.log('Wrong statement for setInfoButton');
+    } */
+}
+
+
+function setAdvanceGameStateButton(text, state) {
+    let advanceGameStateButton = document.getElementById('advanceGameStateButton');
+    if (text != '') {
+        advanceGameStateButton.textContent = text;
+    }
+
+    toggleButton(advanceGameStateButton, state);
+}
+
+
+function toggleButton(button, state) {
+    button.removeAttribute('class');
+
+    if (state === 'active') {
+        button.hidden = false;
+        button.classList.add('activeButton');
+        // button.classList.remove('inactiveButton');
+    } else if (state === 'inactive') {
+        button.hidden = false;
+        button.classList.add('inactiveButton');
+        // button.classList.remove('activeButton');
+    } else if (state === 'hidden') {
+        button.hidden = true;
+        // button.classList.remove('inactiveButton');
+    } else if (state === 'obs') {
+        button.hidden = false;
+        // button.classList.remove('inactiveButton');
+        button.classList.add('obsButton');
+    } else {
+        console.log('Wrong state statement for toggleButton');
     }
 }
+
 
 
 let healingDrainTimer = '';
@@ -512,7 +559,7 @@ function heal() {
     if (9 < currentUser.localMana || 9 < currentUser.globalMana) {
         stopStopHealingTimeOut = setTimeout(stopHealing, 5000);
         document.getElementById('canvasQrShow').style.display = 'block';
-        setActionButton('Stop Healing', 'active');
+        setActionButton('Stop Healing', 'obs');
         // document.getElementById('healButton').hidden = true;
         // document.getElementById('stopHealButton').hidden = false;
         healingDrainTimer = setInterval(whileHealing, 1000);
@@ -543,7 +590,7 @@ function stopHealing() {
     document.getElementById('canvasQrShow').style.display = 'none';
     clearInterval(healingDrainTimer);
     clearInterval(stopStopHealingTimeOut);
-    setActionButton('Ḧeal', 'active');
+    setActionButton('Heal', 'active');
     // document.getElementById('stopHealButton').hidden = true;
     // document.getElementById('healButton').hidden = false;
 }
@@ -625,13 +672,13 @@ function roleHasBeenClicked(event) {
         if (coordinator) {
             showText.innerHTML = '<h2> Scan de andre deltageres QR koder </h2> <br> Og tryk så på <em>Videre</em>';
             setActionButton('Skan', 'active');
-            setInfoButton('Videre', 'active');
+            setAdvanceGameStateButton('Videre', 'active');
         } else {
             generateQRcode(gameMode).append(document.getElementById("canvasQrShow"));
             document.getElementById('canvasQrShow').style.display = 'block';
             showText.innerHTML = '<h2> Lad tovholderen skanne din QR kode </h2> <br> Og tryk så på <em>Videre</em>';
             setActionButton('Skan', 'hidden');
-            setInfoButton('Videre', 'active');
+            setAdvanceGameStateButton('Videre', 'active');
         }
 
         gameState = 'shareStartInfo';
@@ -722,6 +769,8 @@ function useQRcode(QrNumber) {
         messageDiv.hidden = true;
         showText.hidden = false;
         
+    } else if (/T\dM\dG\d/.test(QrNumber)) {
+        participantList.push(QrNumber);
     } else {
         messageDiv.innerHTML = '<p> Denne QR kode er dårlig magi! <br> Scan en anden </p>';
         messageDiv.hidden = false;

@@ -304,6 +304,10 @@ li {
     background-color: rgba(119, 142, 96, 0.5);
 }
 
+.obsButton {
+    background-color: rgba(255, 0, 0, 0.7);
+}
+
 .score {
     font-size: large;
 }
