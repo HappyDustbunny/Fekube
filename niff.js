@@ -418,19 +418,26 @@ function advanceGameStateButtonHasBeenClicked(event) {
     let advanceGameStateButton = document.getElementById('advanceGameStateButton');
     if (coordinator && gameState === 'shareStartInfo') {  // ToDo: Fix this
         stopScan();
-        let participantComposition = 'rap';  // ToDo: Fix this
+        
+        setActionButton('Skan', 'hidden');
+        setAdvanceGameStateButton('Videre', 'active');
+        
+        let participantComposition = JSON.stringify(participantList);
         generateQRcode(participantComposition).append(document.getElementById("canvasQrShow"));
 
+        showText.innerHTML = '<h2> Lad de andre deltagere skanne denne QR kode </h2> <br> Og tryk så på <em>Videre</em>';
+
+        gameState = 'towerOfPower';
+    } else if (coordinator && gameState === 'towerOfPower') {
+        beginRound();
     } else {
+        canvasQrShow = document.getElementById("canvasQrShow");
+        canvasQrShow.removeChild(canvasQrShow.firstChild);
 
+        showText.innerHTML = '<h2> Scan tovholderens QR kode </h2>'½;
+        
+        setActionButton('Skan', 'active');
     }
-    setActionButton('Skan', 'hidden');
-    setAdvanceGameStateButton('Videre', 'hidden');
-
-    canvasQrShow = document.getElementById("canvasQrShow");
-    canvasQrShow.removeChild(canvasQrShow.firstChild);
-
-    beginRound();
 }
 
 
