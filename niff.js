@@ -18,6 +18,7 @@ let localMana = 0;
 let amulet = false;
 let coordinator = false;
 let currentUser = '';
+let attackProbability = 0.001;
 let isVictim = 0;  // Change to 5 if player is attacked and needs healing. Is healed fully by Healer, but need a few scans of '0' to heal alone
 
 let messageDiv = document.getElementById('messageDiv');
@@ -349,12 +350,13 @@ class M3T2G1 extends NiffGameMode {  //  Gentag mønster  TODO: Debug when butto
 // }
 
 const gameModes = {
-    'M1T1G1': M1T1G1,
-    'M2T2G1': M2T2G1,
-    'M3T1G1': M3T1G1,
-    'M3T1G2': M3T1G2,
-    'M3T1G3': M3T1G3,
-    'M3T2G1': M3T2G1,
+    'M1T1G1': M1T1G1,  // Healer
+    'M2T2G1': M2T2G1,  // Indstil visere
+    //'M2T2G2': M2T2G2,  // Kriger
+    'M3T1G1': M3T1G1,  // Skan løs
+    'M3T1G2': M3T1G2,  // Følg det viste mønster
+    'M3T1G3': M3T1G3,  // Følg mønster efter tal
+    'M3T2G1': M3T2G1,  // Gentag mønster
 }
 
 
@@ -425,18 +427,48 @@ function advanceGameStateButtonHasBeenClicked(event) {
         let participantComposition = JSON.stringify(participantList);
         generateQRcode(participantComposition).append(document.getElementById("canvasQrShow"));
 
-        showText.innerHTML = '<h2> Lad de andre deltagere skanne denne QR kode </h2> <br> Og tryk så på <em>Videre</em>';
+        showText.innerHTML = '<h3> Lad de andre deltagere skanne denne QR kode </h3> <br> Og tryk så på <em>Videre</em>';
 
         gameState = 'towerOfPower';
     } else if (coordinator && gameState === 'towerOfPower') {
-        beginRound();
-    } else {
+        canvasQrShow = document.getElementById("canvasQrShow");
+        canvasQrShow.removeChild(canvasQrShow.firstChild);
+        
+        showText.innerHTML = '';
+
+        setAdvanceGameStateButton('Videre', 'hidden');
+        firstTradeInterval();
+    } else if (!coordinator && gameState === 'shareStartInfo') {
         canvasQrShow = document.getElementById("canvasQrShow");
         canvasQrShow.removeChild(canvasQrShow.firstChild);
 
-        showText.innerHTML = '<h2> Scan tovholderens QR kode </h2>'½;
+        showText.innerHTML = '<h2> Scan tovholderens QR kode </h2>';
         
         setActionButton('Skan', 'active');
+        setAdvanceGameStateButton('Videre', 'hidden');
+        gameState = 'towerOfPower';
+    
+    } else if (gameState === 'firstTradeInterval') {
+        location.hash = '#gameMode';
+        beginRound();
+
+    } else {
+        console.log('AdvanceGameStateButton clicked outside gameflow')
+    }
+}
+
+
+function firstTradeInterval() {
+    gameState = 'firstTradeInterval';
+    location.hash = '#firstTradeInterval';
+
+    setAdvanceGameStateButton('Videre', 'active');
+
+    if (participantList.includes('M1T1G1')) {  // Healer
+        attackProbability *= 10;
+
+    } else if (!participantList.includes('M2T2G2')) {  // Ingen kriger
+      //ToDO Implement  'Der kan være monstre. Hvis du ikke vil angribes kan du købe en amulet'
     }
 }
 
@@ -626,7 +658,7 @@ let attackTimer = setInterval(attackChance, 10000);  // TODO: Move to Start Main
 let whileAttackedTimer = '';                
 
 function attackChance() {
-    if (!currentUser.amulet && isVictim === 0 && Math.random() < 0.001) {
+    if (!currentUser.amulet && isVictim === 0 && Math.random() < attackProbability) {
         isVictim = 5;  // Requires 5 healing to be well. A healer can do it in one go. Scanning "0" five times works too
         document.getElementById('page').style.background = 'rgba(255, 0, 0, .36)';
         messageDiv.hidden = false;
@@ -677,13 +709,13 @@ function roleHasBeenClicked(event) {
     if (gameMode !== '' && gameMode !== 'selectRoleContainer') {
         
         if (coordinator) {
-            showText.innerHTML = '<h2> Scan de andre deltageres QR koder </h2> <br> Og tryk så på <em>Videre</em>';
+            showText.innerHTML = '<h3> Scan de andre deltageres QR koder </h3> <br> Og tryk så på <em>Videre</em>';
             setActionButton('Skan', 'active');
             setAdvanceGameStateButton('Videre', 'active');
         } else {
             generateQRcode(gameMode).append(document.getElementById("canvasQrShow"));
             document.getElementById('canvasQrShow').style.display = 'block';
-            showText.innerHTML = '<h2> Lad tovholderen skanne din QR kode </h2> <br> Og tryk så på <em>Videre</em>';
+            showText.innerHTML = '<h3> Lad tovholderen skanne din QR kode </h3> <br> Og tryk så på <em>Videre</em>';
             setActionButton('Skan', 'hidden');
             setAdvanceGameStateButton('Videre', 'active');
         }
@@ -778,6 +810,11 @@ function useQRcode(QrNumber) {
         
     } else if (/T\dM\dG\d/.test(QrNumber)) {
         participantList.push(QrNumber);
+
+    } else if (/T\dM\dG\d/.test(JSON.parse(QrNumber)[0])) {  // If paticipantslist ...
+        participantList = JSON.parse(QrNumber);
+        firstTradeInterval();
+
     } else {
         messageDiv.innerHTML = '<p> Denne QR kode er dårlig magi! <br> Scan en anden </p>';
         messageDiv.hidden = false;
