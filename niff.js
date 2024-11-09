@@ -573,10 +573,12 @@ function toggleButton(button, state) {
     if (state === 'active') {
         button.hidden = false;
         button.classList.add('activeButton');
+        button.removeAttribute('disabled');
         // button.classList.remove('inactiveButton');
     } else if (state === 'inactive') {
         button.hidden = false;
         button.classList.add('inactiveButton');
+        button.setAttribute('disabled', true);
         // button.classList.remove('activeButton');
     } else if (state === 'hidden') {
         button.hidden = true;
@@ -711,7 +713,7 @@ function roleHasBeenClicked(event) {
         if (coordinator) {
             showText.innerHTML = '<h3> Scan de andre deltageres QR koder </h3> <br> Og tryk så på <em>Videre</em>';
             setActionButton('Skan', 'active');
-            setAdvanceGameStateButton('Videre', 'active');
+            setAdvanceGameStateButton('Videre', 'inactive');
         } else {
             generateQRcode(gameMode).append(document.getElementById("canvasQrShow"));
             document.getElementById('canvasQrShow').style.display = 'block';
@@ -784,6 +786,8 @@ async function showError(number) {  // Blink number red two times
 
 
 function useQRcode(QrNumber) {
+    let deStringify = () => {try {return JSON.parse(QrNumber);} catch {return QrNumber; }};
+    QrNumber = deStringify();
     if (-1 < QrNumber && QrNumber < 13) {
         currentUser.applyQrCode(QrNumber);
     } else if (isVictim !== 0 && -1 < QrNumber && QrNumber < 13) {
@@ -807,26 +811,32 @@ function useQRcode(QrNumber) {
         messageDiv.innerHTML = '';
         messageDiv.hidden = true;
         showText.hidden = false;
-        
-    } else if (/T\dM\dG\d/.test(QrNumber)) {
-        participantList.push(QrNumber);
 
-    } else if (/T\dM\dG\d/.test(JSON.parse(QrNumber)[0])) {  // If paticipantslist ...
+    } else if (Array.isArray(QrNumber)) {  // If paticipantslist ...
         participantList = JSON.parse(QrNumber);
         firstTradeInterval();
+        
+    } else if (coordinator && /M\dT\dG\d/.test(QrNumber)) {  // If game ID ...
+        participantList.push(QrNumber);
+        setAdvanceGameStateButton('Videre', 'active');
 
     } else {
-        messageDiv.innerHTML = '<p> Denne QR kode er dårlig magi! <br> Scan en anden </p>';
-        messageDiv.hidden = false;
-        showText.hidden = true;
-        
-        // Then remove message after 2 sec
-        msgTimeOut = setTimeout(function () {
-            messageDiv.innerHTML = '';
-            messageDiv.hidden = true;
-            showText.hidden = false;
-        }, 3000);
+        showMessage('<p> Denne QR kode er dårlig magi! <br> Scan en anden </p>', 3000);
     }
+}
+
+
+function showMessage(text, time) {
+    messageDiv.innerHTML = text;
+    messageDiv.hidden = false;
+    showText.hidden = true;
+    
+    // Then remove message after 2 sec
+    msgTimeOut = setTimeout(function () {
+        messageDiv.innerHTML = '';
+        messageDiv.hidden = true;
+        showText.hidden = false;
+    }, time);
 }
 
 
