@@ -24,7 +24,7 @@ h1 {
 
 h2 {
     text-align: center;
-    font-size: xx-large;
+    font-size: large;
     margin: 0px;
 }
 
@@ -205,19 +205,20 @@ li {
 }
 
 #textContainer {
-    display: flex;
-    justify-content: center;
+    /* display: flex;
+    justify-content: center; */
     margin-bottom: 0.5em;
     height: 70px;
     grid-area: textCont;
+    text-align: center;
 }
 
 #communicationContainer {
-    /* display: grid; */
+    display: grid;
     grid-area: comCont;
-    /* align-content: center;
     justify-content: center;
-    position: relative; */
+    /* align-content: center; */
+    /* position: relative; */
 }
 
 #showAddingMana {
@@ -260,25 +261,6 @@ li {
     width: 50px;
     height: 50px;
     z-index: 100;
-}
-/* 
-#showPatternButton {
-    align-self: center;
-    border-radius: 10px;
-    width: 75px;
-    height: 50px;
-    background-color: rgba(251, 255, 0, 0.829);
-    z-index: 100;
-}
-
-#cancelScanButton, #stopHealButton {
-    background-color: rgba(255, 0, 0, .75);
-    z-index: 100;
-}
-
-#uglyHackSpacer {
-    /* Todo: Make sane layout here */
-    width: 100px;
 }
 
 #healButton {

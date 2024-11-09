@@ -427,7 +427,7 @@ function advanceGameStateButtonHasBeenClicked(event) {
         let participantComposition = JSON.stringify(participantList);
         generateQRcode(participantComposition).append(document.getElementById("canvasQrShow"));
 
-        showText.innerHTML = '<h3> Lad de andre deltagere skanne denne QR kode </h3> <br> Og tryk så på <em>Videre</em>';
+        showText.innerHTML = '<h2> Lad de andre deltagere skanne denne QR kode </h2> <br> Og tryk så på <em>Videre</em>';
 
         gameState = 'towerOfPower';
     } else if (coordinator && gameState === 'towerOfPower') {
@@ -711,13 +711,13 @@ function roleHasBeenClicked(event) {
     if (gameMode !== '' && gameMode !== 'selectRoleContainer') {
         
         if (coordinator) {
-            showText.innerHTML = '<h3> Scan de andre deltageres QR koder </h3> <br> Og tryk så på <em>Videre</em>';
+            showText.innerHTML = '<h2> Scan de andre deltageres QR koder </h2> Og tryk så på <em>Videre</em>';
             setActionButton('Skan', 'active');
             setAdvanceGameStateButton('Videre', 'inactive');
         } else {
             generateQRcode(gameMode).append(document.getElementById("canvasQrShow"));
             document.getElementById('canvasQrShow').style.display = 'block';
-            showText.innerHTML = '<h3> Lad tovholderen skanne din QR kode </h3> <br> Og tryk så på <em>Videre</em>';
+            showText.innerHTML = '<h2> Lad tovholderen skanne din QR kode </h2> Og tryk så på <em>Videre</em>';
             setActionButton('Skan', 'hidden');
             setAdvanceGameStateButton('Videre', 'active');
         }
@@ -813,7 +813,7 @@ function useQRcode(QrNumber) {
         showText.hidden = false;
 
     } else if (Array.isArray(QrNumber)) {  // If paticipantslist ...
-        participantList = JSON.parse(QrNumber);
+        participantList = QrNumber;
         firstTradeInterval();
         
     } else if (coordinator && /M\dT\dG\d/.test(QrNumber)) {  // If game ID ...
@@ -1183,8 +1183,8 @@ function dotProd(A, B) {  // Returns the dot product between vector A[xa, ya] an
 // QR-code generator
 function generateQRcode(text) {
     let responseQRcode = new QRCodeStyling({
-        width: winWidth,
-        height: winHeight,
+        width: sizeFactor * winWidth,
+        height: sizeFactor * winHeight,
         type: "svg",
         data: text,
         image: "qr-codes/fairy.png",
