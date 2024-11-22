@@ -292,10 +292,8 @@ class M3T2G1 extends NiffGameMode {  //  Gentag mønster  TODO: Debug when butto
         this.currentPatternPosition = 0;
         this.patternLenght = 2;
 
-        setActionButton('Skan', 'active');
+        setActionButton('Skan', 'inactive');
         setInfoButton('Vis Mønster', 'active');
-        // document.getElementById('showPatternButton').hidden = false;
-        // document.getElementById('uglyHackSpacer').hidden = false;
     }
 
 
@@ -447,9 +445,10 @@ function advanceGameStateButtonHasBeenClicked(event) {
         setActionButton('Skan', 'active');
         setAdvanceGameStateButton('Videre', 'hidden');
         gameState = 'towerOfPower';
-    
+        
     } else if (gameState === 'firstTradeInterval') {
         location.hash = '#gameMode';
+        setAdvanceGameStateButton('Videre', 'hidden');
         beginRound();
 
     } else {
@@ -463,11 +462,19 @@ function firstTradeInterval() {
     location.hash = '#firstTradeInterval';
 
     setAdvanceGameStateButton('Videre', 'active');
+    setActionButton('Skan', 'hidden');
+    textNode = document.getElementById('firstTradeInfo');
 
-    if (participantList.includes('M1T1G1')) {  // Healer
-        attackProbability *= 10;
-
-    } else if (!participantList.includes('M2T2G2')) {  // Ingen kriger
+    if (!participantList.includes('M2T2G2')) {  // Ingen kriger
+        textNode.innerHTML = '<p> Hvis du ikke kan lide tanken om at blive angrebet, ' +
+        'kan du bruge lidt mana på at købe en amulet der beskytter mod magiske væsener </p>';
+        document.getElementById('buyAmuletButton').hidden = false;
+        if (participantList.includes('M1T1G1')) {  // Healer
+            attackProbability *= 10;
+            textContent = document.createTextNode('<p> Der er en healer på holdet. Find dem og ' +
+                'skan deres tavle, hvis du bliver angrebet </p>');
+            textNode.appendChild(textContent);
+        }
       //ToDO Implement  'Der kan være monstre. Hvis du ikke vil angribes kan du købe en amulet'
     }
 }
@@ -518,19 +525,6 @@ function setActionButton(text, state) {
     }
 
     toggleButton(actionButton, state);
-/*     if (state === 'active') {
-        actionButton.hidden = false;
-        actionButton.classList.add('activeButton');
-        actionButton.classList.remove('inactiveButton');
-    } else if (state === 'inactive') {
-        actionButton.classList.add('inactiveButton');
-        actionButton.classList.remove('activeButton');
-    } else if (state === 'hidden') {
-        actionButton.hidden = true;
-        actionButton.classList.remove('inactiveButton');
-    } else {
-        console.log('Wrong statement for setactionButton');
-    } */
 }
 
 
@@ -541,19 +535,6 @@ function setInfoButton(text, state) {
     }
 
     toggleButton(infoButton, state);
-/*     if (state === 'active') {
-        infoButton.hidden = false;
-        infoButton.classList.add('activeButton');
-        infoButton.classList.remove('inactiveButton');
-    } else if (state === 'inactive') {
-        infoButton.classList.add('inactiveButton');
-        infoButton.classList.remove('activeButton');
-    } else if (state === 'hidden') {
-        infoButton.hidden = true;
-        infoButton.classList.remove('inactiveButton');
-    } else {
-        console.log('Wrong statement for setInfoButton');
-    } */
 }
 
 
@@ -767,6 +748,7 @@ async function showPattern(patternLenght){
         currentUser.showedPattern = true;
     }
     setInfoButton('Vis Mønster', 'active');
+    setActionButton('Skan', 'active');
 }
 
 
@@ -1248,3 +1230,10 @@ function generateQRcode(text) {
 //         "reader", { fps: 10, qrbox: {width: 250, height: 250} }, /* verbose= */ false);
 //     html5QrcodeScanner.render(onScanSuccess, onScanFailure);
 // });
+
+// For debugging purposes
+function scanCoordinator() {
+    participantList.push('M2T2G1'); 
+    participantList.push('M1T3G1');
+    useQRcode(participantList);
+}
