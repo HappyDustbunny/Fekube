@@ -350,7 +350,7 @@ class M3T2G1 extends NiffGameMode {  //  Gentag mønster  TODO: Debug when butto
 const gameModes = {
     'M1T1G1': M1T1G1,  // Healer
     'M2T2G1': M2T2G1,  // Indstil visere
-    //'M2T2G2': M2T2G2,  // Kriger
+    //'M2T2G2': M2T2G2,  // Jæger
     'M3T1G1': M3T1G1,  // Skan løs
     'M3T1G2': M3T1G2,  // Følg det viste mønster
     'M3T1G3': M3T1G3,  // Følg mønster efter tal
@@ -464,18 +464,50 @@ function firstTradeInterval() {
     setAdvanceGameStateButton('Videre', 'active');
     setActionButton('Skan', 'hidden');
     textNode = document.getElementById('firstTradeInfo');
-
-    if (!participantList.includes('M2T2G2')) {  // Ingen kriger
-        textNode.innerHTML = '<p> Hvis du ikke kan lide tanken om at blive angrebet, ' +
-        'kan du bruge lidt mana på at købe en amulet der beskytter mod magiske væsener </p>';
-        document.getElementById('buyAmuletButton').hidden = false;
+    let paragraph = document.createElement("p");
+    let textContent = document.createTextNode('I de verdener den magiske cirkel åbner portaler til, ' + 
+        'kan der være magiske væsener der angriber dig\n');
+        paragraph.appendChild(textContent);
+        textNode.appendChild(paragraph);
+        
+    if (!participantList.includes('M2T2G2')) {  // Ingen jæger
         if (participantList.includes('M1T1G1')) {  // Healer
             attackProbability *= 10;
-            textContent = document.createTextNode('<p> Der er en healer på holdet. Find dem og ' +
-                'skan deres tavle, hvis du bliver angrebet </p>');
-            textNode.appendChild(textContent);
+            let paragraph = document.createElement("p");
+            let textContent = document.createTextNode('Der er en healer på holdet. Find dem og ' +
+                'skan deres tavle, hvis du bliver angrebet\n');
+            paragraph.appendChild(textContent);
+            textNode.appendChild(paragraph);
+        } else {
+            let paragraph = document.createElement("p");
+            let textContent = document.createTextNode('Hvis du bliver angrebet, kan du blive healet ved at ' +
+                'skanne 0 flere gange\n');
+                paragraph.appendChild(textContent);
+                textNode.appendChild(paragraph);
         }
-      //ToDO Implement  'Der kan være monstre. Hvis du ikke vil angribes kan du købe en amulet'
+        let paragraph = document.createElement("p");
+        let textContent = document.createTextNode('Hvis du ikke kan lide tanken om at blive angrebet, ' +
+            'kan du bruge lidt mana på at købe en amulet der beskytter mod magiske væsener');
+            paragraph.appendChild(textContent);
+            textNode.appendChild(paragraph);
+            document.getElementById('buyAmuletButton').hidden = false;  // ToDo: Implement action here
+    } else {
+        amulet = true;
+        let hunter1 = 'en jæger';
+        let hunter2 = 'en';
+        if (1 < participantList.filter(elem => elem === 'M2T2G2').length) {
+            hunter1 = 'jægere';
+            hunter2 = 'ne';
+        }
+        let textContent = document.createTextNode(', men da der er ' + hunter1 + ' på holdet, vil de ' +
+            'magiske væsener angribe jæger' + hunter2 + ' i stedet for dig. \n');
+        paragraph.appendChild(textContent);
+        textNode.appendChild(paragraph);
+
+        let paragraph1 = document.createElement("p");
+        let textContent1 = document.createTextNode('En amulet er derfor unødvendig');
+        paragraph1.appendChild(textContent1);
+        textNode.appendChild(paragraph1);
     }
 }
 

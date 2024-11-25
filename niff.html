@@ -30,12 +30,12 @@
         <div id="intro">
             <div id="chooseGameMode">
                 <p>Vælg game mode</p>
-                <button id="coordinator"> Tovholder * </button>
+                <button id="coordinator" tabindex="1"> Tovholder * </button>
                 <br>
                 <Button id="normal" tabindex="1"> Normal </Button>
             </div>
         
-            <details> <summary class="frontpageSummary"> Introduktion </summary> 
+            <details> <summary class="frontpageSummary" tabindex="2"> Introduktion </summary> 
                 <p> Feerne mangler mana </p>
                 <p> Jeres opgave er at samle mana fra verdener, der ikke bruger deres </p>
                 <p> Start med at sætte Portal-ankrene 1-12 (Se FAQ) op 
@@ -45,7 +45,7 @@
                 <br>
                 <br>
             </details>
-            <details> <summary class="frontpageSummary"> Baggrund </summary>
+            <details> <summary class="frontpageSummary" tabindex="2"> Baggrund </summary>
                 <p> Feerne troede at mana var en uudtømmelig ressource. <br>
                     Det passede selvfølgelig ikke. </p>
                     <p> Heldigvis kan mana samles i parallelle verdener og spredes her i Niff, feernes rige, 
@@ -101,7 +101,7 @@
                 <br>
             </details>
             
-            <details> <summary class="frontpageSummary">FAQ / *</summary>
+            <details> <summary class="frontpageSummary" tabindex="2">FAQ / *</summary>
                 <!-- <p> Monstre kan en gang imellem såre feer der samler mana, men det er ikke alvorligt. <br> 
                     Feerne kan let blive healet <br>
                     Vælg kun en amulet, hvis du <em>slet</em> ikke bryder dig om tanken om at monstre kan nå dig 
@@ -251,7 +251,7 @@
         
         <div id="firstTradeInterval+">
             <div id="firstTradeInfo"></div>
-            <button id="buyAmuletButton" hidden></button>
+            <button id="buyAmuletButton" hidden> Køb amulet for 50 mana </button>
         </div>
 
         <!-- Contanier for interacting with game-states -->
