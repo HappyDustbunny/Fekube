@@ -370,6 +370,8 @@ document.getElementById('actionButton').addEventListener('click', actionButtonHa
 
 document.getElementById('infoButton').addEventListener('click', infoButtonHasBeenClicked);
 
+document.getElementById('buyAmuletButton').addEventListener('click', buyAmuletButtonHasBeenClicked);
+
 document.getElementById('advanceGameStateButton').addEventListener('click', 
     advanceGameStateButtonHasBeenClicked);
 
@@ -449,6 +451,7 @@ function advanceGameStateButtonHasBeenClicked(event) {
     } else if (gameState === 'firstTradeInterval') {
         location.hash = '#gameMode';
         setAdvanceGameStateButton('Videre', 'hidden');
+        document.getElementById('firstTradeInfo').innerHTML = '';
         beginRound();
 
     } else {
@@ -487,13 +490,13 @@ function firstTradeInterval() {
         }
         let paragraph = document.createElement("p");
         let textContent = document.createTextNode('Hvis du ikke kan lide tanken om at blive angrebet, ' +
-            'kan du bruge lidt mana på at købe en amulet der beskytter mod magiske væsener');
+            'kan du bruge lidt mana på at købe en amulet \u{1FAAC} der beskytter mod magiske væsener');
             paragraph.appendChild(textContent);
             textNode.appendChild(paragraph);
-            document.getElementById('buyAmuletButton').hidden = false;  // ToDo: Implement action here
-    } else {
-        amulet = true;
-        let hunter1 = 'en jæger';
+            document.getElementById('buyAmuletButton').hidden = false;
+        } else {
+            amulet = true;
+            let hunter1 = 'en jæger';
         let hunter2 = 'en';
         if (1 < participantList.filter(elem => elem === 'M2T2G2').length) {
             hunter1 = 'jægere';
@@ -509,6 +512,22 @@ function firstTradeInterval() {
         paragraph1.appendChild(textContent1);
         textNode.appendChild(paragraph1);
     }
+}
+
+
+function buyAmuletButtonHasBeenClicked() {
+    localMana -= 50;
+    amulet = true;
+    document.getElementById('buyAmuletButton').hidden = true;
+    
+    textNode = document.getElementById('firstTradeInfo');
+    textNode.removeChild(textNode.lastChild);
+
+    let paragraph = document.createElement("p");
+    let textContent = document.createTextNode('Du har købt en amulet \u{1FAAC} der beskytter mod ' +
+        'magiske væsener');
+    paragraph.appendChild(textContent);
+    textNode.appendChild(paragraph);
 }
 
 
@@ -750,6 +769,9 @@ function beginRound() {
     
     document.getElementById('globalManaCounter').style.visibility = 'visible';
     document.getElementById('localManaCounter').style.visibility = 'visible';
+    if (amulet) {
+        document.getElementById('amulet').hidden = false;
+    }
     document.getElementById('QrContainer').hidden = false;
     
     // If healer --> sligthly more risk of monsters

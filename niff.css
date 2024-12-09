@@ -174,9 +174,14 @@ li {
 #headContainer {
     display: grid;
     grid-area: header;
-    grid-template-columns: 1% 15% auto 15% 1%;
+    grid-template-columns: 1% 15% auto 10% 15% 1%;
     row-gap: .3em;
-    grid-template-areas: '. gblscr header lclscr .';
+    grid-template-areas: '. gblscr header amulet lclscr .';
+}
+
+#amulet {
+    font-size: 2em;
+    grid-area: amulet;
 }
 
 #globalManaCounter {
