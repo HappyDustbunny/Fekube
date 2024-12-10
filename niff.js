@@ -1,13 +1,23 @@
 const pi = Math.PI;
 const kv3h = Math.sqrt(3)/2;
+
 const timer = ms => new Promise(res => setTimeout(res, ms));
+
 const winWidth = window.screen.width;
 const sizeFactor = 0.64;
 const zoomFactor = sizeFactor * winWidth / 300;
 const winHeight = winWidth;  // These two variables are currently used together to make square displays
-const config = {fps: 10, qrbox: {width: sizeFactor * winWidth, height: sizeFactor * winHeight}};
+
+// Manacosts
+const manaPrice = 50;
+const boosterPrice = 100;
+const wrongPatternPrice = 10;
+const showPatternAgainCost = 20;
+const attackedCost = 1;
+
 // Initialize QR-code reader
 const html5Qrcode = new Html5Qrcode("reader");
+const config = {fps: 10, qrbox: {width: sizeFactor * winWidth, height: sizeFactor * winHeight}};
 
 
 let gameMode = '';
@@ -16,6 +26,7 @@ let participantList = [];
 let globalMana = 500;  // Start with some mana to heal attacked players
 let localMana = 0;
 let amulet = false;
+let booster = false;
 let coordinator = false;
 let currentUser = '';
 let attackProbability = 0.001;
@@ -230,8 +241,8 @@ class M3T1G2 extends NiffGameMode {  // Følg det viste mønster
         } else {
             showError(QrNumber);
             await timer(1600);
-            currentUser.localMana -= 10;
-            updateManaCounters(-10);
+            currentUser.localMana -= wrongPatternPrice;
+            updateManaCounters(-wrongPatternPrice);
             await timer(300);
             drawClockfaceOverlay(this.currentGoal, [0, 255, 0]);
         }
@@ -370,7 +381,7 @@ document.getElementById('actionButton').addEventListener('click', actionButtonHa
 
 document.getElementById('infoButton').addEventListener('click', infoButtonHasBeenClicked);
 
-document.getElementById('buyAmuletButton').addEventListener('click', buyAmuletButtonHasBeenClicked);
+// document.getElementById('buyAmuletButton').addEventListener('click', buyAmuletButtonHasBeenClicked);
 
 document.getElementById('advanceGameStateButton').addEventListener('click', 
     advanceGameStateButtonHasBeenClicked);
@@ -452,6 +463,8 @@ function advanceGameStateButtonHasBeenClicked(event) {
         location.hash = '#gameMode';
         setAdvanceGameStateButton('Videre', 'hidden');
         document.getElementById('firstTradeInfo').innerHTML = '';
+        document.getElementById('firstTradeResult').innerHTML = '';
+        document.getElementById('firstTradeInterval').hidden = true;
         beginRound();
 
     } else {
@@ -467,6 +480,7 @@ function firstTradeInterval() {
     setAdvanceGameStateButton('Videre', 'active');
     setActionButton('Skan', 'hidden');
     textNode = document.getElementById('firstTradeInfo');
+    textNode.hidden = false;
     let paragraph = document.createElement("p");
     let textContent = document.createTextNode('I de verdener den magiske cirkel åbner portaler til, ' + 
         'kan der være magiske væsener der angriber dig\n');
@@ -474,26 +488,45 @@ function firstTradeInterval() {
         textNode.appendChild(paragraph);
         
     if (!participantList.includes('M2T2G2')) {  // Ingen jæger
-        if (participantList.includes('M1T1G1')) {  // Healer
-            attackProbability *= 10;
-            let paragraph = document.createElement("p");
-            let textContent = document.createTextNode('Der er en healer på holdet. Find dem og ' +
-                'skan deres tavle, hvis du bliver angrebet\n');
-            paragraph.appendChild(textContent);
-            textNode.appendChild(paragraph);
-        } else {
-            let paragraph = document.createElement("p");
-            let textContent = document.createTextNode('Hvis du bliver angrebet, kan du blive healet ved at ' +
-                'skanne 0 flere gange\n');
+            if (participantList.includes('M1T1G1')) {  // Healer
+                attackProbability *= 10;
+                let paragraph = document.createElement("p");
+                let textContent = document.createTextNode('Der er en healer på holdet. Find dem og ' +
+                    'skan deres tavle, hvis du bliver angrebet\n');
                 paragraph.appendChild(textContent);
                 textNode.appendChild(paragraph);
-        }
-        let paragraph = document.createElement("p");
-        let textContent = document.createTextNode('Hvis du ikke kan lide tanken om at blive angrebet, ' +
-            'kan du bruge lidt mana på at købe en amulet \u{1FAAC} der beskytter mod magiske væsener');
-            paragraph.appendChild(textContent);
-            textNode.appendChild(paragraph);
-            document.getElementById('buyAmuletButton').hidden = false;
+            } else {
+                let paragraph1 = document.createElement("p");
+                let textContent1 = document.createTextNode('Hvis du bliver angrebet, kan du blive healet ved at ' +
+                    'skanne 0 flere gange\n');
+                paragraph1.appendChild(textContent1);
+                textNode.appendChild(paragraph1);
+            
+                let paragraph2 = document.createElement("p");
+                paragraph2.setAttribute('id', 'buyAmuletElement')
+                let textContent2 = document.createTextNode('Hvis du ikke kan lide tanken om at blive angrebet, ' +
+                    'kan du bruge lidt mana på at købe en amulet \u{1FAAC} der beskytter mod magiske væsener');
+                paragraph2.appendChild(textContent2);
+                let button1 = document.createElement('button');
+                button1.setAttribute('id', 'buyAmuletButton');
+                button1.innerText = ' Køb amulet \u{1FAAC} mod monstre for ' + manaPrice + ' mana ';
+                paragraph2.appendChild(button1);
+                textNode.appendChild(paragraph2);
+                // document.getElementById('buyAmuletButton').hidden = false;
+                document.getElementById('buyAmuletButton').addEventListener('click', buyAmuletButtonHasBeenClicked);
+                
+                let paragraph3 = document.createElement('p');
+                paragraph3.setAttribute('id', 'buyBoosterElement');
+                let textContent3 = document.createTextNode('Du kan købe en amulet \u2728 der gør at dine ritualer ' + 
+                    'samler mere mana ');
+                paragraph3.appendChild(textContent3);
+                let button2 = document.createElement('button');
+                button2.setAttribute('id', 'buyBoosterButton');
+                button2.innerText = ' Køb en amulet \u2728 der giver større manaudbytte for ' + boosterPrice + ' mana ';
+                paragraph3.appendChild(button2);
+                textNode.appendChild(paragraph3);
+                document.getElementById('buyBoosterButton').addEventListener('click', buyBoosterButtonHasBeenClicked);
+            }
         } else {
             amulet = true;
             let hunter1 = 'en jæger';
@@ -516,18 +549,47 @@ function firstTradeInterval() {
 
 
 function buyAmuletButtonHasBeenClicked() {
-    localMana -= 50;
+    localMana -= manaPrice;
     amulet = true;
-    document.getElementById('buyAmuletButton').hidden = true;
+    // document.getElementById('buyAmuletButton').hidden = true;
     
-    textNode = document.getElementById('firstTradeInfo');
-    textNode.removeChild(textNode.lastChild);
-
+    let textNode = document.getElementById('firstTradeInfo');
+    // textNode.removeChild(textNode.lastChild);
+    // textNode.removeChild(textNode.children[2]);
+    textNode.removeChild(document.getElementById('buyAmuletElement'));
+    
+    let textNode1 = document.getElementById('firstTradeResult');
+    if (!booster) {
+        let hr = document.createElement('hr');
+        textNode1.appendChild(hr);
+    }
     let paragraph = document.createElement("p");
-    let textContent = document.createTextNode('Du har købt en amulet \u{1FAAC} der beskytter mod ' +
+    let textContent = document.createTextNode('\u2022 Du har købt en amulet \u{1FAAC} der beskytter mod ' +
         'magiske væsener');
     paragraph.appendChild(textContent);
-    textNode.appendChild(paragraph);
+    textNode1.appendChild(paragraph);
+}
+    
+    
+function buyBoosterButtonHasBeenClicked() {
+    localMana -= boosterPrice;
+    booster = true;
+    // document.getElementById('buyBoosterButton').hidden = true;
+    
+    let textNode = document.getElementById('firstTradeInfo');
+    // textNode.removeChild(textNode.children[3]);
+    textNode.removeChild(document.getElementById('buyBoosterElement'));
+    
+    let textNode1 = document.getElementById('firstTradeResult');
+    if (!amulet) {
+        let hr = document.createElement('hr');
+        textNode1.appendChild(hr);
+    }
+    let paragraph = document.createElement("p");
+    let textContent = document.createTextNode('\u2022 Du har købt en amulet \u2728 der giver større ' +
+        'manaudbytte');
+    paragraph.appendChild(textContent);
+    textNode1.appendChild(paragraph);
 }
 
 
@@ -708,7 +770,7 @@ function attackChance() {
 
 
 function whileAttacked() {
-    currentUser.localMana -= 1;
+    currentUser.localMana -= attackedCost;
     updateManaCounters();
     
     if (isVictim === 0) {
@@ -772,6 +834,9 @@ function beginRound() {
     if (amulet) {
         document.getElementById('amulet').hidden = false;
     }
+    if (booster) {
+        document.getElementById('booster').hidden = false;
+    }
     document.getElementById('QrContainer').hidden = false;
     
     // If healer --> sligthly more risk of monsters
@@ -796,8 +861,8 @@ async function showPattern(patternLenght){
     document.getElementById("canvasClockfaceOverlay").hidden = true
     // setActionButton('Skan', 'active');
     if (currentUser.showedPattern) {
-        currentUser.localMana -= 20;
-        updateManaCounters(-20);
+        currentUser.localMana -= showPatternAgainCost;
+        updateManaCounters(-showPatternAgainCost);
     } else {
         currentUser.showedPattern = true;
     }

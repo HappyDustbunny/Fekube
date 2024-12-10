@@ -38,6 +38,11 @@ h5 {
     font-size: larger;
 }
 
+hr {
+    border-top: 2px solid rgba(127, 255, 0, .15);
+    border-radius: 5px;
+}
+
 kbd {
     font-size: x-large;
 }
@@ -174,14 +179,23 @@ li {
 #headContainer {
     display: grid;
     grid-area: header;
-    grid-template-columns: 1% 15% auto 10% 15% 1%;
+    grid-template-columns: 1% 15% auto 10% 10% 15% 1%;
     row-gap: .3em;
-    grid-template-areas: '. gblscr header amulet lclscr .';
+    grid-template-areas: '. gblscr header booster amulet lclscr .';
+}
+
+#firstTradeInfo {
+    height: 360px;
 }
 
 #amulet {
     font-size: 2em;
     grid-area: amulet;
+}
+
+#booster {
+    font-size: 2em;
+    grid-area: booster;
 }
 
 #globalManaCounter {
