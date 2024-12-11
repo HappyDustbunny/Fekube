@@ -88,7 +88,6 @@ summary::marker {
         
 #selectRole {
     display: none;
-    /* grid-area: txtCont; */
     
     &:target {
         display: block;
@@ -101,7 +100,6 @@ summary::marker {
     &:target {
         display: grid;
         grid-template-rows: 2.7fr 1fr 2.7fr 0.6fr;
-        /* grid-template-rows: auto auto auto auto; */
         overflow-y: scroll;
         grid-template-areas:
         'QrCont  '

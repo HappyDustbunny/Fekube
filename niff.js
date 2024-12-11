@@ -408,6 +408,7 @@ function actionButtonHasBeenClicked() {
                 heal();
                 break;
             case 'Stop Healing':
+                stopHealing();
                 setActionButton('Heal', 'active');
                 break;
         }
@@ -438,7 +439,7 @@ function advanceGameStateButtonHasBeenClicked(event) {
         let participantComposition = JSON.stringify(participantList);
         generateQRcode(participantComposition).append(document.getElementById("canvasQrShow"));
 
-        showText.innerHTML = '<h2> Lad de andre deltagere skanne denne QR kode </h2> <br> Og tryk så på <em>Videre</em>';
+        showText.innerHTML = '<h2> Lad de andre deltagere skanne denne QR kode </h2> Og tryk så på <em>Videre</em>';
 
         gameState = 'towerOfPower';
     } else if (coordinator && gameState === 'towerOfPower') {
@@ -453,18 +454,13 @@ function advanceGameStateButtonHasBeenClicked(event) {
         canvasQrShow = document.getElementById("canvasQrShow");
         canvasQrShow.removeChild(canvasQrShow.firstChild);
 
-        showText.innerHTML = '<h2> Scan tovholderens QR kode </h2>';
+        showText.innerHTML = '<h2> Skan tovholderens QR kode </h2>';
         
         setActionButton('Skan', 'active');
         setAdvanceGameStateButton('Videre', 'hidden');
         gameState = 'towerOfPower';
         
     } else if (gameState === 'firstTradeInterval') {
-        location.hash = '#gameMode';
-        setAdvanceGameStateButton('Videre', 'hidden');
-        document.getElementById('firstTradeInfo').innerHTML = '';
-        document.getElementById('firstTradeResult').innerHTML = '';
-        document.getElementById('firstTradeInterval').hidden = true;
         beginRound();
 
     } else {
@@ -484,17 +480,22 @@ function firstTradeInterval() {
     let paragraph = document.createElement("p");
     let textContent = document.createTextNode('I de verdener den magiske cirkel åbner portaler til, ' + 
         'kan der være magiske væsener der angriber dig\n');
-        paragraph.appendChild(textContent);
-        textNode.appendChild(paragraph);
+    paragraph.appendChild(textContent);
+    textNode.appendChild(paragraph);
         
     if (!participantList.includes('M2T2G2')) {  // Ingen jæger
             if (participantList.includes('M1T1G1')) {  // Healer
-                attackProbability *= 10;
-                let paragraph = document.createElement("p");
-                let textContent = document.createTextNode('Der er en healer på holdet. Find dem og ' +
-                    'skan deres tavle, hvis du bliver angrebet\n');
-                paragraph.appendChild(textContent);
-                textNode.appendChild(paragraph);
+                if (gameMode === 'M1T1G1') {  // If you are the healer, skip buying amulets (It is a T1 and not necessary)
+                    beginRound();
+                } else {
+                    attackProbability *= 10;
+                    let paragraph = document.createElement("p");
+                    let textContent = document.createTextNode('Der er en healer på holdet. Find dem og ' +
+                        'skan deres tavle, hvis du bliver angrebet\n');
+                    paragraph.appendChild(textContent);
+                    textNode.appendChild(paragraph);
+                }
+                    
             } else {
                 let paragraph1 = document.createElement("p");
                 let textContent1 = document.createTextNode('Hvis du bliver angrebet, kan du blive healet ved at ' +
@@ -828,6 +829,12 @@ function roleHasBeenClicked(event) {
 function beginRound() {
     gameState = 'firstRound';
     location.hash = '#gameMode'; // Adjust layout to game mode
+
+    setAdvanceGameStateButton('Videre', 'hidden');
+    document.getElementById('firstTradeInfo').innerHTML = '';
+    document.getElementById('firstTradeResult').innerHTML = '';
+    document.getElementById('showText').innerHTML = '';
+    document.getElementById('firstTradeInterval').hidden = true;
     
     document.getElementById('globalManaCounter').style.visibility = 'visible';
     document.getElementById('localManaCounter').style.visibility = 'visible';
@@ -917,7 +924,7 @@ function useQRcode(QrNumber) {
         participantList = QrNumber;
         firstTradeInterval();
         
-    } else if (coordinator && /M\dT\dG\d/.test(QrNumber)) {  // If game ID ...
+    } else if (coordinator && /M\dT\dG\d/.test(QrNumber)) {  // If game ID is scanned it must be that you are the coordinator...
         participantList.push(QrNumber);
         setAdvanceGameStateButton('Videre', 'active');
 
@@ -1354,5 +1361,13 @@ function generateQRcode(text) {
 function scanCoordinator() {
     participantList.push('M2T2G1'); 
     participantList.push('M1T3G1');
+    participantList.push(gameMode);
     useQRcode(participantList);
+}
+
+function scanSeveralParticipants() {
+    useQRcode('M1T1G1')
+    useQRcode('M3T2G1')
+    useQRcode('M2T3G2')
+    useQRcode('M3T1G1')
 }
