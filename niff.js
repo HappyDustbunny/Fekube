@@ -284,7 +284,7 @@ class M3T1G3 extends NiffGameMode {  // Følg mønster efter tal
 }
 
 
-class M3T2G1 extends NiffGameMode {  //  Gentag mønster  TODO: Debug when buttons are shown and change first ShowPatternButton to green, then yellow
+class M3T2G1 extends NiffGameMode {  //  Gentag mønster
     constructor() {
         super();
         this.gameMode = 'M3T2G1';
@@ -304,7 +304,7 @@ class M3T2G1 extends NiffGameMode {  //  Gentag mønster  TODO: Debug when butto
         this.patternLenght = 2;
 
         setActionButton('Skan', 'inactive');
-        setInfoButton('Vis Mønster', 'active');
+        setInfoButton('Vis Mønster', 'active', 'green');
     }
 
 
@@ -327,8 +327,8 @@ class M3T2G1 extends NiffGameMode {  //  Gentag mønster  TODO: Debug when butto
                 this.currentGoalNumber = 0;
                 this.patternLenght += 1;
                 this.showedPattern = false;
-                setInfoButton('Vis Mønster', 'active');
-                document.getElementById('showPatternButton').hidden = false;
+                setInfoButton('Vis Mønster', 'active', 'green');
+                document.getElementById('infoButton').hidden = false;
                 setActionButton('Skan', 'hidden');
             }
         } else {
@@ -642,13 +642,13 @@ function setActionButton(text, state) {
 }
 
 
-function setInfoButton(text, state) {
+function setInfoButton(text, state, colour) {
     let infoButton = document.getElementById('infoButton');
     if (text != '') {
         infoButton.textContent = text;
     }
 
-    toggleButton(infoButton, state);
+    toggleButton(infoButton, state, colour);
 }
 
 
@@ -662,28 +662,32 @@ function setAdvanceGameStateButton(text, state) {
 }
 
 
-function toggleButton(button, state) {
+function toggleButton(button, state, colour) {
     button.removeAttribute('class');
 
     if (state === 'active') {
         button.hidden = false;
         button.classList.add('activeButton');
         button.removeAttribute('disabled');
-        // button.classList.remove('inactiveButton');
+        
     } else if (state === 'inactive') {
         button.hidden = false;
         button.classList.add('inactiveButton');
         button.setAttribute('disabled', true);
-        // button.classList.remove('activeButton');
+        
     } else if (state === 'hidden') {
         button.hidden = true;
-        // button.classList.remove('inactiveButton');
+        
     } else if (state === 'obs') {
         button.hidden = false;
-        // button.classList.remove('inactiveButton');
+        
         button.classList.add('obsButton');
     } else {
         console.log('Wrong state statement for toggleButton');
+    }
+
+    if (['yellow', 'red', 'green'].includes(colour)) {
+        button.classList.add(colour);
     }
 }
 
@@ -873,7 +877,7 @@ async function showPattern(patternLenght){
     } else {
         currentUser.showedPattern = true;
     }
-    setInfoButton('Vis Mønster', 'active');
+    setInfoButton('Vis Mønster', 'active', 'yellow');
     setActionButton('Skan', 'active');
 }
 
