@@ -177,9 +177,9 @@ li {
 #headContainer {
     display: grid;
     grid-area: header;
-    grid-template-columns: 1% 15% auto 10% 10% 15% 1%;
+    grid-template-columns: 1% 35% auto 10% 10% 15% 1%;
     row-gap: .3em;
-    grid-template-areas: '. gblscr header booster amulet lclscr .';
+    grid-template-areas: '. gblscr header booster amulet lclscr .' '. timeLeftBar auto auto auto auto .';
 }
 
 #firstTradeInfo {
@@ -215,6 +215,24 @@ li {
     align-content: center;
     justify-content: right;
     visibility: hidden;
+}
+
+progress {
+    border-radius: 10px;
+    background-color: aliceblue;
+}
+
+progress::-webkit-progress-bar, progress::-moz-progress-bar {
+    border-radius: 10px;
+    /* background-color: green; */
+    background-color: var(--progressBarColour, auto);
+}
+
+#progressBarContainer {
+    /* display: grid; */
+    grid-area: timeLeftBar;
+    align-content: center;
+    justify-content: right;
 }
 
 #QrContainer {

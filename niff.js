@@ -15,22 +15,26 @@ const wrongPatternPrice = 10;
 const showPatternAgainCost = 20;
 const attackedCost = 1;
 
+// Gametime
+const gameTime = 10 * 60000;  // 10 minutes of game time
+
 // Initialize QR-code reader
 const html5Qrcode = new Html5Qrcode("reader");
 const config = {fps: 10, qrbox: {width: sizeFactor * winWidth, height: sizeFactor * winHeight}};
 
 
+let amulet = false;
+let attackProbability = 0.001;
+let booster = false;
+let coordinator = false;
+let currentUser = '';
+let endGameAt = 0;
 let gameMode = '';
 let gameState = 'chooseCoordinator';
 let participantList = [];
 let globalMana = 500;  // Start with some mana to heal attacked players
-let localMana = 0;
-let amulet = false;
-let booster = false;
-let coordinator = false;
-let currentUser = '';
-let attackProbability = 0.001;
 let isVictim = 0;  // Change to 5 if player is attacked and needs healing. Is healed fully by Healer, but need a few scans of '0' to heal alone
+let localMana = 0;
 
 let messageDiv = document.getElementById('messageDiv');
 let showText = document.getElementById('showText');
@@ -430,18 +434,21 @@ function infoButtonHasBeenClicked() {
 
 function advanceGameStateButtonHasBeenClicked(event) {
     let advanceGameStateButton = document.getElementById('advanceGameStateButton');
-    if (coordinator && gameState === 'shareStartInfo') {  // ToDo: Fix this
+    if (coordinator && gameState === 'shareStartInfo') {
         stopScan();
         
         setActionButton('Skan', 'hidden');
         setAdvanceGameStateButton('Videre', 'active');
         
-        let participantComposition = JSON.stringify(participantList);
-        generateQRcode(participantComposition).append(document.getElementById("canvasQrShow"));
+        endGameAt = new Date(new Date().valueOf() + gameTime);
+        participantList.unshift(endGameAt);  // Stuff time for gamestart in at the begining of the participantlist
+        let gameData = JSON.stringify(participantList);
+        generateQRcode(gameData).append(document.getElementById("canvasQrShow"));
 
         showText.innerHTML = '<h2> Lad de andre deltagere skanne denne QR kode </h2> Og tryk så på <em>Videre</em>';
 
         gameState = 'towerOfPower';
+
     } else if (coordinator && gameState === 'towerOfPower') {
         canvasQrShow = document.getElementById("canvasQrShow");
         canvasQrShow.removeChild(canvasQrShow.firstChild);
@@ -450,6 +457,7 @@ function advanceGameStateButtonHasBeenClicked(event) {
 
         setAdvanceGameStateButton('Videre', 'hidden');
         firstTradeInterval();
+        
     } else if (!coordinator && gameState === 'shareStartInfo') {
         canvasQrShow = document.getElementById("canvasQrShow");
         canvasQrShow.removeChild(canvasQrShow.firstChild);
@@ -830,9 +838,34 @@ function roleHasBeenClicked(event) {
 }
 
 
+function isGameOver() {
+    let now = new Date();
+    if (endGameAt < now) {
+        endGame();
+    } else {
+        let progressValue = (endGameAt - now) / gameTime * 100;
+        // document.getElementById('progressBar').setAttribute("value", "20");
+        document.getElementById('progressBar').setAttribute("value", progressValue);
+        if (progressValue < 30) {
+            document.getElementById('progressBar').style.setProperty('--progressBarColour', 'gold');
+            if (progressValue < 15) {
+                document.getElementById('progressBar').style.setProperty('--progressBarColour', 'red');
+            }
+        }
+    }
+}
+
+
 function beginRound() {
     gameState = 'firstRound';
     location.hash = '#gameMode'; // Adjust layout to game mode
+    
+    document.getElementById('progressBar').style.width = 0.9 * winWidth + 'px';
+    document.getElementById('progressBar').setAttribute("max", "100");
+    document.getElementById('progressBar').setAttribute("value", "100");
+    document.getElementById('progressBar').style.setProperty('--progressBarColour', 'green')
+    document.getElementById('progressBarContainer').hidden = false;
+    let isGameOverTimer = setInterval(isGameOver, 1000);
 
     setAdvanceGameStateButton('Videre', 'hidden');
     document.getElementById('firstTradeInfo').innerHTML = '';
@@ -926,9 +959,10 @@ function useQRcode(QrNumber) {
 
     } else if (Array.isArray(QrNumber)) {  // If paticipantslist ...
         participantList = QrNumber;
+        endGameAt = participantList.shift();  // Remove game end-time from the QR number shared by the coordinator
         firstTradeInterval();
         
-    } else if (coordinator && /M\dT\dG\d/.test(QrNumber)) {  // If game ID is scanned it must be that you are the coordinator...
+    } else if (coordinator && /M\dT\dG\d/.test(QrNumber)) {  // If game ID is scanned it implies that you are the coordinator...
         participantList.push(QrNumber);
         setAdvanceGameStateButton('Videre', 'active');
 
@@ -1366,6 +1400,8 @@ function scanCoordinator() {
     participantList.push('M2T2G1'); 
     participantList.push('M1T3G1');
     participantList.push(gameMode);
+    endGameAt = new Date(new Date().valueOf() + gameTime);
+    participantList.unshift(endGameAt);  // Stuff time for gamestart in at the begining of the participantlist
     useQRcode(participantList);
 }
 
