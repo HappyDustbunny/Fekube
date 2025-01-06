@@ -16,7 +16,7 @@ const showPatternAgainCost = 20;
 const attackedCost = 1;
 
 // Gametime
-const gameTime = 10 * 60000;  // 10 minutes of game time
+const gameTime = 10 * 600;  // 10 minutes of game time
 
 // Initialize QR-code reader
 const html5Qrcode = new Html5Qrcode("reader");
@@ -35,6 +35,7 @@ let participantList = [];
 let globalMana = 500;  // Start with some mana to heal attacked players
 let isVictim = 0;  // Change to 5 if player is attacked and needs healing. Is healed fully by Healer, but need a few scans of '0' to heal alone
 let localMana = 0;
+let isGameOverTimer;
 
 let messageDiv = document.getElementById('messageDiv');
 let showText = document.getElementById('showText');
@@ -818,7 +819,7 @@ function roleHasBeenClicked(event) {
     if (gameMode !== '' && gameMode !== 'selectRoleContainer') {
         
         if (coordinator) {
-            showText.innerHTML = '<h2> Scan de andre deltageres QR koder </h2> Og tryk så på <em>Videre</em>';
+            showText.innerHTML = '<h2> Skan de andre deltageres QR koder </h2> Og tryk så på <em>Videre</em>';
             setActionButton('Skan', 'active');
             setAdvanceGameStateButton('Videre', 'inactive');
         } else {
@@ -865,7 +866,7 @@ function beginRound() {
     document.getElementById('progressBar').setAttribute("value", "100");
     document.getElementById('progressBar').style.setProperty('--progressBarColour', 'green')
     document.getElementById('progressBarContainer').hidden = false;
-    let isGameOverTimer = setInterval(isGameOver, 1000);
+    isGameOverTimer = setInterval(isGameOver, 1000);
 
     setAdvanceGameStateButton('Videre', 'hidden');
     document.getElementById('firstTradeInfo').innerHTML = '';
@@ -892,6 +893,35 @@ function beginRound() {
     currentUser.coordinator = coordinator;
 
     updateManaCounters();
+}
+
+
+function endGame() {
+    clearInterval(isGameOverTimer);
+    document.getElementById('progressBarContainer').hidden = true;
+    document.getElementById('booster').hidden = true;
+    document.getElementById('amulet').hidden = true;
+    
+    gameState = 'endGame';
+    location.hash = '#endGame';
+
+    if (coordinator) {
+        showText.innerHTML = '<h2> Skan de andre deltageres QR koder </h2> Og tryk så på <em>Videre</em>';
+        setActionButton('Skan', 'active');
+        setAdvanceGameStateButton('Videre', 'inactive');  // To Do: Add functionality to advancing the game state
+    } else {
+        setAdvanceGameStateButton('Videre', 'active');
+        setActionButton('Skan', 'hidden');
+        generateQRcode(currentUser.localMana).append(document.getElementById("canvasQrShow"));
+        document.getElementById('canvasQrShow').style.display = 'block';
+        textNode = document.getElementById('endGameInfo');  // To Do: Fix that the QR code isn't shown
+        textNode.hidden = false;
+        let paragraph = document.createElement("p");
+        paragraph.innerHTML = 'Lad koordinatoren skanne din tavle for at ' + 
+            'samle holdets mana\n - og tryk så <em>Videre</em>';
+        // paragraph.appendChild(textContent);
+        textNode.appendChild(paragraph);
+    }
 }
 
 
