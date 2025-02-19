@@ -16,7 +16,7 @@ const showPatternAgainCost = 20;
 const attackedCost = 1;
 
 // Gametime
-const gameTime = 10 * 600;  // 10 minutes of game time
+const gameTime = 10 * 60000;  // 10 minutes of game time
 
 // Initialize QR-code reader
 const html5Qrcode = new Html5Qrcode("reader");
@@ -487,7 +487,7 @@ function firstTradeInterval() {
     textNode = document.getElementById('firstTradeInfo');
     textNode.hidden = false;
     let paragraph = document.createElement("p");
-    let textContent = document.createTextNode('I de verdener den magiske cirkel åbner portaler til, ' + 
+    let textContent = document.createTextNode('I de verdener der åbnes portaler til, ' + 
         'kan der være magiske væsener der angriber dig\n');
     paragraph.appendChild(textContent);
     textNode.appendChild(paragraph);
@@ -527,7 +527,7 @@ function firstTradeInterval() {
                 
                 let paragraph3 = document.createElement('p');
                 paragraph3.setAttribute('id', 'buyBoosterElement');
-                let textContent3 = document.createTextNode('Du kan købe en amulet \u2728 der gør at dine ritualer ' + 
+                let textContent3 = document.createTextNode('Du kan også købe en amulet \u2728 så dine ritualer ' + 
                     'samler mere mana ');
                 paragraph3.appendChild(textContent3);
                 let button2 = document.createElement('button');
