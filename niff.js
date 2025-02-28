@@ -903,18 +903,22 @@ function endGame() {
     document.getElementById('amulet').hidden = true;
     
     gameState = 'endGame';
-    location.hash = '#endGame';
+    location.hash = '#gameMode'; // Needs to use the same display options
 
     if (coordinator) {
         showText.innerHTML = '<h2> Skan de andre deltageres QR koder </h2> Og tryk så på <em>Videre</em>';
         setActionButton('Skan', 'active');
         setAdvanceGameStateButton('Videre', 'inactive');  // To Do: Add functionality to advancing the game state
+        // To Do: Remove game related graphics from coordinator screen before last scan
     } else {
         setAdvanceGameStateButton('Videre', 'active');
         setActionButton('Skan', 'hidden');
-        generateQRcode(currentUser.localMana).append(document.getElementById("canvasQrShow"));
+        if (currentUser.localMana == 0) {
+            currentUser.localMana = 10;
+        }
+        generateQRcode(currentUser.localMana.toString()).append(document.getElementById("canvasQrShow"));
         document.getElementById('canvasQrShow').style.display = 'block';
-        textNode = document.getElementById('endGameInfo');  // To Do: Fix that the QR code isn't shown
+        textNode = document.getElementById('endGameInfo');
         textNode.hidden = false;
         let paragraph = document.createElement("p");
         paragraph.innerHTML = 'Lad koordinatoren skanne din tavle for at ' + 
@@ -980,7 +984,7 @@ function useQRcode(QrNumber) {
         document.getElementById('page').style.background = 'rgba(255, 0, 0, '+ isVictim / 14 + ')';
         messageDiv.innerHTML = '<p> ' + healMsgs[isVictim] + ' <br> Scan 0 igen</p>' 
         
-    } else if (isVictim !== 0  && QrNumber === 'Thy shalst be healed') {
+    } else if (isVictim !== 0  && QrNumber === 'Thy shalst be healed!') {
         isVictim = 0;  // Heal fully
         document.getElementById('page').style.background = 'white';
         messageDiv.innerHTML = '';
@@ -989,7 +993,7 @@ function useQRcode(QrNumber) {
 
     } else if (Array.isArray(QrNumber)) {  // If paticipantslist ...
         participantList = QrNumber;
-        endGameAt = participantList.shift();  // Remove game end-time from the QR number shared by the coordinator
+        endGameAt = new Date(participantList.shift());  // Remove game end-time from the QR number shared by the coordinator
         firstTradeInterval();
         
     } else if (coordinator && /M\dT\dG\d/.test(QrNumber)) {  // If game ID is scanned it implies that you are the coordinator...
