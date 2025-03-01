@@ -70,7 +70,7 @@ let clockFaceCoor = { // Used for M3T1G1
 class NiffGame {
     constructor(){
         this.globalMana = 500;
-        this.playerList = [];
+        this.playerList = [];  // Not useful because this class is first instantiated after player-info is collected. See participantsList
         this.healerParticipates = false;
     }
 }
@@ -785,7 +785,7 @@ function attackChance() {
 
 function whileAttacked() {
     currentUser.localMana -= attackedCost;
-    updateManaCounters();
+    updateManaCounters();  // ToDo: what happens when running out of mana? Should the red background deepen/flash before reaching 0? And the player die if doing nothing?
     
     if (isVictim === 0) {
         clearInterval(whileAttackedTimer);
@@ -901,14 +901,16 @@ function endGame() {
     document.getElementById('progressBarContainer').hidden = true;
     document.getElementById('booster').hidden = true;
     document.getElementById('amulet').hidden = true;
+    document.getElementById('infoButton').hidden = true;
+    document.getElementById('canvasStack').style.display = 'none';
     
     gameState = 'endGame';
-    location.hash = '#gameMode'; // Needs to use the same display options
+    location.hash = '#gameMode'; // Needs to use the same display options as gameMode
 
     if (coordinator) {
         showText.innerHTML = '<h2> Skan de andre deltageres QR koder </h2> Og tryk så på <em>Videre</em>';
         setActionButton('Skan', 'active');
-        setAdvanceGameStateButton('Videre', 'inactive');  // To Do: Add functionality to advancing the game state
+        setAdvanceGameStateButton('Videre', 'inactive');  // ToDo: Add functionality to advancing the game state
         // To Do: Remove game related graphics from coordinator screen before last scan
     } else {
         setAdvanceGameStateButton('Videre', 'active');
@@ -916,7 +918,8 @@ function endGame() {
         if (currentUser.localMana == 0) {
             currentUser.localMana = 10;
         }
-        generateQRcode(currentUser.localMana.toString()).append(document.getElementById("canvasQrShow"));
+        let QRcontent = currentUser.ID + ' ' + currentUser.localMana.toString();
+        generateQRcode(QRcontent).append(document.getElementById("canvasQrShow"));
         document.getElementById('canvasQrShow').style.display = 'block';
         textNode = document.getElementById('endGameInfo');
         textNode.hidden = false;
@@ -1377,6 +1380,8 @@ function generateQRcode(text) {
             margin: 20
         }
     });
+
+    console.log('Generated QR code: ' + text);
 
     return responseQRcode;
 }
