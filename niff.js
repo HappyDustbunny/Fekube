@@ -70,42 +70,28 @@ let clockFaceCoor = { // Used for M3T1G1
 class NiffGame {
     constructor(){
         this.globalMana = 500;
-        this.playerList = [];  // Not useful because this class is first instantiated after player-info is collected. See participantsList
-        this.healerParticipates = false;
-    }
-}
-
-
-class NiffUser extends NiffGame {  // Maybe execissive, but opens for change of gamemode during a game - OR NOT? May need a decoupling like the puzzle class
-    constructor(gameMode, goalArray) {
-        super();
         this.localMana = 0;
+        this.playerList = [];
+        // this.healerParticipates = false;
         this.amulet = false;
+        this.booster = false;
         this.coordinator = false;
         this.ID = Math.floor(Math.random() * 1000000);
-    }
-    
-}
-
-
-class NiffGameMode extends NiffUser {
-    constructor(gameMode) {
-        super();
         this.goalArray = ['dummyGoal'];
         this.currentGoalNumber = 0; 
         this.currentGoal = this.goalArray[this.currentGoalNumber];
-    }
-    
-    updateGoal () {
-        if (this.currentGoalNumber < this.goalArray.length - 1) {
-            this.currentGoalNumber += 1;
-            this.currentGoal = this.goalArray[this.currentGoalNumber];
         }
-    }
+        
+        updateGoal () {
+            if (this.currentGoalNumber < this.goalArray.length - 1) {
+                this.currentGoalNumber += 1;
+                this.currentGoal = this.goalArray[this.currentGoalNumber];
+            }
+        }
 }
 
 
-class M1T1G1 extends NiffGameMode {  // Healer
+class M1T1G1 extends NiffGame {  // Healer
     constructor() {
         super();
         this.gameMode = 'M1T1G1';
@@ -131,7 +117,7 @@ class M1T1G1 extends NiffGameMode {  // Healer
 }
 
 
-class M2T2G1 extends NiffGameMode {  // Indstil visere
+class M2T2G1 extends NiffGame {  // Indstil visere
     constructor() {
         super();
         this.gameMode = 'M2T2G1';
@@ -195,7 +181,7 @@ class M2T2G1 extends NiffGameMode {  // Indstil visere
 }
 
 
-class M3T1G1 extends NiffGameMode {  // Scan løs
+class M3T1G1 extends NiffGame {  // Scan løs
     constructor() {
         super();
         this.gameMode = 'M3T1G1';
@@ -218,7 +204,7 @@ class M3T1G1 extends NiffGameMode {  // Scan løs
 }
 
 
-class M3T1G2 extends NiffGameMode {  // Følg det viste mønster
+class M3T1G2 extends NiffGame {  // Følg det viste mønster
     constructor() {
         super();
         this.gameMode = 'M3T1G2';
@@ -255,7 +241,7 @@ class M3T1G2 extends NiffGameMode {  // Følg det viste mønster
 }
 
 
-class M3T1G3 extends NiffGameMode {  // Følg mønster efter tal
+class M3T1G3 extends NiffGame {  // Følg mønster efter tal
     constructor() {
         super();
         this.gameMode = 'M3T1G3';
@@ -289,7 +275,7 @@ class M3T1G3 extends NiffGameMode {  // Følg mønster efter tal
 }
 
 
-class M3T2G1 extends NiffGameMode {  //  Gentag mønster
+class M3T2G1 extends NiffGame {  //  Gentag mønster
     constructor() {
         super();
         this.gameMode = 'M3T2G1';
@@ -352,7 +338,7 @@ class M3T2G1 extends NiffGameMode {  //  Gentag mønster
 // Game modes above
 
 
-// class M1T1G1 extends NiffGameMode {  // 
+// class M1T1G1 extends NiffGame {  // 
 //     constructor() {
 //         super();
 //         this.gameMode = 'M1T1G1';
@@ -451,8 +437,7 @@ function advanceGameStateButtonHasBeenClicked(event) {
         gameState = 'towerOfPower';
 
     } else if (coordinator && gameState === 'towerOfPower') {
-        canvasQrShow = document.getElementById("canvasQrShow");
-        canvasQrShow.removeChild(canvasQrShow.firstChild);
+        clearQrCanvas()
         
         showText.innerHTML = '';
 
@@ -460,8 +445,7 @@ function advanceGameStateButtonHasBeenClicked(event) {
         firstTradeInterval();
         
     } else if (!coordinator && gameState === 'shareStartInfo') {
-        canvasQrShow = document.getElementById("canvasQrShow");
-        canvasQrShow.removeChild(canvasQrShow.firstChild);
+        clearQrCanvas();
 
         showText.innerHTML = '<h2> Skan tovholderens QR kode </h2>';
         
@@ -823,7 +807,7 @@ function roleHasBeenClicked(event) {
             setActionButton('Skan', 'active');
             setAdvanceGameStateButton('Videre', 'inactive');
         } else {
-            generateQRcode(gameMode).append(document.getElementById("canvasQrShow"));
+            generateQRcode(gameMode).append(document.getElementById("canvasQrShow"));  // ToDo: Generate player-ID here?
             document.getElementById('canvasQrShow').style.display = 'block';
             showText.innerHTML = '<h2> Lad tovholderen skanne din QR kode </h2> Og tryk så på <em>Videre</em>';
             setActionButton('Skan', 'hidden');
@@ -876,21 +860,24 @@ function beginRound() {
     
     document.getElementById('globalManaCounter').style.visibility = 'visible';
     document.getElementById('localManaCounter').style.visibility = 'visible';
-    if (amulet) {
-        document.getElementById('amulet').hidden = false;
-    }
-    if (booster) {
-        document.getElementById('booster').hidden = false;
-    }
     document.getElementById('QrContainer').hidden = false;
     
     // If healer --> sligthly more risk of monsters
     let gameModeClass = gameModes[gameMode];
     currentUser = new gameModeClass();
-    currentUser.localMana = localMana;
     currentUser.globalMana = globalMana;
-    currentUser.amulet = amulet;
+    currentUser.localMana = localMana;
+    currentUser.playerList = participantList;
     currentUser.coordinator = coordinator;
+    
+    if (amulet) {
+        document.getElementById('amulet').hidden = false;
+        currentUser.amulet = amulet;
+    }
+    if (booster) {
+        document.getElementById('booster').hidden = false;
+        currentUser.booster = booster;
+    }
 
     updateManaCounters();
 }
@@ -906,6 +893,10 @@ function endGame() {
     
     gameState = 'endGame';
     location.hash = '#gameMode'; // Needs to use the same display options as gameMode
+
+    clearQrCanvas()
+    canvasQrShow.removeChild(canvasQrShow.firstChild);
+    clearQrCanvas();
 
     if (coordinator) {
         showText.innerHTML = '<h2> Skan de andre deltageres QR koder </h2> Og tryk så på <em>Videre</em>';
@@ -975,8 +966,11 @@ function useQRcode(QrNumber) {
     } else if (isVictim !== 0 && -1 < QrNumber && QrNumber < 13) {
         showText.hidden = true;
         messageDiv.innerHTML = '<p> Du er skadet og skal heales før du kan andet <br> Find en Healer eller scan 0 flere gange </p>'
+    
+    } else if (QrNumber === 'center' && currentUser.gameMode === 'M1T1G1') { // The healer can scan 0 for mana
+        currentUser.localMana += 10;
 
-    } else if (isVictim !== 0  && QrNumber === 'center') {
+    } else if (isVictim !== 0  && QrNumber === 'center') {  // Non-healers can scan 0 five times to get healed
         isVictim -= 1;  // Heal a little
         if (isVictim < 0.00001) {
             isVictim = 0;
@@ -1020,6 +1014,11 @@ function showMessage(text, time) {
         messageDiv.hidden = true;
         showText.hidden = false;
     }, time);
+}
+
+function clearQrCanvas() {
+    canvasQrShow = document.getElementById("canvasQrShow");
+    canvasQrShow.removeChild(canvasQrShow.firstChild);
 }
 
 
