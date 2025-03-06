@@ -67,6 +67,18 @@ let clockFaceCoor = { // Used for M3T1G1
 
 // Gamemodes below
 
+class NiffDataPacket {
+    constructor(packetType) {
+        this.packetType = packetType;  // participants score finalMana
+        this.participantList = [];
+        this.endGameAt = new Date();
+        this.id = 0;
+        this.score = 0;
+        this.finalMana = 0;
+    }
+}
+
+
 class NiffGame {
     constructor(){
         this.globalMana = 500;
@@ -76,7 +88,7 @@ class NiffGame {
         this.amulet = false;
         this.booster = false;
         this.coordinator = false;
-        this.ID = Math.floor(Math.random() * 1000000);
+        this.id = Math.floor(Math.random() * 1000000);
         this.goalArray = ['dummyGoal'];
         this.currentGoalNumber = 0; 
         this.currentGoal = this.goalArray[this.currentGoalNumber];
@@ -428,8 +440,14 @@ function advanceGameStateButtonHasBeenClicked(event) {
         setAdvanceGameStateButton('Videre', 'active');
         
         endGameAt = new Date(new Date().valueOf() + gameTime);
-        participantList.unshift(endGameAt);  // Stuff time for gamestart in at the begining of the participantlist
-        let gameData = JSON.stringify(participantList);
+
+        let packet = new NiffDataPacket('participants');
+        packet.endGameAt = endGameAt;
+        packet.participantList = participantList;
+        // participantList.unshift(endGameAt);  // Stuff time for gamestart in at the begining of the participantlist
+        
+        let gameData = JSON.stringify(packet);
+        
         generateQRcode(gameData).append(document.getElementById("canvasQrShow"));
 
         showText.innerHTML = '<h2> Lad de andre deltagere skanne denne QR kode </h2> Og tryk så på <em>Videre</em>';
@@ -589,7 +607,7 @@ function buyBoosterButtonHasBeenClicked() {
 
 function setUpFunction() {
     document.getElementById('page').style.height = window.innerHeight - 30 + 'px';
-    document.getElementById('gameMode').style.height = window.innerHeight - 90 + 'px'; 
+    document.getElementById('gameMode').style.height = window.innerHeight - 200 + 'px'; 
     document.getElementById('canvasQrShow').style.left = '' + -sizeFactor * winWidth / 2 + 'px';
     document.getElementById('canvasClockface').style.left = '' + -sizeFactor * winWidth / 2 + 'px';
     document.getElementById('canvasClockfaceOverlay').style.left = '' + -sizeFactor * winWidth / 2 + 'px';
@@ -893,23 +911,29 @@ function endGame() {
     
     gameState = 'endGame';
     location.hash = '#gameMode'; // Needs to use the same display options as gameMode
-
+    
     clearQrCanvas()
-    canvasQrShow.removeChild(canvasQrShow.firstChild);
-    clearQrCanvas();
-
+    // canvasQrShow.removeChild(canvasQrShow.firstChild);
+    // clearQrCanvas();
+    
     if (coordinator) {
         showText.innerHTML = '<h2> Skan de andre deltageres QR koder </h2> Og tryk så på <em>Videre</em>';
         setActionButton('Skan', 'active');
         setAdvanceGameStateButton('Videre', 'inactive');  // ToDo: Add functionality to advancing the game state
         // To Do: Remove game related graphics from coordinator screen before last scan
     } else {
+        document.getElementById('showText').hidden = true;  // Turn off old messages. Something of a hack...
         setAdvanceGameStateButton('Videre', 'active');
         setActionButton('Skan', 'hidden');
         if (currentUser.localMana == 0) {
             currentUser.localMana = 10;
         }
-        let QRcontent = currentUser.ID + ' ' + currentUser.localMana.toString();
+
+        let packet = new NiffDataPacket(score);
+        packet.id = currentUser.id;
+        packet.score = currentUser.localMana.toString();
+        let QRcontent = JSON.stringify(packet);
+
         generateQRcode(QRcontent).append(document.getElementById("canvasQrShow"));
         document.getElementById('canvasQrShow').style.display = 'block';
         textNode = document.getElementById('endGameInfo');
@@ -988,14 +1012,25 @@ function useQRcode(QrNumber) {
         messageDiv.hidden = true;
         showText.hidden = false;
 
-    } else if (Array.isArray(QrNumber)) {  // If paticipantslist ...
-        participantList = QrNumber;
-        endGameAt = new Date(participantList.shift());  // Remove game end-time from the QR number shared by the coordinator
-        firstTradeInterval();
+    // } else if (Array.isArray(QrNumber)) {  // If paticipantslist OR ID+result...
+    //     participantList = QrNumber;
+    //     endGameAt = new Date(participantList.shift());  // Remove game end-time from the QR number shared by the coordinator
+    //     firstTradeInterval();
         
     } else if (coordinator && /M\dT\dG\d/.test(QrNumber)) {  // If game ID is scanned it implies that you are the coordinator...
         participantList.push(QrNumber);
         setAdvanceGameStateButton('Videre', 'active');
+        
+    } else if (QrNumber.packetType == 'participantlist') {
+        participantList = QrNumber.participantList;
+        endGameAt = QrNumber.endGameAt;
+        firstTradeInterval();
+
+    } else if (QrNumber.packetType === 'score') {
+        // ToDo: Implement
+
+    } else if (QrNumber.packetType == 'finalMana') {
+        // ToDo: Implement
 
     } else {
         showMessage('<p> Denne QR kode er dårlig magi! <br> Scan en anden </p>', 3000);
@@ -1018,7 +1053,9 @@ function showMessage(text, time) {
 
 function clearQrCanvas() {
     canvasQrShow = document.getElementById("canvasQrShow");
-    canvasQrShow.removeChild(canvasQrShow.firstChild);
+    if (canvasQrShow.firstChild) {
+        canvasQrShow.removeChild(canvasQrShow.firstChild);
+    }
 }
 
 
@@ -1435,12 +1472,17 @@ function generateQRcode(text) {
 
 // For debugging purposes
 function scanCoordinator() {
-    participantList.push('M2T2G1'); 
-    participantList.push('M1T3G1');
-    participantList.push(gameMode);
-    endGameAt = new Date(new Date().valueOf() + gameTime);
-    participantList.unshift(endGameAt);  // Stuff time for gamestart in at the begining of the participantlist
-    useQRcode(participantList);
+    let packet = new NiffDataPacket('participantlist');
+    packet.participantList = ['M1T1G1','M3T2G1','M2T3G2','M3T1G1'];
+    packet.endGameAt = new Date(new Date().valueOf() + 60000 *10);
+    useQRcode(JSON.stringify(packet));
+
+    // participantList.push('M2T2G1'); 
+    // participantList.push('M1T3G1');
+    // participantList.push(gameMode);
+    // endGameAt = new Date(new Date().valueOf() + gameTime);
+    // participantList.unshift(endGameAt);  // Stuff time for gamestart in at the begining of the participantlist
+    // useQRcode(participantList);
 }
 
 function scanSeveralParticipants() {
