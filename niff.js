@@ -71,6 +71,7 @@ class NiffDataPacket {
     constructor(packetType) {
         this.packetType = packetType;  // participants score finalMana
         this.participantList = [];
+        this.participantListOriginalLength = this.participantList.length;
         this.endGameAt = new Date();
         this.id = 0;
         this.score = 0;
@@ -1026,15 +1027,29 @@ function useQRcode(QrNumber) {
         endGameAt = QrNumber.endGameAt;
         firstTradeInterval();
 
-    } else if (QrNumber.packetType === 'score') {
-        // ToDo: Implement
+    } else if (coordinator && QrNumber.packetType === 'score') {
+        currentUser.globalMana += QrNumber.score;
 
     } else if (QrNumber.packetType == 'finalMana') {
         // ToDo: Implement
+        if (0 < QrNumber.participantList.length) {  // Share the final mana
+            currentUser.globalMana = QrNumber.finalMana;
+            QrNumber.participantList = QrNumber.participantList.filter(item => item !== currentUser.id);
+            // ToDo: Show next finalMana packet without current users gameMode
+        } else if (Math.random() < 0.4/QrNumber.participantListOriginalLength) {
+            honk();
+            // ToDo: Show no QR code, but a "congrats, mana is spread" message
+        }
+
 
     } else {
         showMessage('<p> Denne QR kode er dårlig magi! <br> Scan en anden </p>', 3000);
     }
+}
+
+function honk() {
+    let sound = new Audio('qr-codes/elephant-triumph-sfx-293300.mp3');
+    sound.play();
 }
 
 
@@ -1474,7 +1489,7 @@ function generateQRcode(text) {
 function scanCoordinator() {
     let packet = new NiffDataPacket('participantlist');
     packet.participantList = ['M1T1G1','M3T2G1','M2T3G2','M3T1G1'];
-    packet.endGameAt = new Date(new Date().valueOf() + 60000 *10);
+    packet.endGameAt = new Date(new Date().valueOf() + gameTime);
     useQRcode(JSON.stringify(packet));
 
     // participantList.push('M2T2G1'); 
@@ -1491,3 +1506,6 @@ function scanSeveralParticipants() {
     useQRcode('M2T3G2')
     useQRcode('M3T1G1')
 }
+
+// Rainbow 
+// document.getElementsByTagName('body')[0].style.background = 'rgb(' + [Math.floor(Math.random()*255), Math.floor(Math.random()*255), Math.floor(Math.random()*255)].join(',') + ')';
