@@ -434,7 +434,7 @@ function infoButtonHasBeenClicked() {
 
 function advanceGameStateButtonHasBeenClicked(event) {
     let advanceGameStateButton = document.getElementById('advanceGameStateButton');
-    if (coordinator && gameState === 'shareStartInfo') {
+    if (coordinator && gameState === 'shareRoleInfo') {
         stopScan();
         
         setActionButton('Skan', 'hidden');
@@ -453,28 +453,44 @@ function advanceGameStateButtonHasBeenClicked(event) {
 
         showText.innerHTML = '<h2> Lad de andre deltagere skanne denne QR kode </h2> Og tryk så på <em>Videre</em>';
 
-        gameState = 'towerOfPower';
-
-    } else if (coordinator && gameState === 'towerOfPower') {
-        clearQrCanvas()
+        gameState = 'shareStartInfo';
         
-        showText.innerHTML = '';
-
-        setAdvanceGameStateButton('Videre', 'hidden');
-        firstTradeInterval();
-        
-    } else if (!coordinator && gameState === 'shareStartInfo') {
+    } else if (!coordinator && gameState === 'shareRoleInfo') {
         clearQrCanvas();
 
         showText.innerHTML = '<h2> Skan tovholderens QR kode </h2>';
         
         setActionButton('Skan', 'active');
         setAdvanceGameStateButton('Videre', 'hidden');
-        gameState = 'towerOfPower';
+        gameState = 'shareStartInfo';
+        
+    } else if (coordinator && gameState === 'shareStartInfo') {
+        clearQrCanvas()
+        
+        showText.innerHTML = '';
+        
+        setAdvanceGameStateButton('Videre', 'hidden');
+        firstTradeInterval();
         
     } else if (gameState === 'firstTradeInterval') {
         beginRound();
-
+        
+    } else if (gameState === 'shareEndInfo') {
+        gameState = 'towerOfPower';
+        setAdvanceGameStateButton('Videre', 'hidden');
+        clearQrCanvas();
+        clearEndGameInfo();
+        
+        let textNode = document.getElementById('endGameInfo');
+        let paragraph = document.createElement("p");
+        paragraph.innerHTML = 'For at sprede den indsamlede mana skal I nu bygge Kraftens Tårn <br>' +
+        'Skan hinandens tavler i rækkefølge indtil Kraftens Tårn er bygget op, og manaen spredes <br>' + 
+        'Start med koordinatorens tavle';
+        textNode.appendChild(paragraph);
+        
+    } else if (gameState === 'towerOfPower') {
+        // ToDo: Implement
+        
     } else {
         console.log('AdvanceGameStateButton clicked outside gameflow')
     }
@@ -833,7 +849,7 @@ function roleHasBeenClicked(event) {
             setAdvanceGameStateButton('Videre', 'active');
         }
 
-        gameState = 'shareStartInfo';
+        gameState = 'shareRoleInfo';
 
         location.hash = '#gameMode';
 
@@ -904,18 +920,18 @@ function beginRound() {
 
 function endGame() {
     clearInterval(isGameOverTimer);
+    clearInterval(attackTimer);
     document.getElementById('progressBarContainer').hidden = true;
     document.getElementById('booster').hidden = true;
     document.getElementById('amulet').hidden = true;
     document.getElementById('infoButton').hidden = true;
     document.getElementById('canvasStack').style.display = 'none';
     
-    gameState = 'endGame';
+    gameState = 'shareEndInfo';
     location.hash = '#gameMode'; // Needs to use the same display options as gameMode
     
     clearQrCanvas()
     // canvasQrShow.removeChild(canvasQrShow.firstChild);
-    // clearQrCanvas();
     
     if (coordinator) {
         showText.innerHTML = '<h2> Skan de andre deltageres QR koder </h2> Og tryk så på <em>Videre</em>';
@@ -930,9 +946,9 @@ function endGame() {
             currentUser.localMana = 10;
         }
 
-        let packet = new NiffDataPacket(score);
+        let packet = new NiffDataPacket('score');
         packet.id = currentUser.id;
-        packet.score = currentUser.localMana.toString();
+        packet.score = (currentUser.globalMana + currentUser.localMana).toString();
         let QRcontent = JSON.stringify(packet);
 
         generateQRcode(QRcontent).append(document.getElementById("canvasQrShow"));
@@ -983,6 +999,10 @@ async function showError(number) {  // Blink number red two times
 }
 
 
+// ToDo: Add functionality to advancegamestate after game ends for normal players
+// ToDo: Add functionality to advancegamestate after game ends for coordinators
+// ToDo: Make test routine for endgame
+
 function useQRcode(QrNumber) {
     let deStringify = () => {try {return JSON.parse(QrNumber);} catch {return QrNumber; }};
     QrNumber = deStringify();
@@ -994,6 +1014,7 @@ function useQRcode(QrNumber) {
     
     } else if (QrNumber === 'center' && currentUser.gameMode === 'M1T1G1') { // The healer can scan 0 for mana
         currentUser.localMana += 10;
+        updateManaCounters();
 
     } else if (isVictim !== 0  && QrNumber === 'center') {  // Non-healers can scan 0 five times to get healed
         isVictim -= 1;  // Heal a little
@@ -1031,8 +1052,9 @@ function useQRcode(QrNumber) {
         currentUser.globalMana += QrNumber.score;
 
     } else if (QrNumber.packetType == 'finalMana') {
-        // ToDo: Implement
-        if (0 < QrNumber.participantList.length) {  // Share the final mana
+        // Share the final mana
+        // ToDo: Play higher rising tone with each sharing
+        if (0 < QrNumber.participantList.length) {  // First a round spreading the final score
             currentUser.globalMana = QrNumber.finalMana;
             QrNumber.participantList = QrNumber.participantList.filter(item => item !== currentUser.id);
             // ToDo: Show next finalMana packet without current users gameMode
@@ -1040,7 +1062,6 @@ function useQRcode(QrNumber) {
             honk();
             // ToDo: Show no QR code, but a "congrats, mana is spread" message
         }
-
 
     } else {
         showMessage('<p> Denne QR kode er dårlig magi! <br> Scan en anden </p>', 3000);
@@ -1066,8 +1087,17 @@ function showMessage(text, time) {
     }, time);
 }
 
+
+function clearEndGameInfo() {
+    let endGameInfo = document.getElementById('endGameInfo');
+    if (endGameInfo,firstChild) {
+        endGameInfo.removeChild(endGameInfo.firstChild);
+    }
+}
+
+
 function clearQrCanvas() {
-    canvasQrShow = document.getElementById("canvasQrShow");
+    let canvasQrShow = document.getElementById("canvasQrShow");
     if (canvasQrShow.firstChild) {
         canvasQrShow.removeChild(canvasQrShow.firstChild);
     }
