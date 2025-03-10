@@ -481,12 +481,22 @@ function advanceGameStateButtonHasBeenClicked(event) {
         clearQrCanvas();
         clearEndGameInfo();
         
-        let textNode = document.getElementById('endGameInfo');
+        showText.innerHTML = '';
         let paragraph = document.createElement("p");
         paragraph.innerHTML = 'For at sprede den indsamlede mana skal I nu bygge Kraftens Tårn <br>' +
         'Skan hinandens tavler i rækkefølge indtil Kraftens Tårn er bygget op, og manaen spredes <br>' + 
         'Start med koordinatorens tavle';
-        textNode.appendChild(paragraph);
+        showText.appendChild(paragraph);
+        showText.hidden = false;
+
+        setActionButton('Skan', 'active');
+
+        // TODO: Implement a QR code being shown after the coordinators finalScore QR has been scanned
+
+        if (currentUser.coordinator) {
+            generateQRcode("Thy shalst be healed!").append(document.getElementById("canvasQrShow"));
+            document.getElementById('canvasQrShow').style.display = 'block';
+        }
         
     } else if (gameState === 'towerOfPower') {
         // ToDo: Implement
@@ -931,13 +941,11 @@ function endGame() {
     location.hash = '#gameMode'; // Needs to use the same display options as gameMode
     
     clearQrCanvas()
-    // canvasQrShow.removeChild(canvasQrShow.firstChild);
     
     if (coordinator) {
         showText.innerHTML = '<h2> Skan de andre deltageres QR koder </h2> Og tryk så på <em>Videre</em>';
         setActionButton('Skan', 'active');
         setAdvanceGameStateButton('Videre', 'inactive');  // ToDo: Add functionality to advancing the game state
-        // To Do: Remove game related graphics from coordinator screen before last scan
     } else {
         document.getElementById('showText').hidden = true;  // Turn off old messages. Something of a hack...
         setAdvanceGameStateButton('Videre', 'active');
@@ -1060,8 +1068,11 @@ function useQRcode(QrNumber) {
             // ToDo: Show next finalMana packet without current users gameMode
         } else if (Math.random() < 0.4/QrNumber.participantListOriginalLength) {
             honk();
+            honk();
             // ToDo: Show no QR code, but a "congrats, mana is spread" message
         }
+
+        honk();
 
     } else {
         showMessage('<p> Denne QR kode er dårlig magi! <br> Scan en anden </p>', 3000);
@@ -1079,7 +1090,7 @@ function showMessage(text, time) {
     messageDiv.hidden = false;
     showText.hidden = true;
     
-    // Then remove message after 2 sec
+    // Then remove message after 'time' seconds
     msgTimeOut = setTimeout(function () {
         messageDiv.innerHTML = '';
         messageDiv.hidden = true;
@@ -1090,8 +1101,8 @@ function showMessage(text, time) {
 
 function clearEndGameInfo() {
     let endGameInfo = document.getElementById('endGameInfo');
-    if (endGameInfo,firstChild) {
-        endGameInfo.removeChild(endGameInfo.firstChild);
+    if (endGameInfo.firstChild) {
+        endGameInfo.innerHTML = '';
     }
 }
 
@@ -1518,7 +1529,7 @@ function generateQRcode(text) {
 // For debugging purposes
 function scanCoordinator() {
     let packet = new NiffDataPacket('participantlist');
-    packet.participantList = ['M1T1G1','M3T2G1','M2T3G2','M3T1G1'];
+    packet.participantList = ['M2T2G1','M3T2G1','M2T1G2','M3T1G1'];
     packet.endGameAt = new Date(new Date().valueOf() + gameTime);
     useQRcode(JSON.stringify(packet));
 
@@ -1531,9 +1542,9 @@ function scanCoordinator() {
 }
 
 function scanSeveralParticipants() {
-    useQRcode('M1T1G1')
+    useQRcode('M2T2G1')
     useQRcode('M3T2G1')
-    useQRcode('M2T3G2')
+    useQRcode('M3T1G2')
     useQRcode('M3T1G1')
 }
 
