@@ -281,6 +281,63 @@ progress::-webkit-progress-bar, progress::-moz-progress-bar {
     100% {left: 80%; top: 0%;}
 }
 
+.triggerAnimationLocalPool {
+    /* visibility: hidden; */
+    left: 150px;
+    top: 400px;
+    font-size: xx-large;
+    position: relative;
+    animation-name: localPool;
+    animation-duration: 1.5s;
+    animation-timing-function: ease-in;
+    animation-fill-mode: forwards;
+}
+
+@keyframes localPool {
+    0% {left: 80%; top: 0%;}
+    50% {left: 80%; top: 0%;}
+    95% {left: 40%; top: 40%;}
+    100% {left: 40%; top: 40%;}
+}
+
+.triggerAnimationGlobalPool {
+    /* visibility: hidden; */
+    left: 150px;
+    top: 400px;
+    font-size: xx-large;
+    position: relative;
+    animation-name: globalPool;
+    animation-duration: 1.5s;
+    animation-timing-function: ease-in;
+    animation-fill-mode: forwards;
+}
+
+@keyframes globalPool {
+    0% {left: 10%; top: 0%;}
+    50% {left: 10%; top: 0%;}
+    95% {left: 40%; top: 40%;}
+    100% {left: 40%; top: 40%;}
+}
+
+.triggerAnimationGlobal {
+    /* visibility: hidden; */
+    left: 150px;
+    top: 250px;
+    font-size: xx-large;
+    position: relative;
+    animation-name: addingManaGlobal;
+    animation-duration: 1.5s;
+    animation-timing-function: ease-in;
+    animation-fill-mode: forwards;
+}
+
+@keyframes addingManaGlobal {
+    0% {left: 40%; top: 40%;}
+    50% {left: 40%; top: 40%;}
+    95% {left: 10%; top: 0%;}
+    100% {left: 10%; top: 0%;}
+}
+
 #navigationContainer {
     position: absolute;
     bottom: 0px;

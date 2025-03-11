@@ -38,7 +38,7 @@ let localMana = 0;
 let isGameOverTimer;
 
 let messageDiv = document.getElementById('messageDiv');
-let showText = document.getElementById('showText');
+let showTextDiv = document.getElementById('showTextDiv');
 let healMsgs = [
     '',  // No message when healing has occured
     'Og ... sidste gang',
@@ -76,6 +76,7 @@ class NiffDataPacket {
         this.id = 0;
         this.score = 0;
         this.finalMana = 0;
+        this.gameOver = false;
     }
 }
 
@@ -137,7 +138,6 @@ class M2T2G1 extends NiffGame {  // Indstil visere
         this.firstGuess = true;
 
         let arrayLen = 20;
-        // let showText;
         this.goalArray = [];
         for (var i = 0; i < arrayLen; i++) {
             let hour = Math.floor(Math.random() * 24);
@@ -146,10 +146,10 @@ class M2T2G1 extends NiffGame {  // Indstil visere
         }
         this.currentGoal = this.goalArray[this.currentGoalNumber];
         
-        showText.hidden = false;
-        showText.innerHTML = '<h2>' + this.currentGoal[0] + ':' + this.currentGoal[1] + '</h2> <span> (Sæt den lille viser først) </span>';
+        showTextDiv.hidden = false;
+        showTextDiv.innerHTML = '<h2>' + this.currentGoal[0] + ':' + this.currentGoal[1] + '</h2> <span> (Sæt den lille viser først) </span>';
         if (this.currentGoal[1] === 0 || this.currentGoal[1] === 5) {
-            showText.innerHTML = '<h2>' + this.currentGoal[0] + ':0' + this.currentGoal[1] + '</h2> <span> (Sæt den lille viser først) </span>';
+            showTextDiv.innerHTML = '<h2>' + this.currentGoal[0] + ':0' + this.currentGoal[1] + '</h2> <span> (Sæt den lille viser først) </span>';
         }
 
         document.getElementById('canvasStack').style.display = 'block';
@@ -177,18 +177,18 @@ class M2T2G1 extends NiffGame {  // Indstil visere
             setTimeout(() => {drawClockHandOnOverlay(6, false, 12, false)
                 this.updateGoal();
                 var curGo = this.currentGoal;
-                showText.innerHTML = '<h2>' + curGo[0] + ':' + curGo[1] + '</h2> <span> (Sæt den lille viser først) </span>';
+                showTextDiv.innerHTML = '<h2>' + curGo[0] + ':' + curGo[1] + '</h2> <span> (Sæt den lille viser først) </span>';
                 if (this.currentGoal[1] === 0 || this.currentGoal[1] === 5) {
-                    showText.innerHTML = '<h2>' + this.currentGoal[0] + ':0' + this.currentGoal[1] + '</h2> <span> (Sæt den lille viser først) </span>';
+                    showTextDiv.innerHTML = '<h2>' + this.currentGoal[0] + ':0' + this.currentGoal[1] + '</h2> <span> (Sæt den lille viser først) </span>';
                 }
                 this.firstGuess = true;
                 document.getElementsByTagName('h2')[0].style.color = 'black';
                 setActionButton('Skan', 'active');
             }, 3000);
         } else {
-            let oldText = showText.innerHTML;
-            showText.innerHTML = '<h1> Prøv igen &#x1F642; </h1>';  // Smiley :-)
-            setTimeout(() => showText.innerHTML = oldText, 3000);
+            let oldText = showTextDiv.innerHTML;
+            showTextDiv.innerHTML = '<h1> Prøv igen &#x1F642; </h1>';  // Smiley :-)
+            setTimeout(() => showTextDiv.innerHTML = oldText, 3000);
         }
     }
 }
@@ -266,8 +266,8 @@ class M3T1G3 extends NiffGame {  // Følg mønster efter tal
         this.goalArray = tempArray.map(mod12);
         this.currentGoal = this.goalArray[this.currentGoalNumber];
         
-        showText.hidden = false;
-        showText.innerHTML = '<h2> Scan ' + this.currentGoal + '</h2>';
+        showTextDiv.hidden = false;
+        showTextDiv.innerHTML = '<h2> Scan ' + this.currentGoal + '</h2>';
 
         setActionButton('Skan', 'active');
     }
@@ -278,11 +278,11 @@ class M3T1G3 extends NiffGame {  // Følg mønster efter tal
             this.localMana += Number(newDelta);
             updateManaCounters(newDelta);
             this.updateGoal();
-            showText.innerHTML = '<h2> Skan ' + this.currentGoal + '</h2>';
+            showTextDiv.innerHTML = '<h2> Skan ' + this.currentGoal + '</h2>';
         } else {
-            showText.innerHTML = '<h2> Det var ikke ' + this.currentGoal + '<br>  &#x1FAE4;</h2>';  // Smiley :-/
+            showTextDiv.innerHTML = '<h2> Det var ikke ' + this.currentGoal + '<br>  &#x1FAE4;</h2>';  // Smiley :-/
             await timer(1000);
-            showText.innerHTML = '<h2> Skan ' + this.currentGoal + '</h2>';
+            showTextDiv.innerHTML = '<h2> Skan ' + this.currentGoal + '</h2>';
         }
     }
 }
@@ -301,8 +301,8 @@ class M3T2G1 extends NiffGame {  //  Gentag mønster
         this.goalArray = tempArray.map(mod12);
         this.currentGoal = this.goalArray[this.currentGoalNumber];
         
-        showText.hidden = false;
-        showText.innerHTML = '<h3> Scan i samme rækkefølge </h3> <span> (Tryk på <em>Vis mønster</em> knappen for at se mønsteret) </span>';
+        showTextDiv.hidden = false;
+        showTextDiv.innerHTML = '<h3> Scan i samme rækkefølge </h3> <span> (Tryk på <em>Vis mønster</em> knappen for at se mønsteret) </span>';
         
         this.currentPatternPosition = 0;
         this.patternLenght = 2;
@@ -336,9 +336,9 @@ class M3T2G1 extends NiffGame {  //  Gentag mønster
                 setActionButton('Skan', 'hidden');
             }
         } else {
-            let oldText = showText.innerHTML;
-            showText.innerHTML = '<h1> Ups! Start forfra &#x1FAE4; </h1>'; // Smiley :-/
-            setTimeout(() => showText.innerHTML = oldText, 3000);
+            let oldText = showTextDiv.innerHTML;
+            showTextDiv.innerHTML = '<h1> Ups! Start forfra &#x1FAE4; </h1>'; // Smiley :-/
+            setTimeout(() => showTextDiv.innerHTML = oldText, 3000);
             await showError(num);  // Show scanned number in red for 2 seconds
             
             this.currentPatternPosition = 0;
@@ -451,14 +451,14 @@ function advanceGameStateButtonHasBeenClicked(event) {
         
         generateQRcode(gameData).append(document.getElementById("canvasQrShow"));
 
-        showText.innerHTML = '<h2> Lad de andre deltagere skanne denne QR kode </h2> Og tryk så på <em>Videre</em>';
+        showTextDiv.innerHTML = '<h2> Lad de andre deltagere skanne denne QR kode </h2> Og tryk så på <em>Videre</em>';
 
         gameState = 'shareStartInfo';
         
     } else if (!coordinator && gameState === 'shareRoleInfo') {
         clearQrCanvas();
 
-        showText.innerHTML = '<h2> Skan tovholderens QR kode </h2>';
+        showTextDiv.innerHTML = '<h2> Skan tovholderens QR kode </h2>';
         
         setActionButton('Skan', 'active');
         setAdvanceGameStateButton('Videre', 'hidden');
@@ -467,7 +467,7 @@ function advanceGameStateButtonHasBeenClicked(event) {
     } else if (coordinator && gameState === 'shareStartInfo') {
         clearQrCanvas()
         
-        showText.innerHTML = '';
+        showTextDiv.innerHTML = '';
         
         setAdvanceGameStateButton('Videre', 'hidden');
         firstTradeInterval();
@@ -481,13 +481,16 @@ function advanceGameStateButtonHasBeenClicked(event) {
         clearQrCanvas();
         clearEndGameInfo();
         
-        showText.innerHTML = '';
-        let paragraph = document.createElement("p");
-        paragraph.innerHTML = 'For at sprede den indsamlede mana skal I nu bygge Kraftens Tårn <br>' +
-        'Skan hinandens tavler i rækkefølge indtil Kraftens Tårn er bygget op, og manaen spredes <br>' + 
-        'Start med koordinatorens tavle';
-        showText.appendChild(paragraph);
-        showText.hidden = false;
+        // showTextDiv.innerHTML = '';
+        // let paragraph = document.createElement("p");
+        // paragraph.innerHTML = '<h3> For at sprede den indsamlede mana skal I nu bygge Kraftens Tårn </h3> <br>' +
+        // 'Hold jeres tavler over hinanden med koordinatorens nederst og tryk "Skan" <br>' + 
+        // 'Når den øverste tavle har modtaget manaen flyttes den til bunden af tårnet';
+        // showTextDiv.appendChild(paragraph);
+        // showTextDiv.hidden = false;
+        showText('<h3> For at sprede den indsamlede mana skal I nu bygge Kraftens Tårn </h3> <br>' +
+        'Hold jeres tavler over hinanden med koordinatorens nederst og tryk "Skan" <br>' + 
+        'Når den øverste tavle har modtaget manaen flyttes den til bunden af tårnet');
 
         setActionButton('Skan', 'active');
 
@@ -504,6 +507,15 @@ function advanceGameStateButtonHasBeenClicked(event) {
     } else {
         console.log('AdvanceGameStateButton clicked outside gameflow')
     }
+}
+
+
+function showText(innerHtmlMessage, show) {  // String, bool
+    showTextDiv.innerHTML = '';
+    let paragraph = document.createElement("p");
+    paragraph.innerHTML = innerHtmlMessage;
+    showTextDiv.appendChild(paragraph);
+    showTextDiv.hidden = show;
 }
 
 
@@ -757,10 +769,10 @@ function whileHealing() {
         updateManaCounters();
     } else {
         stopHealing();
-        let oldText = showText.innerHTML;
-        showText.hidden = false;
-        showText.innerHTML = '<h1> Beklager, der er ikke mere mana <br><br> Skaf ny mana, før du kan heale andre <br> <br> (Skan QR koden \'0\') &#x1F642; </h1>';  // Smiley :-)
-        setTimeout(() => {showText.innerHTML = oldText; showText.hidden = true}, 3000);
+        let oldText = showTextDiv.innerHTML;
+        showTextDiv.hidden = false;
+        showTextDiv.innerHTML = '<h1> Beklager, der er ikke mere mana <br><br> Skaf ny mana, før du kan heale andre <br> <br> (Skan QR koden \'0\') &#x1F642; </h1>';  // Smiley :-)
+        setTimeout(() => {showTextDiv.innerHTML = oldText; showTextDiv.hidden = true}, 3000);
     }
 }
 
@@ -778,7 +790,7 @@ async function updateManaCounters(newMana) {
     if (newMana) {
         let sign  = '';
         let showAddingManaP = document.getElementById('showAddingMana');
-        if (0 < newMana) {sign = '+';}
+        if (0 <= newMana) {sign = '+';}
         showAddingManaP.innerText = sign + newMana;
         showAddingManaP.classList.add('triggerAnimation');
         await timer(1600);
@@ -792,6 +804,66 @@ async function updateManaCounters(newMana) {
 }
 
 
+async function updateGlobalManaCounters(newMana) {
+    if (newMana) {
+        let sign  = '';
+        let showAddingManaP = document.getElementById('showAddingMana');
+        if (0 <= newMana) {sign = '+';}
+        showAddingManaP.innerText = sign + newMana;
+        showAddingManaP.classList.add('triggerAnimationGlobal');
+        await timer(1600);
+        showAddingManaP.classList.remove('triggerAnimationGlobal');
+        showAddingManaP.innerText = '';
+    }
+    document.getElementById('localManaCounter').innerHTML = 
+    '<span>Nyhøstet Mana</span> <span class="score">' + currentUser.localMana + '</span>';
+    document.getElementById('globalManaCounter').innerHTML = 
+    '<span>Samlet Mana</span> <span class="score">' + currentUser.globalMana + '</span>';
+}
+
+
+async function poolMana() {
+    let sign  = '';
+    // Local mana
+    let showAddingManaP = document.getElementById('showAddingMana');
+    if (0 <= currentUser.localMana) {sign = '+';}
+    showAddingManaP.innerText = sign + currentUser.localMana;
+    showAddingManaP.classList.add('triggerAnimationLocalPool');
+    await timer(1600);
+    showAddingManaP.classList.remove('triggerAnimationLocalPool');
+    showAddingManaP.innerText = '';
+    
+    document.getElementById('localManaCounter').innerHTML = 
+    '<span>Nyhøstet Mana</span> <span class="score"> 0 </span>';
+    
+    // Global mana
+    if (0 <= currentUser.globalMana) {sign = '+';}
+    showAddingManaP.innerText = sign + currentUser.globalMana;
+    showAddingManaP.classList.add('triggerAnimationGlobalPool');
+    await timer(1600);
+    showAddingManaP.classList.remove('triggerAnimationGlobalPool');
+    showAddingManaP.innerText = '';
+    
+    document.getElementById('globalManaCounter').innerHTML = 
+    '<span>Samlet Mana</span> <span class="score"> 0 </span>';
+}
+
+
+// async function poolGlobalMana() {
+//     let sign  = '+';
+//     let showAddingManaP = document.getElementById('showAddingMana');
+//     if (0 <= currentUser.globalMana) {sign = '+';}
+//     showAddingManaP.innerText = sign + currentUser.globalMana;
+//     showAddingManaP.classList.add('triggerAnimationGlobalPool');
+//     await timer(1600);
+//     showAddingManaP.classList.remove('triggerAnimationGlobalPool');
+//     showAddingManaP.innerText = '';
+    
+//     document.getElementById('globalManaCounter').innerHTML = 
+//     '<span>Samlet Mana</span> <span class="score"> 0 </span>';
+// }
+
+
 let attackTimer = setInterval(attackChance, 10000);  // TODO: Move to Start Main Game routine
 
 let whileAttackedTimer = '';                
@@ -801,7 +873,7 @@ function attackChance() {
         isVictim = 5;  // Requires 5 healing to be well. A healer can do it in one go. Scanning "0" five times works too
         document.getElementById('page').style.background = 'rgba(255, 0, 0, .36)';
         messageDiv.hidden = false;
-        showText.hidden = true;
+        showTextDiv.hidden = true;
         if (currentUser.healerParticipates) {
             messageDiv.innerHTML = '<p>Du er blevet angrebet! <br> Skynd dig at blive healet ved at finde Healeren </p>'
         } else {
@@ -848,13 +920,13 @@ function roleHasBeenClicked(event) {
     if (gameMode !== '' && gameMode !== 'selectRoleContainer') {
         
         if (coordinator) {
-            showText.innerHTML = '<h2> Skan de andre deltageres QR koder </h2> Og tryk så på <em>Videre</em>';
+            showTextDiv.innerHTML = '<h2> Skan de andre deltageres QR koder </h2> Og tryk så på <em>Videre</em>';
             setActionButton('Skan', 'active');
             setAdvanceGameStateButton('Videre', 'inactive');
         } else {
             generateQRcode(gameMode).append(document.getElementById("canvasQrShow"));  // ToDo: Generate player-ID here?
             document.getElementById('canvasQrShow').style.display = 'block';
-            showText.innerHTML = '<h2> Lad tovholderen skanne din QR kode </h2> Og tryk så på <em>Videre</em>';
+            showTextDiv.innerHTML = '<h2> Lad tovholderen skanne din QR kode </h2> Og tryk så på <em>Videre</em>';
             setActionButton('Skan', 'hidden');
             setAdvanceGameStateButton('Videre', 'active');
         }
@@ -900,7 +972,7 @@ function beginRound() {
     setAdvanceGameStateButton('Videre', 'hidden');
     document.getElementById('firstTradeInfo').innerHTML = '';
     document.getElementById('firstTradeResult').innerHTML = '';
-    document.getElementById('showText').innerHTML = '';
+    document.getElementById('showTextDiv').innerHTML = '';
     document.getElementById('firstTradeInterval').hidden = true;
     
     document.getElementById('globalManaCounter').style.visibility = 'visible';
@@ -943,11 +1015,11 @@ function endGame() {
     clearQrCanvas()
     
     if (coordinator) {
-        showText.innerHTML = '<h2> Skan de andre deltageres QR koder </h2> Og tryk så på <em>Videre</em>';
+        showTextDiv.innerHTML = '<h2> Skan de andre deltageres QR koder </h2> Og tryk så på <em>Videre</em>';
         setActionButton('Skan', 'active');
         setAdvanceGameStateButton('Videre', 'inactive');  // ToDo: Add functionality to advancing the game state
     } else {
-        document.getElementById('showText').hidden = true;  // Turn off old messages. Something of a hack...
+        document.getElementById('showTextDiv').hidden = true;  // Turn off old messages. Something of a hack...
         setAdvanceGameStateButton('Videre', 'active');
         setActionButton('Skan', 'hidden');
         if (currentUser.localMana == 0) {
@@ -958,6 +1030,7 @@ function endGame() {
         packet.id = currentUser.id;
         packet.score = (currentUser.globalMana + currentUser.localMana).toString();
         let QRcontent = JSON.stringify(packet);
+        poolMana();
 
         generateQRcode(QRcontent).append(document.getElementById("canvasQrShow"));
         document.getElementById('canvasQrShow').style.display = 'block';
@@ -1017,7 +1090,7 @@ function useQRcode(QrNumber) {
     if (-1 < QrNumber && QrNumber < 13) {
         currentUser.applyQrCode(QrNumber);
     } else if (isVictim !== 0 && -1 < QrNumber && QrNumber < 13) {
-        showText.hidden = true;
+        showTextDiv.hidden = true;
         messageDiv.innerHTML = '<p> Du er skadet og skal heales før du kan andet <br> Find en Healer eller scan 0 flere gange </p>'
     
     } else if (QrNumber === 'center' && currentUser.gameMode === 'M1T1G1') { // The healer can scan 0 for mana
@@ -1030,7 +1103,7 @@ function useQRcode(QrNumber) {
             isVictim = 0;
             messageDiv.innerHTML = '';
             messageDiv.hidden = true;
-            showText.hidden = false;
+            showTextDiv.hidden = false;
         }
         document.getElementById('page').style.background = 'rgba(255, 0, 0, '+ isVictim / 14 + ')';
         messageDiv.innerHTML = '<p> ' + healMsgs[isVictim] + ' <br> Scan 0 igen</p>' 
@@ -1040,7 +1113,7 @@ function useQRcode(QrNumber) {
         document.getElementById('page').style.background = 'white';
         messageDiv.innerHTML = '';
         messageDiv.hidden = true;
-        showText.hidden = false;
+        showTextDiv.hidden = false;
 
     // } else if (Array.isArray(QrNumber)) {  // If paticipantslist OR ID+result...
     //     participantList = QrNumber;
@@ -1057,22 +1130,36 @@ function useQRcode(QrNumber) {
         firstTradeInterval();
 
     } else if (coordinator && QrNumber.packetType === 'score') {
+        // TODO: Need a visual clue for adding coordinator mana to pool?
+        currentUser.globalMana += currentUser.localMana;  // Add coordinators mana to pool.
+        currentUser.localMana = 0;
+
+        updateGlobalManaCounters(QrNumber.score);
         currentUser.globalMana += QrNumber.score;
 
     } else if (QrNumber.packetType == 'finalMana') {
         // Share the final mana
-        // ToDo: Play higher rising tone with each sharing
         if (0 < QrNumber.participantList.length) {  // First a round spreading the final score
             currentUser.globalMana = QrNumber.finalMana;
+            currentUser.localMana = 0;  // TODO: Move this to when the useres share their mana?
             QrNumber.participantList = QrNumber.participantList.filter(item => item !== currentUser.id);
-            // ToDo: Show next finalMana packet without current users gameMode
+            clearQrCanvas();
+            generateQRcode(QrNumber).append(document.getElementById("canvasQrShow"));
         } else if (Math.random() < 0.4/QrNumber.participantListOriginalLength) {
             honk();
             honk();
-            // ToDo: Show no QR code, but a "congrats, mana is spread" message
+            showMessage('<p> Manaen er spredt! </p>');
+            QrNumber.gameOver = true;
+            clearQrCanvas();
+            generateQRcode(QrNumber).append(document.getElementById("canvasQrShow"));
+        } else if (QrNumber.gameOver) {
+            honk();
+            honk();
+            showMessage('<h3> Manaen er spredt! </h3> <br> <p> Game over </p>');
+        } else {
+            // ToDo: Play higher rising tone with each sharing
+            honk();
         }
-
-        honk();
 
     } else {
         showMessage('<p> Denne QR kode er dårlig magi! <br> Scan en anden </p>', 3000);
@@ -1088,13 +1175,13 @@ function honk() {
 function showMessage(text, time) {
     messageDiv.innerHTML = text;
     messageDiv.hidden = false;
-    showText.hidden = true;
+    showTextDiv.hidden = true;
     
     // Then remove message after 'time' seconds
     msgTimeOut = setTimeout(function () {
         messageDiv.innerHTML = '';
         messageDiv.hidden = true;
-        showText.hidden = false;
+        showTextDiv.hidden = false;
     }, time);
 }
 
