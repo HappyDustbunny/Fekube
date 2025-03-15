@@ -475,19 +475,27 @@ function advanceGameStateButtonHasBeenClicked(event) {
     } else if (gameState === 'firstTradeInterval') {
         beginRound();
         
-    } else if (gameState === 'shareEndInfo') {
+    } else if (coordinator && gameState === 'shareEndInfo') {
+        let packet = new NiffDataPacket('finalMana');
+        packet.finalMana = currentUser.globalMana.toString();
+        packet.participantList = participantList;
+        let QRcontent = JSON.stringify(packet);
+        generateQRcode(QRcontent).append(document.getElementById('canvasQrShow'));
+        document.getElementById('canvasQrShow').style.display = 'block';
+
+        showText('<h3> For at sprede den indsamlede mana skal I nu bygge Kraftens Tårn </h3> <br>' + 
+            'Din tavle er i bunden af tårnet indtil alle har modtaget manaen første gang <br>' + 
+            'Derefter kommer den øverste tavle i bunden, og du trykker Skan ligesom alle andre'
+        );
+
+        setActionButton('Skan', 'active');
+
+    } else if (!coordinator && gameState === 'shareEndInfo') {
         gameState = 'towerOfPower';
         setAdvanceGameStateButton('Videre', 'hidden');
         clearQrCanvas();
         clearEndGameInfo();
         
-        // showTextDiv.innerHTML = '';
-        // let paragraph = document.createElement("p");
-        // paragraph.innerHTML = '<h3> For at sprede den indsamlede mana skal I nu bygge Kraftens Tårn </h3> <br>' +
-        // 'Hold jeres tavler over hinanden med koordinatorens nederst og tryk "Skan" <br>' + 
-        // 'Når den øverste tavle har modtaget manaen flyttes den til bunden af tårnet';
-        // showTextDiv.appendChild(paragraph);
-        // showTextDiv.hidden = false;
         showText('<h3> For at sprede den indsamlede mana skal I nu bygge Kraftens Tårn </h3> <br>' +
         'Hold jeres tavler over hinanden med koordinatorens nederst og tryk "Skan" <br>' + 
         'Når den øverste tavle har modtaget manaen flyttes den til bunden af tårnet');
@@ -1028,7 +1036,7 @@ function endGame() {
 
         let packet = new NiffDataPacket('score');
         packet.id = currentUser.id;
-        packet.score = (currentUser.globalMana + currentUser.localMana).toString();
+        packet.score = (Number(currentUser.globalMana) + Number(currentUser.localMana)).toString();
         let QRcontent = JSON.stringify(packet);
         poolMana();
 
@@ -1135,7 +1143,9 @@ function useQRcode(QrNumber) {
         currentUser.localMana = 0;
 
         updateGlobalManaCounters(QrNumber.score);
-        currentUser.globalMana += QrNumber.score;
+        currentUser.globalMana += Number(QrNumber.score);
+
+        setAdvanceGameStateButton('Videre', 'active');
 
     } else if (QrNumber.packetType == 'finalMana') {
         // Share the final mana
@@ -1151,12 +1161,16 @@ function useQRcode(QrNumber) {
             showMessage('<p> Manaen er spredt! </p>');
             QrNumber.gameOver = true;
             clearQrCanvas();
-            generateQRcode(QrNumber).append(document.getElementById("canvasQrShow"));
+            let QRcontent = JSON.stringify(QrNumber);
+            generateQRcode(QRcontent).append(document.getElementById("canvasQrShow"));
         } else if (QrNumber.gameOver) {
             honk();
             honk();
             showMessage('<h3> Manaen er spredt! </h3> <br> <p> Game over </p>');
         } else {
+            clearQrCanvas();
+            let QRcontent = JSON.stringify(QrNumber);
+            generateQRcode(QRcontent).append(document.getElementById("canvasQrShow"));
             // ToDo: Play higher rising tone with each sharing
             honk();
         }
