@@ -434,7 +434,8 @@ function infoButtonHasBeenClicked() {
    
 
 function advanceGameStateButtonHasBeenClicked(event) {
-    let advanceGameStateButton = document.getElementById('advanceGameStateButton');
+    // let advanceGameStateButton = document.getElementById('advanceGameStateButton');
+    clearQrCanvas();
     if (coordinator && gameState === 'shareRoleInfo') {
         stopScan();
         
@@ -1665,3 +1666,12 @@ function scanSeveralParticipants() {
 
 // Rainbow 
 // document.getElementsByTagName('body')[0].style.background = 'rgb(' + [Math.floor(Math.random()*255), Math.floor(Math.random()*255), Math.floor(Math.random()*255)].join(',') + ')';
+
+function coordinatorScansAllAtTheEnd() {
+    packet = new NiffDataPacket('score');
+    for (var i=0; i<currentUser.playerList.length; i++) {
+        packet.id = currentUser.playerList[i];
+        packet.score = (Math.floor(1000*Math.random())).toString();
+        useQRcode(JSON.stringify(packet));
+    }
+}
