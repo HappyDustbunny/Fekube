@@ -401,6 +401,9 @@ function actionButtonHasBeenClicked() {
     if (!actionButton.classList.contains('inactiveButton')) { // ! not
         switch(actionButton.textContent) {
             case 'Skan':
+                if (currentUser.coordinator && gameState === 'shareEndInfo') {
+                    document.getElementById('canvasQrShow').style.display = 'none';
+                }
                 setActionButton('Stop Skan', 'obs');
                 scanQRcode();
                 break;
@@ -493,7 +496,8 @@ function advanceGameStateButtonHasBeenClicked(event) {
         );
 
         setActionButton('Skan', 'active');
-
+        setAdvanceGameStateButton('Videre', 'hidden');
+        
     } else if (!coordinator && gameState === 'shareEndInfo') {
         gameState = 'towerOfPower';
         setAdvanceGameStateButton('Videre', 'hidden');
@@ -501,17 +505,18 @@ function advanceGameStateButtonHasBeenClicked(event) {
         clearEndGameInfo();
         
         showText('<h3> For at sprede den indsamlede mana skal I nu bygge Kraftens Tårn </h3> <br>' +
-        'Hold jeres tavler over hinanden med koordinatorens nederst og tryk "Skan" <br>' + 
-        'Når den øverste tavle har modtaget manaen flyttes den til bunden af tårnet');
-
+            'Hold jeres tavler over hinanden med koordinatorens nederst og tryk "Skan" <br>' + 
+            'Når den øverste tavle har modtaget manaen flyttes den til bunden af tårnet');
+            
         setActionButton('Skan', 'active');
+        setAdvanceGameStateButton('Videre', 'hidden');
 
         // TODO: Implement a QR code being shown after the coordinators finalScore QR has been scanned
 
-        if (currentUser.coordinator) {
-            generateQRcode("Thy shalst be healed!").append(document.getElementById("canvasQrShow"));
-            document.getElementById('canvasQrShow').style.display = 'block';
-        }
+        // if (currentUser.coordinator) {
+        //     generateQRcode("Thy shalst be healed!").append(document.getElementById("canvasQrShow"));
+        //     document.getElementById('canvasQrShow').style.display = 'block';
+        // }
         
     } else if (gameState === 'towerOfPower') {
         // ToDo: Implement
@@ -1181,7 +1186,9 @@ function useQRcode(QrNumber) {
         } else if (QrNumber.gameOver) {
             honk();
             honk();
-            showMessage('<h3> Manaen er spredt! </h3> <br> <p> Game over </p>');
+            showText('<h3> Manaen er spredt! </h3> <br> <p> Game over </p>', false);  // False --> Hidden
+            setActionButton('Skan', 'hidden');
+            setAdvanceGameStateButton('Videre', 'active');
         } else {
             clearQrCanvas();
             let QRcontent = JSON.stringify(QrNumber);
@@ -1668,9 +1675,9 @@ function scanSeveralParticipants() {
 // document.getElementsByTagName('body')[0].style.background = 'rgb(' + [Math.floor(Math.random()*255), Math.floor(Math.random()*255), Math.floor(Math.random()*255)].join(',') + ')';
 
 function coordinatorScansAllAtTheEnd() {
-    packet = new NiffDataPacket('score');
+    let packet = new NiffDataPacket('score');
     for (var i=0; i<currentUser.playerList.length; i++) {
-        packet.id = currentUser.playerList[i];
+        packet.id = currentUser.playerList[i][0];
         packet.score = (Math.floor(1000*Math.random())).toString();
         useQRcode(JSON.stringify(packet));
     }

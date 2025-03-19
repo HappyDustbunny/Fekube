@@ -243,13 +243,13 @@ progress::-webkit-progress-bar, progress::-moz-progress-bar {
     /* display: flex;
     justify-content: center; */
     margin-bottom: 0.5em;
-    height: 70px;
+    /* height: 70px; */
     grid-area: textCont;
     text-align: center;
 }
 
 #communicationContainer {
-    /* display: grid; */
+    display: grid;
     grid-area: comCont;
     justify-content: center;
     /* align-content: center; */
