@@ -1,3 +1,6 @@
+// Thanks to Atle Aamodt for the chime sound. Obtained from https://samplefocus.com/samples/chime-hall-reverb-soft-2 
+
+
 const pi = Math.PI;
 const kv3h = Math.sqrt(3)/2;
 
@@ -518,6 +521,8 @@ function advanceGameStateButtonHasBeenClicked(event) {
         //     document.getElementById('canvasQrShow').style.display = 'block';
         // }
         
+    } else if (gameState === 'gameEnded') {
+        window.location.reload();
     } else if (gameState === 'towerOfPower') {
         // ToDo: Implement
         
@@ -1173,28 +1178,41 @@ function useQRcode(QrNumber) {
             currentUser.localMana = 0;  // TODO: Move this to when the useres share their mana?
             QrNumber.participantList = QrNumber.participantList.filter(item => item[0] !== currentUser.id);
             clearQrCanvas();
-            let QRcontent = JSON.stringify(QrNumber);
-            generateQRcode(QRcontent).append(document.getElementById("canvasQrShow"));
-        } else if (!QrNumber.gameOver && Math.random() < 0.4/QrNumber.participantListOriginalLength) {
-            honk();
-            honk();
-            showMessage('<p> Manaen er spredt! </p>');
-            QrNumber.gameOver = true;
-            clearQrCanvas();
+            
+            if ( QrNumber.participantList.length === 0) {
+                QrNumber.gameOver = true;
+                QrNumber.gameEnd = new Date(new Date().valueOf() + Math.random() * 45000 + 30000);
+            }
+
             let QRcontent = JSON.stringify(QrNumber);
             generateQRcode(QRcontent).append(document.getElementById("canvasQrShow"));
         } else if (QrNumber.gameOver) {
-            honk();
-            honk();
-            showText('<h3> Manaen er spredt! </h3> <br> <p> Game over </p>', false);  // False --> Hidden
-            setActionButton('Skan', 'hidden');
-            setAdvanceGameStateButton('Videre', 'active');
+        // } else if (!QrNumber.gameOver && Math.random() < 0.4/QrNumber.participantListOriginalLength) {
+        //     honk();
+        //     honk();
+        //     // showMessage('<p> Manaen er spredt! </p>');
+        //     showText('<h3> Manaen er spredt! </h3> <br> <p> Game over </p>', false);  // False --> .hidden = false
+        //     QrNumber.gameOver = true;
+        //     clearQrCanvas();
+        //     setActionButton('Skan', 'hidden');
+        //     setAdvanceGameStateButton('Videre', 'active');
+        //     gameState = 'gameEnded';
+            // let QRcontent = JSON.stringify(QrNumber);
+            // generateQRcode(QRcontent).append(document.getElementById("canvasQrShow"));
+        // } else if (QrNumber.gameOver) {
+        //     honk();
+        //     honk();
+        //     showText('<h3> Manaen er spredt! </h3> <br> <p> Game over </p>', false);  // False --> .hidden = false
+        //     setActionButton('Skan', 'hidden');
+        //     setAdvanceGameStateButton('Videre', 'active');
+        //     clearQrCanvas();
         } else {
             clearQrCanvas();
             let QRcontent = JSON.stringify(QrNumber);
             generateQRcode(QRcontent).append(document.getElementById("canvasQrShow"));
             // ToDo: Play higher rising tone with each sharing
-            honk();
+            isGameOverTimer = setInterval(showEndScreen, 1000);  // Reusing isGameOverTimer in new context...
+            endGameAt = QrNumber.endGameAt;  // ... and same for endGameAt
         }
 
     } else {
@@ -1203,8 +1221,23 @@ function useQRcode(QrNumber) {
 }
 
 function honk() {
-    let sound = new Audio('qr-codes/elephant-triumph-sfx-293300.mp3');
+    // let sound = new Audio('qr-codes/elephant-triumph-sfx-293300.mp3');
+    let sound = new Audio('qr-codes/chime-hall-reverb-soft-2_99bpm_G_minor.wav');
     sound.play();
+}
+
+
+function showEndScreen() {
+    let now = new Date();
+    if (now < endGameAt) {
+        honk();
+        showText('<h3> Manaen er spredt! </h3> <br> <p> Game over </p>', false);  // False --> .hidden = false
+        QrNumber.gameOver = true;
+        clearQrCanvas();
+        setActionButton('Skan', 'hidden');
+        setAdvanceGameStateButton('Videre', 'active');
+        gameState = 'gameEnded';
+    }
 }
 
 
