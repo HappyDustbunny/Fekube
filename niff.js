@@ -451,11 +451,10 @@ function advanceGameStateButtonHasBeenClicked(event) {
         participantList.push([id, gameMode]); // Add the coordinators id and gameMode
         
         let packet = new NiffDataPacket('participants');
-        endGameAt = new Date(new Date().valueOf() + gameTime);
-        packet.endGameAt = endGameAt;
+        endGameAt = (new Date(new Date().valueOf() + gameTime)).valueOf();
+        packet.endGameAt = endGameAt.valueOf();
         packet.participantList = participantList;
         packet.participantListOriginalLength = participantList.length;
-        // participantList.unshift(endGameAt);  // Stuff time for gamestart in at the begining of the participantlist
         
         let gameData = JSON.stringify(packet);
         
@@ -1054,8 +1053,8 @@ function endGame() {
 
         let packet = new NiffDataPacket('score');
         packet.id = currentUser.id;
-        // packet.participantList = currentUser.playerList;
-        // packet.participantListOriginalLength = currentUser.playerList.length;
+        packet.participantList = currentUser.playerList;
+        packet.participantListOriginalLength = currentUser.playerList.length;
         packet.score = (Number(currentUser.globalMana) + Number(currentUser.localMana)).toString();
         let QRcontent = JSON.stringify(packet);
         poolMana();
@@ -1154,7 +1153,7 @@ function useQRcode(QrNumber) {
         
     } else if (QrNumber.packetType == 'participants') {
         participantList = QrNumber.participantList;
-        endGameAt = QrNumber.endGameAt;
+        endGameAt = QrNumber.endGameAt.valueOf();
         firstTradeInterval();
 
     } else if (coordinator && QrNumber.packetType === 'score') {
@@ -1186,7 +1185,7 @@ function useQRcode(QrNumber) {
 
             let QRcontent = JSON.stringify(QrNumber);
             generateQRcode(QRcontent).append(document.getElementById("canvasQrShow"));
-        } else if (QrNumber.gameOver) {
+        // } else if (QrNumber.gameOver) {
         // } else if (!QrNumber.gameOver && Math.random() < 0.4/QrNumber.participantListOriginalLength) {
         //     honk();
         //     honk();
@@ -1210,9 +1209,10 @@ function useQRcode(QrNumber) {
             clearQrCanvas();
             let QRcontent = JSON.stringify(QrNumber);
             generateQRcode(QRcontent).append(document.getElementById("canvasQrShow"));
+            document.getElementById('canvasQrShow').style.display = 'block';
             // ToDo: Play higher rising tone with each sharing
             isGameOverTimer = setInterval(showEndScreen, 1000);  // Reusing isGameOverTimer in new context...
-            endGameAt = QrNumber.endGameAt;  // ... and same for endGameAt
+            endGameAt = QrNumber.endGameAt.valueOf();  // ... and same for endGameAt
         }
 
     } else {
@@ -1229,7 +1229,7 @@ function honk() {
 
 function showEndScreen() {
     let now = new Date();
-    if (now < endGameAt) {
+    if (endGameAt < now) {
         honk();
         showText('<h3> Manaen er spredt! </h3> <br> <p> Game over </p>', false);  // False --> .hidden = false
         QrNumber.gameOver = true;
@@ -1686,15 +1686,8 @@ function generateQRcode(text) {
 function scanCoordinator() {
     let packet = new NiffDataPacket('participants');
     packet.participantList = [[12345, 'M2T2G1'], [56789, 'M3T2G1'], [98765, 'M3T1G2'], [54321, 'M3T1G1']];
-    packet.endGameAt = new Date(new Date().valueOf() + gameTime);
+    packet.endGameAt = (new Date(new Date().valueOf() + gameTime).valueOf());
     useQRcode(JSON.stringify(packet));
-
-    // participantList.push('M2T2G1'); 
-    // participantList.push('M1T3G1');
-    // participantList.push(gameMode);
-    // endGameAt = new Date(new Date().valueOf() + gameTime);
-    // participantList.unshift(endGameAt);  // Stuff time for gamestart in at the begining of the participantlist
-    // useQRcode(participantList);
 }
 
 function scanSeveralParticipants() {
