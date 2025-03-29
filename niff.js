@@ -32,6 +32,7 @@ let booster = false;
 let coordinator = false;
 let currentUser = '';
 let endGameAt = 0;
+let endRoundAt = 0;
 let gameMode = '';
 let gameState = 'chooseCoordinator';
 let participantList = [];
@@ -76,7 +77,7 @@ class NiffDataPacket {
         this.packetType = packetType;  // participants score finalMana
         this.participantList = [];
         this.participantListOriginalLength = 0;
-        this.endGameAt = new Date();
+        this.endRoundAt = new Date();
         this.id = 0;
         this.score = 0;
         this.finalMana = 0;
@@ -451,8 +452,8 @@ function advanceGameStateButtonHasBeenClicked(event) {
         participantList.push([id, gameMode]); // Add the coordinators id and gameMode
         
         let packet = new NiffDataPacket('participants');
-        endGameAt = (new Date(new Date().valueOf() + gameTime)).valueOf();
-        packet.endGameAt = endGameAt.valueOf();
+        endRoundAt = (new Date(new Date().valueOf() + gameTime)).valueOf();  // endRoundAt needs to be set here as a global variable
+        packet.endRoundAt = endRoundAt;
         packet.participantList = participantList;
         packet.participantListOriginalLength = participantList.length;
         
@@ -966,10 +967,10 @@ function roleHasBeenClicked(event) {
 
 function isGameOver() {
     let now = new Date();
-    if (endGameAt < now) {
+    if (endRoundAt < now) {
         endGame();
     } else {
-        let progressValue = (endGameAt - now) / gameTime * 100;
+        let progressValue = (endRoundAt - now) / gameTime * 100;
         // document.getElementById('progressBar').setAttribute("value", "20");
         document.getElementById('progressBar').setAttribute("value", progressValue);
         if (progressValue < 30) {
@@ -1141,11 +1142,6 @@ function useQRcode(QrNumber) {
         messageDiv.innerHTML = '';
         messageDiv.hidden = true;
         showTextDiv.hidden = false;
-
-    // } else if (Array.isArray(QrNumber)) {  // If paticipantslist OR ID+result...
-    //     participantList = QrNumber;
-    //     endGameAt = new Date(participantList.shift());  // Remove game end-time from the QR number shared by the coordinator
-    //     firstTradeInterval();
         
     } else if (coordinator && /M\dT\dG\d/.test(QrNumber[1])) {  // If game ID is scanned it implies that you are the coordinator...
         participantList.push(QrNumber);
@@ -1153,7 +1149,7 @@ function useQRcode(QrNumber) {
         
     } else if (QrNumber.packetType == 'participants') {
         participantList = QrNumber.participantList;
-        endGameAt = QrNumber.endGameAt.valueOf();
+        endRoundAt = (new Date(QrNumber.endRoundAt)).valueOf();
         firstTradeInterval();
 
     } else if (coordinator && QrNumber.packetType === 'score') {
@@ -1180,39 +1176,21 @@ function useQRcode(QrNumber) {
             
             if ( QrNumber.participantList.length === 0) {
                 QrNumber.gameOver = true;
-                QrNumber.gameEnd = new Date(new Date().valueOf() + Math.random() * 45000 + 30000);
+                endGameAt = (new Date(new Date().valueOf() + Math.random() * 45000 + 60000)).valueOf();  // endGameAt is a global variable that needs to be set
+                QrNumber.gameEnd = endGameAt;
             }
 
             let QRcontent = JSON.stringify(QrNumber);
             generateQRcode(QRcontent).append(document.getElementById("canvasQrShow"));
-        // } else if (QrNumber.gameOver) {
-        // } else if (!QrNumber.gameOver && Math.random() < 0.4/QrNumber.participantListOriginalLength) {
-        //     honk();
-        //     honk();
-        //     // showMessage('<p> Manaen er spredt! </p>');
-        //     showText('<h3> Manaen er spredt! </h3> <br> <p> Game over </p>', false);  // False --> .hidden = false
-        //     QrNumber.gameOver = true;
-        //     clearQrCanvas();
-        //     setActionButton('Skan', 'hidden');
-        //     setAdvanceGameStateButton('Videre', 'active');
-        //     gameState = 'gameEnded';
-            // let QRcontent = JSON.stringify(QrNumber);
-            // generateQRcode(QRcontent).append(document.getElementById("canvasQrShow"));
-        // } else if (QrNumber.gameOver) {
-        //     honk();
-        //     honk();
-        //     showText('<h3> Manaen er spredt! </h3> <br> <p> Game over </p>', false);  // False --> .hidden = false
-        //     setActionButton('Skan', 'hidden');
-        //     setAdvanceGameStateButton('Videre', 'active');
-        //     clearQrCanvas();
+
         } else {
             clearQrCanvas();
             let QRcontent = JSON.stringify(QrNumber);
             generateQRcode(QRcontent).append(document.getElementById("canvasQrShow"));
             document.getElementById('canvasQrShow').style.display = 'block';
             // ToDo: Play higher rising tone with each sharing
-            isGameOverTimer = setInterval(showEndScreen, 1000);  // Reusing isGameOverTimer in new context...
-            endGameAt = QrNumber.endGameAt.valueOf();  // ... and same for endGameAt
+            endGameAt = (new Date(QrNumber.endGameAt)).valueOf();
+            isGameOverTimer = setInterval(showEndScreen, 1000);
         }
 
     } else {
@@ -1232,7 +1210,6 @@ function showEndScreen() {
     if (endGameAt < now) {
         honk();
         showText('<h3> Manaen er spredt! </h3> <br> <p> Game over </p>', false);  // False --> .hidden = false
-        QrNumber.gameOver = true;
         clearQrCanvas();
         setActionButton('Skan', 'hidden');
         setAdvanceGameStateButton('Videre', 'active');
@@ -1686,7 +1663,7 @@ function generateQRcode(text) {
 function scanCoordinator() {
     let packet = new NiffDataPacket('participants');
     packet.participantList = [[12345, 'M2T2G1'], [56789, 'M3T2G1'], [98765, 'M3T1G2'], [54321, 'M3T1G1']];
-    packet.endGameAt = (new Date(new Date().valueOf() + gameTime).valueOf());
+    packet.endRoundAt = (new Date(new Date().valueOf() + gameTime)).valueOf();
     useQRcode(JSON.stringify(packet));
 }
 
