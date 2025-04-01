@@ -1177,7 +1177,7 @@ function useQRcode(QrNumber) {
             if ( QrNumber.participantList.length === 0) {
                 QrNumber.gameOver = true;
                 endGameAt = (new Date(new Date().valueOf() + Math.random() * 45000 + 60000)).valueOf();  // endGameAt is a global variable that needs to be set
-                QrNumber.gameEnd = endGameAt;
+                QrNumber.endGameAt = endGameAt;
             }
 
             let QRcontent = JSON.stringify(QrNumber);
@@ -1214,6 +1214,7 @@ function showEndScreen() {
         setActionButton('Skan', 'hidden');
         setAdvanceGameStateButton('Videre', 'active');
         gameState = 'gameEnded';
+        clearInterval(isGameOverTimer);
     }
 }
 
