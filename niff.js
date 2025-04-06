@@ -688,9 +688,10 @@ function scanQRcode() {
         useQRcode(decodedText);
     }, (errorMessage) => {
         console.log('Camera says ' + errorMessage);
-        if (document.getElementsByTagName('video')[0]) {
-            document.getElementsByTagName('video')[0].style.width = "" + sizeFactor * winWidth + "px";  // Ugly hack!
-        }
+        // if (document.getElementsByTagName('video')[0]) {
+        //     document.getElementsByTagName('video')[0].style.width = "" + sizeFactor * winWidth + "px";  // Ugly hack!
+        //     document.getElementsByTagName('video')[0].style.height = "" + sizeFactor * winHeight + "px";  // Ugly hack!
+        // }
     }).catch((err) => {
         console.log('Camera failed to start');
     });
@@ -1246,6 +1247,7 @@ function clearQrCanvas() {
     if (canvasQrShow.firstChild) {
         canvasQrShow.removeChild(canvasQrShow.firstChild);
     }
+    canvasQrShow.style.display = 'none';
 }
 
 
