@@ -119,11 +119,13 @@ class M1T1G1 extends NiffGame {  // Healer
         document.getElementById('canvasQrShow').style.display = 'none';
         // ToDo: Add explaning text?
         setActionButton('Skan', 'hidden');
-        // document.getElementById('healButton').hidden = false;
-        // document.getElementById('uglyHackSpacer').hidden = false
+        setActionButton('Heal', 'active');
+
         clearInterval(attackTimer);  // Makes sure the Healer is not attacked
 
-        setActionButton('Heal', 'active');
+        showTextDiv.hidden = false;
+        showTextDiv.innerHTML = '<h2> Heal dem der er blevet skadet</h2> <span> (Tryk på Heal-knappen, når de kommer med en rød skærm. <br> Det koster mana at heale, så gør det kort) </span>';
+
     }
 
     applyQrCode(QrNumber) {
@@ -459,7 +461,9 @@ function advanceGameStateButtonHasBeenClicked(event) {
         
         let gameData = JSON.stringify(packet);
         
-        generateQRcode(gameData).append(document.getElementById("canvasQrShow"));
+        let canvasQrShow = document.getElementById("canvasQrShow");
+        generateQRcode(gameData).append(canvasQrShow);
+        canvasQrShow.style.display = 'block';
 
         showTextDiv.innerHTML = '<h2> Lad de andre deltagere skanne denne QR kode </h2> Og tryk så på <em>Videre</em>';
 
@@ -490,8 +494,13 @@ function advanceGameStateButtonHasBeenClicked(event) {
         packet.finalMana = currentUser.globalMana.toString();
         packet.participantList = currentUser.playerList.filter(item => item[0] !== currentUser.id);
         let QRcontent = JSON.stringify(packet);
-        generateQRcode(QRcontent).append(document.getElementById('canvasQrShow'));
-        document.getElementById('canvasQrShow').style.display = 'block';
+
+        let canvasQrShow = document.getElementById("canvasQrShow");
+        generateQRcode(QRcontent).append(canvasQrShow);
+        canvasQrShow.style.display = 'block';
+
+        // generateQRcode(QRcontent).append(document.getElementById('canvasQrShow'));
+        // document.getElementById('canvasQrShow').style.display = 'block';
 
         showText('<h3> For at sprede den indsamlede mana skal I nu bygge Kraftens Tårn </h3> <br>' + 
             'Din tavle er i bunden af tårnet indtil alle har modtaget manaen første gang <br>' + 
@@ -950,8 +959,11 @@ function roleHasBeenClicked(event) {
         } else {
             id = Math.floor(Math.random() * 1000000);
             let QRcontent = JSON.stringify([id, gameMode]);
-            generateQRcode(QRcontent).append(document.getElementById("canvasQrShow"));  // ToDo: Generate player-ID here?
-            document.getElementById('canvasQrShow').style.display = 'block';
+            
+            let canvasQrShow = document.getElementById("canvasQrShow");
+            generateQRcode(QRcontent).append(canvasQrShow);
+            canvasQrShow.style.display = 'block';
+
             showTextDiv.innerHTML = '<h2> Lad tovholderen skanne din QR kode </h2> Og tryk så på <em>Videre</em>';
             setActionButton('Skan', 'hidden');
             setAdvanceGameStateButton('Videre', 'active');
@@ -1061,8 +1073,12 @@ function endGame() {
         let QRcontent = JSON.stringify(packet);
         poolMana();
 
-        generateQRcode(QRcontent).append(document.getElementById("canvasQrShow"));
-        document.getElementById('canvasQrShow').style.display = 'block';
+        let canvasQrShow = document.getElementById("canvasQrShow");
+        generateQRcode(QRcontent).append(canvasQrShow);
+        canvasQrShow.style.display = 'block';
+
+        // generateQRcode(QRcontent).append(document.getElementById("canvasQrShow"));
+        // document.getElementById('canvasQrShow').style.display = 'block';
         textNode = document.getElementById('endGameInfo');
         textNode.hidden = false;
         let paragraph = document.createElement("p");
@@ -1182,13 +1198,23 @@ function useQRcode(QrNumber) {
             }
 
             let QRcontent = JSON.stringify(QrNumber);
-            generateQRcode(QRcontent).append(document.getElementById("canvasQrShow"));
+
+            let canvasQrShow = document.getElementById("canvasQrShow");
+            generateQRcode(QRcontent).append(canvasQrShow);
+            canvasQrShow.style.display = 'block';
+
+            // generateQRcode(QRcontent).append(document.getElementById("canvasQrShow"));
 
         } else {
             clearQrCanvas();
             let QRcontent = JSON.stringify(QrNumber);
-            generateQRcode(QRcontent).append(document.getElementById("canvasQrShow"));
-            document.getElementById('canvasQrShow').style.display = 'block';
+
+            let canvasQrShow = document.getElementById("canvasQrShow");
+            generateQRcode(QRcontent).append(canvasQrShow);
+            canvasQrShow.style.display = 'block';
+
+            // generateQRcode(QRcontent).append(document.getElementById("canvasQrShow"));
+            // document.getElementById('canvasQrShow').style.display = 'block';
             // ToDo: Play higher rising tone with each sharing
             endGameAt = (new Date(QrNumber.endGameAt)).valueOf();
             isGameOverTimer = setInterval(showEndScreen, 1000);
