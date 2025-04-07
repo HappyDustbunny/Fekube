@@ -19,7 +19,7 @@ const showPatternAgainCost = 20;
 const attackedCost = 1;
 
 // Gametime
-const gameTime = 10 * 60000;  // 10 minutes of game time
+const gameTime = 2 * 60000;  // 2 minutes of game time
 
 // Initialize QR-code reader
 const html5Qrcode = new Html5Qrcode("reader");
@@ -206,6 +206,10 @@ class M3T1G1 extends NiffGame {  // Scan løs
         super();
         this.gameMode = 'M3T1G1';
         this.lastScan = 0;
+
+        showTextDiv.hidden = false;
+        showTextDiv.innerHTML = '<h2> Skan løs! </h2> <span> (QR-koder der ligger langt fra hinanden giver mere mana) </span>';
+
 
         setActionButton('Skan', 'active');
     }
