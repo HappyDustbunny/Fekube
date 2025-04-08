@@ -30,6 +30,7 @@ let amulet = false;
 let attackProbability = 0.001;
 let booster = false;
 let coordinator = false;
+let solo = false;
 let currentUser = '';
 let endGameAt = 0;
 let endRoundAt = 0;
@@ -386,8 +387,12 @@ const gameModes = {
 
 // Eventlisteners
 
-document.getElementById('chooseGameMode').addEventListener('click', 
-    function(event) { chooseGameModeHasBeenClicked(event); }, true);  // Normal/coordinator
+// document.getElementById('chooseGameMode').addEventListener('click', 
+//     function(event) { chooseGameModeHasBeenClicked(event); }, true);  // Normal/coordinator
+document.getElementById('start').addEventListener('click', startButtonHasBeenClicked);
+
+document.getElementById('solo').addEventListener('click', soloChecboxHasBeenChecked);
+
 
 document.getElementById('selectRoleContainer').addEventListener('click', 
     function(event) { roleHasBeenClicked(event); }, true);
@@ -686,6 +691,9 @@ function setUpFunction() {
     document.getElementById('canvasClockface').style.left = '' + -sizeFactor * winWidth / 2 + 'px';
     document.getElementById('canvasClockfaceOverlay').style.left = '' + -sizeFactor * winWidth / 2 + 'px';
 
+    document.getElementById('solo').checked = false;
+    document.getElementById('tovholder').checked = false;
+
     location.hash = '#intro';
 }
 
@@ -929,16 +937,35 @@ function whileAttacked() {
     }
 }
 
-
-async function chooseGameModeHasBeenClicked(event) {
-    if (event.target.id === 'normal') {
-        localMana = 0;
-    // } else if (event.target.id === 'buyAmulet') {
-    //     localMana = -200;
-    //     amulet = true;
-    } else if (event.target.id === 'coordinator') {
-        coordinator = true;
+function soloChecboxHasBeenChecked() {
+    if (document.getElementById('solo').checked) {
+        document.getElementById('tovholder').checked = false;
+        coordinator = false;
+        document.getElementById('tovholder').disabled = true;
+        document.getElementById('tovholderSpan').style.color = 'grey';
+    } else {
+        document.getElementById('tovholder').disabled = false;
+        document.getElementById('tovholderSpan').style.color = 'black';
     }
+}
+
+
+async function startButtonHasBeenClicked(event) {
+    // if (event.target.id === 'normal') {
+    //     localMana = 0;
+    // // } else if (event.target.id === 'buyAmulet') {
+    // //     localMana = -200;
+    // //     amulet = true;
+    // } else if (event.target.id === 'coordinator') {
+    //     coordinator = true;
+    // }
+    if (document.getElementById('tovholder').checked) {
+        coordinator = true;
+    } else if (document.getElementById('solo').checked) {
+        solo = true;  // TODO: Implement solo-mode
+    }
+
+
     gameState = 'selectRole';
     location.hash = '#selectRole';
     // document.getElementById('intro').style.display = 'none';
@@ -960,17 +987,24 @@ function roleHasBeenClicked(event) {
             showTextDiv.innerHTML = '<h2> Skan de andre deltageres QR koder </h2> Og tryk så på <em>Videre</em>';
             setActionButton('Skan', 'active');
             setAdvanceGameStateButton('Videre', 'inactive');
-        } else {
+        } else if (!solo) {
             id = Math.floor(Math.random() * 1000000);
             let QRcontent = JSON.stringify([id, gameMode]);
             
             let canvasQrShow = document.getElementById("canvasQrShow");
             generateQRcode(QRcontent).append(canvasQrShow);
             canvasQrShow.style.display = 'block';
-
+            
             showTextDiv.innerHTML = '<h2> Lad tovholderen skanne din QR kode </h2> Og tryk så på <em>Videre</em>';
             setActionButton('Skan', 'hidden');
             setAdvanceGameStateButton('Videre', 'active');
+        } else {
+            clearQrCanvas()
+        
+            showTextDiv.innerHTML = '';
+            
+            setAdvanceGameStateButton('Videre', 'hidden');
+            firstTradeInterval();
         }
 
         gameState = 'shareRoleInfo';

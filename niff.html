@@ -33,12 +33,14 @@
 
 
         <div id="intro">
-            <div id="chooseGameMode">
+            <!-- <div id="chooseGameMode">
                 <p>Vælg game mode</p>
                 <button id="coordinator" tabindex="1"> Tovholder * </button>
                 <br>
                 <Button id="normal" tabindex="1"> Normal </Button>
-            </div>
+            </div> -->
+            <br><br><br>
+
         
             <details> <summary class="frontpageSummary" tabindex="2"> Introduktion </summary> 
                 <p> Feerne mangler mana </p>
@@ -49,7 +51,8 @@
                 <p> Vælg &eacute;n tovholder for holdet (Se FAQ) og start så spillet med at vælge et ritual <br>
                     (Vælg ritual ud fra hvor meget du har lyst til at bevæge dig og tænke) </p>
                 
-                <br>
+                <p class="collapseDetailDiv"><button onclick="closest('details').removeAttribute('open')"> 
+                    Luk Introduktion </button></p>
                 <br>
             </details>
             <details> <summary class="frontpageSummary" tabindex="2"> Baggrund </summary>
@@ -106,7 +109,9 @@
                     Hvis der <em>er</em> jægere på holdet, koncentrerer rovdyrene sig om jægerne, og de andre feer 
                     behøver ikke at bekymre sig om angreb og healing.
                 </p>
-                <br>
+                
+                <p class="collapseDetailDiv"><button onclick="closest('details').removeAttribute('open')"> 
+                    Luk Baggrund </button> </p>
                 <br>
             </details>
             
@@ -145,10 +150,20 @@
                     kræve penge ind. </a> </p>
                     <p> Jeg har moret mig med at lave spillet, og hvis du morer dig med at spille det, er 
                     vi begge gladere &#x1F603; </p>
+                    
+                <p class="collapseDetailDiv"><button onclick="closest('details').removeAttribute('open')"> 
+                    Luk FAQ </button> </p>
             </details>
             
-            <br>
-            <br>
+            <br><br><br><br><br>
+
+            <div id="startDiv">
+                <button id="start" tabindex="1"> Start </button> <br>
+                <p>
+                    <span id="soloSpan"> <input type="checkbox" id="solo"> Solo </span>
+                    <span id="tovholderSpan"> <input type="checkbox" id="tovholder"> Tovholder </span>
+                </p>
+            </div>
         </div>
 
         <div id="selectRole">

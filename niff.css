@@ -128,6 +128,11 @@ summary::marker {
     justify-content: center;
 }
 
+#startDiv {
+    display: grid;
+    justify-content: center;
+}
+
 ul {
     margin-top: 0px;
 }
@@ -140,6 +145,10 @@ li {
 .footnote {
     font-size: unset;
     margin-bottom: 0px;
+}
+
+.collapseDetailDiv {
+    text-align: center;
 }
 
 #output {
@@ -170,8 +179,12 @@ li {
     top: -240px;
 }
 
-#coordinator, #normal {
+#start, #coordinator, #normal {
     font-size: xx-large;
+}
+
+#tovholder[type=checkbox][disabled] {
+    filter: invert(25%);
 }
 
 #headContainer {
