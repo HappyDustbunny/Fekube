@@ -42,6 +42,7 @@ let globalMana = 500;  // Start with some mana to heal attacked players
 let isVictim = 0;  // Change to 5 if player is attacked and needs healing. Is healed fully by Healer, but need a few scans of '0' to heal alone
 let localMana = 0;
 let isGameOverTimer;
+let soloEndScans = Math.floor((Math.random() * 6) + 3);
 
 let messageDiv = document.getElementById('messageDiv');
 let showTextDiv = document.getElementById('showTextDiv');
@@ -987,6 +988,9 @@ function roleHasBeenClicked(event) {
             showTextDiv.innerHTML = '<h2> Skan de andre deltageres QR koder </h2> Og tryk så på <em>Videre</em>';
             setActionButton('Skan', 'active');
             setAdvanceGameStateButton('Videre', 'inactive');
+    
+            gameState = 'shareRoleInfo';
+            location.hash = '#gameMode';
         } else if (!solo) {
             id = Math.floor(Math.random() * 1000000);
             let QRcontent = JSON.stringify([id, gameMode]);
@@ -997,6 +1001,9 @@ function roleHasBeenClicked(event) {
             
             showTextDiv.innerHTML = '<h2> Lad tovholderen skanne din QR kode </h2> Og tryk så på <em>Videre</em>';
             setActionButton('Skan', 'hidden');
+    
+            gameState = 'shareRoleInfo';
+            location.hash = '#gameMode';
             setAdvanceGameStateButton('Videre', 'active');
         } else {
             clearQrCanvas()
@@ -1004,14 +1011,11 @@ function roleHasBeenClicked(event) {
             showTextDiv.innerHTML = '';
             
             setAdvanceGameStateButton('Videre', 'hidden');
+
+            endRoundAt = (new Date(new Date().valueOf() + gameTime)).valueOf();
+            location.hash = '#firstTradeInterval';
             firstTradeInterval();
         }
-
-        gameState = 'shareRoleInfo';
-
-        location.hash = '#gameMode';
-
-        // navigator.vibrate(200);  // Just to test it. Will not work in Firefox :-/ TODO: Seems to not work in Chrome
     }
 }
 
@@ -1095,7 +1099,7 @@ function endGame() {
         showTextDiv.innerHTML = '<h2> Skan de andre deltageres QR koder </h2> Og tryk så på <em>Videre</em>';
         setActionButton('Skan', 'active');
         setAdvanceGameStateButton('Videre', 'inactive');  // ToDo: Add functionality to advancing the game state
-    } else {
+    } else if (!solo) {
         document.getElementById('showTextDiv').hidden = true;  // Turn off old messages. Something of a hack...
         setAdvanceGameStateButton('Videre', 'active');
         setActionButton('Skan', 'hidden');
@@ -1115,14 +1119,18 @@ function endGame() {
         generateQRcode(QRcontent).append(canvasQrShow);
         canvasQrShow.style.display = 'block';
 
-        // generateQRcode(QRcontent).append(document.getElementById("canvasQrShow"));
-        // document.getElementById('canvasQrShow').style.display = 'block';
         textNode = document.getElementById('endGameInfo');
         textNode.hidden = false;
         let paragraph = document.createElement("p");
         paragraph.innerHTML = 'Lad koordinatoren skanne din tavle for at ' + 
             'samle holdets mana\n - og tryk så <em>Videre</em>';
-        // paragraph.appendChild(textContent);
+        textNode.appendChild(paragraph);
+    } else {
+        textNode = document.getElementById('showTextDiv');
+        textNode.innerHTML = '';
+        textNode.hidden = false;
+        let paragraph = document.createElement("p");
+        paragraph.innerHTML = 'Skan 0 flere gange for at forstærke manaen og sende den ud over hele Niff';
         textNode.appendChild(paragraph);
     }
 }
@@ -1258,6 +1266,12 @@ function useQRcode(QrNumber) {
             isGameOverTimer = setInterval(showEndScreen, 1000);
         }
 
+    } else if (solo  && QrNumber === 'center') {
+        soloEndScans -= 1;
+        if (soloEndScans < 1) {
+            showEndScreen();
+        }
+
     } else {
         showMessage('<p> Denne QR kode er dårlig magi! <br> Scan en anden </p>', 3000);
     }
@@ -1267,12 +1281,13 @@ function honk() {
     // let sound = new Audio('qr-codes/elephant-triumph-sfx-293300.mp3');
     let sound = new Audio('qr-codes/chime-hall-reverb-soft-2_99bpm_G_minor.wav');
     sound.play();
+    // navigator.vibrate(200);  // Just to test it. Will not work in Firefox :-/ TODO: Seems to not work in Chrome
 }
 
 
 function showEndScreen() {
     let now = new Date();
-    if (endGameAt < now) {
+    if ((endGameAt < now) || solo) {
         honk();
         showText('<h3> Manaen er spredt! </h3> <br> <p> Game over </p>', false);  // False --> .hidden = false
         clearQrCanvas();
@@ -1726,7 +1741,7 @@ function generateQRcode(text) {
 //     html5QrcodeScanner.render(onScanSuccess, onScanFailure);
 // });
 
-// For debugging purposes
+// For debugging purposes:
 function scanCoordinator() {
     let packet = new NiffDataPacket('participants');
     packet.participantList = [[12345, 'M2T2G1'], [56789, 'M3T2G1'], [98765, 'M3T1G2'], [54321, 'M3T1G1']];
@@ -1751,4 +1766,12 @@ function coordinatorScansAllAtTheEnd() {
         packet.score = (Math.floor(1000*Math.random())).toString();
         useQRcode(JSON.stringify(packet));
     }
+}
+
+function reload() {
+    window.location.reload();
+}
+
+function videre() {
+    document.getElementById('advanceGameStateButton').click();
 }
