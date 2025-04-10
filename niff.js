@@ -221,7 +221,7 @@ class M3T1G1 extends NiffGame {  // Scan løs
         if (this.lastScan === 0) {
             newDelta = QrNumber;
         } else {
-            newDelta = Math.round(5/10000 * ((clockFaceCoor[QrNumber][0] - clockFaceCoor[this.lastScan][0]) * (clockFaceCoor[QrNumber][0] - clockFaceCoor[this.lastScan][0]) + (clockFaceCoor[QrNumber][1] - clockFaceCoor[this.lastScan][1]) * (clockFaceCoor[QrNumber][1] - clockFaceCoor[this.lastScan][1])));
+            newDelta = Math.round(5/10000 * ((clockFaceCoor[QrNumber][0] - clockFaceCoor[this.lastScan][0]) * (clockFaceCoor[QrNumber][0] - clockFaceCoor[this.lastScan][0]) + (clockFaceCoor[QrNumber][1] - clockFaceCoor[this.lastScan][1]) * (clockFaceCoor[QrNumber][1] - clockFaceCoor[this.lastScan][1])) + 1);
         }
         this.localMana += Number(newDelta);
         updateManaCounters(newDelta);
@@ -412,7 +412,7 @@ document.getElementById('advanceGameStateButton').addEventListener('click',
 console.clear();
 
 
-function actionButtonHasBeenClicked() {
+async function actionButtonHasBeenClicked() {
     let actionButton = document.getElementById('actionButton'); 
     if (!actionButton.classList.contains('inactiveButton')) { // ! not
         switch(actionButton.textContent) {
@@ -425,6 +425,7 @@ function actionButtonHasBeenClicked() {
                 break;
             case 'Stop Skan':
                 setActionButton('Skan', 'active');
+                await timer(500); // Stopping a scan right after initiation confuses the scanner...
                 stopScan();
                 break;
             case 'Heal':
@@ -706,7 +707,7 @@ function setUpFunction() {
 function scanQRcode() {
     html5Qrcode.start({facingMode: "environment"}, config, (decodedText, decodedResult) => {
         console.log('We have got ' + decodedText);
-        stopQrReading();
+        stopScan();
         useQRcode(decodedText);
     }, (errorMessage) => {
         console.log('Camera says ' + errorMessage);
@@ -721,9 +722,15 @@ function scanQRcode() {
 
 function stopScan() {
     if (html5Qrcode.getState() === 2) {  // 1 is not-scanning, 2 is scanning
+        html5Qrcode.stop().then((ignore) => {
+            setActionButton('Skan', 'active');
+            // document.getElementById('cancelScanButton').hidden = true;
+            console.log('QR scanning stopped');
+        }).catch((err) => {
+            console.log('QR scanning did not stop for some reason');
+        });
+
         setActionButton('Skan', 'hidden');
-        // document.getElementById('cancelScanButton').hidden = true;
-        stopQrReading();
     }
 }
 
@@ -1231,6 +1238,8 @@ function useQRcode(QrNumber) {
 
     } else if (QrNumber.packetType == 'finalMana') {
         // Share the final mana
+        honk();
+
         if (0 < QrNumber.participantList.length) {  // First a round spreading the final score
             currentUser.globalMana = QrNumber.finalMana;
             currentUser.localMana = 0;  // TODO: Move this to when the useres share their mana?
@@ -1239,7 +1248,7 @@ function useQRcode(QrNumber) {
             
             if ( QrNumber.participantList.length === 0) {
                 QrNumber.gameOver = true;
-                endGameAt = (new Date(new Date().valueOf() + Math.random() * 45000 + 60000)).valueOf();  // endGameAt is a global variable that needs to be set
+                endGameAt = (new Date(new Date().valueOf() + Math.random() * 45000 + 30000)).valueOf();  // endGameAt is a global variable that needs to be set
                 QrNumber.endGameAt = endGameAt;
             }
 
@@ -1277,8 +1286,14 @@ function useQRcode(QrNumber) {
     }
 }
 
-function honk() {
-    // let sound = new Audio('qr-codes/elephant-triumph-sfx-293300.mp3');
+async function honk() {
+    let sound = new Audio('qr-codes/elephant-triumph-sfx-293300.mp3');
+    sound.play();
+    navigator.vibrate(200);  // Just to test it. Will not work in Firefox :-/ TODO: Seems to not work in Chrome
+}
+
+
+function chime() {
     let sound = new Audio('qr-codes/chime-hall-reverb-soft-2_99bpm_G_minor.wav');
     sound.play();
     // navigator.vibrate(200);  // Just to test it. Will not work in Firefox :-/ TODO: Seems to not work in Chrome
@@ -1288,11 +1303,13 @@ function honk() {
 function showEndScreen() {
     let now = new Date();
     if ((endGameAt < now) || solo) {
-        honk();
-        showText('<h3> Manaen er spredt! </h3> <br> <p> Game over </p>', false);  // False --> .hidden = false
+        stopScan();
         clearQrCanvas();
         setActionButton('Skan', 'hidden');
+        setInfoButton('', 'hidden')
         setAdvanceGameStateButton('Videre', 'active');
+        chime();
+        showText('<h3> Manaen er spredt! </h3> <br> <p> Game over </p>', false);  // False --> .hidden = false
         gameState = 'gameEnded';
         clearInterval(isGameOverTimer);
     }
@@ -1329,16 +1346,6 @@ function clearQrCanvas() {
     canvasQrShow.style.display = 'none';
 }
 
-
-function stopQrReading() {
-    html5Qrcode.stop().then((ignore) => {
-        setActionButton('Skan', 'active');
-        // document.getElementById('cancelScanButton').hidden = true;
-        console.log('QR scanning stopped');
-    }).catch((err) => {
-        console.log('QR scanning did not stop for some reason');
-    });
-}
 
 // DRAWING BELOW
 
@@ -1764,8 +1771,8 @@ function coordinatorScansAllAtTheEnd() {
     for (var i=0; i<currentUser.playerList.length; i++) {
         packet.id = currentUser.playerList[i][0];
         packet.score = (Math.floor(1000*Math.random())).toString();
-        useQRcode(JSON.stringify(packet));
     }
+    useQRcode(JSON.stringify(packet));
 }
 
 function reload() {
