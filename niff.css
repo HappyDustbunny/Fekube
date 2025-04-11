@@ -66,6 +66,11 @@ summary::marker {
     content: none;
 }
 
+summary:only-child {
+    background-color: #bfbfbfbf;
+    filter: grayscale(50%);
+}
+
 /* #page {
     display: grid;
     grid-template-areas:
@@ -93,6 +98,7 @@ summary::marker {
         display: block;
     }
 }
+
 
 #gameMode {
     display: none;

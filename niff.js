@@ -140,6 +140,33 @@ class M1T1G1 extends NiffGame {  // Healer
 }
 
 
+class M2T1G1 extends NiffGame {  // Skan i rækkefølge
+    constructor() {
+        super();
+        this.gameMode = 'M3T1G1';
+        this.lastScan = 0;
+
+        showTextDiv.hidden = false;
+        showTextDiv.innerHTML = '<h2> Skan i rækkefølge </h2> <span> (Skan QR-koderne i rækkefølge <br> med eller mod uret) </span>';
+
+
+        setActionButton('Skan', 'active');
+    }
+
+    applyQrCode(QrNumber) {
+        let newDelta = 0;
+        if (Math.abs(this.lastScan - QrNumber) === 1) {
+            newDelta = 45;
+        } else {
+            newDelta = 1;
+        }
+        this.localMana += Number(newDelta);
+        updateManaCounters(newDelta);
+        this.lastScan = QrNumber;
+    }
+}
+
+
 class M2T2G1 extends NiffGame {  // Indstil visere
     constructor() {
         super();
@@ -377,6 +404,7 @@ class M3T2G1 extends NiffGame {  //  Gentag mønster
 
 const gameModes = {
     'M1T1G1': M1T1G1,  // Healer
+    'M2T1G1' : M2T1G1, // Skan i rækkefølge
     'M2T2G1': M2T2G1,  // Indstil visere
     //'M2T2G2': M2T2G2,  // Jæger
     'M3T1G1': M3T1G1,  // Skan løs
