@@ -369,19 +369,13 @@ progress::-webkit-progress-bar, progress::-moz-progress-bar {
     justify-content: space-evenly;
 }
 
-#actionButton {
+#actionButton, .roundButton {
     align-self: center;
     border-radius: 25px;
     width: 50px;
     height: 50px;
     z-index: 100;
 }
-
-#healButton {
-    justify-self: right;
-    height: 50px;
-    background-color: rgba(127, 255, 0, 1);
-} */
 
 #lastCloseIntro {
     display: grid;

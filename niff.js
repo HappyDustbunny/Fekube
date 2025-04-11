@@ -120,21 +120,26 @@ class M1T1G1 extends NiffGame {  // Healer
         generateQRcode("Thy shalst be healed!").append(document.getElementById("canvasQrShow"));
         document.getElementById('canvasQrShow').style.display = 'none';
         // ToDo: Add explaning text?
-        setActionButton('Skan', 'hidden');
-        setActionButton('Heal', 'active');
+        setActionButton('Skan', 'active');
+        setInfoButton('Heal', 'active');
 
         clearInterval(attackTimer);  // Makes sure the Healer is not attacked
 
         showTextDiv.hidden = false;
-        showTextDiv.innerHTML = '<h2> Heal dem der er blevet skadet</h2> <span> (Tryk på Heal-knappen, når de kommer med en rød skærm. <br> Det koster mana at heale, så gør det kort) </span>';
+        showTextDiv.innerHTML = '<h2> Heal dem der er blevet skadet</h2> <span> (Tryk på Heal-knappen, ' +
+        'når spillere <br>kommer med en rød skærm. <br> Det koster mana at heale, så gør det kort <br><br>' + 
+        'Tryk på Skan-knappen og skan 0 en gang imellem for at samle mana) </span>';
 
     }
 
-    applyQrCode(QrNumber) {
+    async applyQrCode(QrNumber) {
         if (QrNumber === 'center') {
             let newDelta = 10;
             this.localMana += Number(newDelta);
-            updateManaCounters(newDelta); // Todo: Remove the Healers scan-button for 10 seconds after each scan?
+            await updateManaCounters(newDelta); // Todo: Remove the Healers scan-button for 10 seconds after each scan?
+            setActionButton('Skan', 'inactive');
+            await timer(5000);
+            setActionButton('Skan', 'active');
         }
     }
 }
@@ -456,27 +461,27 @@ async function actionButtonHasBeenClicked() {
                 await timer(500); // Stopping a scan right after initiation confuses the scanner...
                 stopScan();
                 break;
-            case 'Heal':
-                setActionButton('Stop Healing', 'obs');
-                heal();
-                break;
-            case 'Stop Healing':
-                stopHealing();
-                setActionButton('Heal', 'active');
-                break;
+            }
         }
     }
-}
-
-
-function infoButtonHasBeenClicked() {
-    let infoButton = document.getElementById('infoButton');
-    if (!infoButton.classList.contains('inactiveButton')) {  // ! not
-        switch(infoButton.textContent) {
-            case 'Vis Mønster':
-                setInfoButton('Vis Mønster', 'inactive');
-                showPattern(currentUser.patternLenght);
-        }
+    
+    
+    function infoButtonHasBeenClicked() {
+        let infoButton = document.getElementById('infoButton');
+        if (!infoButton.classList.contains('inactiveButton')) {  // ! not
+            switch(infoButton.textContent) {
+                case 'Vis Mønster':
+                    setInfoButton('Vis Mønster', 'inactive');
+                    showPattern(currentUser.patternLenght);
+                case 'Heal':
+                    setInfoButton('Stop Healing', 'obs');
+                    heal();
+                    break;
+                case 'Stop Healing':
+                    stopHealing();
+                    setInfoButton('Heal', 'active');
+                    break;
+            }
     }
 }
    
@@ -829,9 +834,7 @@ function heal() {
     if (9 < currentUser.localMana || 9 < currentUser.globalMana) {
         stopStopHealingTimeOut = setTimeout(stopHealing, 5000);
         document.getElementById('canvasQrShow').style.display = 'block';
-        setActionButton('Stop Healing', 'obs');
-        // document.getElementById('healButton').hidden = true;
-        // document.getElementById('stopHealButton').hidden = false;
+        setInfoButton('Stop Healing', 'obs');
         healingDrainTimer = setInterval(whileHealing, 1000);
     } else {  // If there is no mana, the QR code should not be shown
         whileHealing();
@@ -860,9 +863,7 @@ function stopHealing() {
     document.getElementById('canvasQrShow').style.display = 'none';
     clearInterval(healingDrainTimer);
     clearInterval(stopStopHealingTimeOut);
-    setActionButton('Heal', 'active');
-    // document.getElementById('stopHealButton').hidden = true;
-    // document.getElementById('healButton').hidden = false;
+    setInfoButton('Heal', 'active');
 }
 
 
@@ -1220,8 +1221,7 @@ function useQRcode(QrNumber) {
         messageDiv.innerHTML = '<p> Du er skadet og skal heales før du kan andet <br> Find en Healer eller scan 0 flere gange </p>'
     
     } else if (QrNumber === 'center' && currentUser.gameMode === 'M1T1G1') { // The healer can scan 0 for mana
-        currentUser.localMana += 10;
-        updateManaCounters();
+        currentUser.applyQrCode(QrNumber);
 
     } else if (isVictim !== 0  && QrNumber === 'center') {  // Non-healers can scan 0 five times to get healed
         isVictim -= 1;  // Heal a little
