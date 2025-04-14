@@ -25,7 +25,13 @@ const gameTime = 2 * 60000;  // 2 minutes of game time
 const html5Qrcode = new Html5Qrcode("reader");
 const config = {fps: 10, qrbox: {width: sizeFactor * winWidth, height: sizeFactor * winHeight}};
 
+const messageDiv = document.getElementById('messageDiv');
+const showTextDiv = document.getElementById('showTextDiv');
+const canvasQrShow = document.getElementById("canvasQrShow");
 
+
+let attackTimer = '';
+let whileAttackedTimer = '';                
 let amulet = false;
 let attackProbability = 0.001;
 let booster = false;
@@ -41,11 +47,10 @@ let id = 0;
 let globalMana = 500;  // Start with some mana to heal attacked players
 let isVictim = 0;  // Change to 5 if player is attacked and needs healing. Is healed fully by Healer, but need a few scans of '0' to heal alone
 let localMana = 0;
+let isRoundOverTimer;
 let isGameOverTimer;
 let soloEndScans = Math.floor((Math.random() * 6) + 3);
 
-let messageDiv = document.getElementById('messageDiv');
-let showTextDiv = document.getElementById('showTextDiv');
 let healMsgs = [
     '',  // No message when healing has occured
     'Og ... sidste gang',
@@ -76,14 +81,14 @@ let clockFaceCoor = { // Used for M3T1G1
 
 class NiffDataPacket {
     constructor(packetType) {
-        this.packetType = packetType;  // participants score finalMana
-        this.participantList = [];
-        this.participantListOriginalLength = 0;
-        this.endRoundAt = new Date();
-        this.id = 0;
-        this.score = 0;
-        this.finalMana = 0;
-        this.gameOver = false;
+        this.pt = packetType;  // (p)articipants (s)core (f)inalMana
+        // this.participantList = [];
+        // this.participantListOriginalLength = 0;
+        this.era = new Date().valueOf();  // EndRoundAt
+        // this.id = 0;
+        // this.score = 0;
+        // this.finalMana = 0;
+        // this.gameOver = false;
     }
 }
 
@@ -497,15 +502,14 @@ function advanceGameStateButtonHasBeenClicked(event) {
 
         participantList.push([id, gameMode]); // Add the coordinators id and gameMode
         
-        let packet = new NiffDataPacket('participants');
+        let packet = new NiffDataPacket('p');
         endRoundAt = (new Date(new Date().valueOf() + gameTime)).valueOf();  // endRoundAt needs to be set here as a global variable
-        packet.endRoundAt = endRoundAt;
-        packet.participantList = participantList;
-        packet.participantListOriginalLength = participantList.length;
+        packet.era = endRoundAt;
+        // packet.participantList = participantList;
+        // packet.participantListOriginalLength = participantList.length;
         
         let gameData = JSON.stringify(packet);
         
-        let canvasQrShow = document.getElementById("canvasQrShow");
         generateQRcode(gameData).append(canvasQrShow);
         canvasQrShow.style.display = 'block';
 
@@ -534,12 +538,11 @@ function advanceGameStateButtonHasBeenClicked(event) {
         beginRound();
         
     } else if (coordinator && gameState === 'shareEndInfo') {
-        let packet = new NiffDataPacket('finalMana');
-        packet.finalMana = currentUser.globalMana.toString();
-        packet.participantList = currentUser.playerList.filter(item => item[0] !== currentUser.id);
+        let packet = new NiffDataPacket('f');
+        packet.fm = currentUser.globalMana.toString();
+        packet.pl = currentUser.playerList.filter(item => item[0] !== currentUser.id); // (p)articipant(l)ist
         let QRcontent = JSON.stringify(packet);
 
-        let canvasQrShow = document.getElementById("canvasQrShow");
         generateQRcode(QRcontent).append(canvasQrShow);
         canvasQrShow.style.display = 'block';
 
@@ -945,10 +948,6 @@ async function poolMana() {
 // }
 
 
-let attackTimer = setInterval(attackChance, 10000);  // TODO: Move to Start Main Game routine
-
-let whileAttackedTimer = '';                
-
 function attackChance() {
     if (!currentUser.amulet && isVictim === 0 && Math.random() < attackProbability) {
         isVictim = 5;  // Requires 5 healing to be well. A healer can do it in one go. Scanning "0" five times works too
@@ -1031,7 +1030,6 @@ function roleHasBeenClicked(event) {
             id = Math.floor(Math.random() * 1000000);
             let QRcontent = JSON.stringify([id, gameMode]);
             
-            let canvasQrShow = document.getElementById("canvasQrShow");
             generateQRcode(QRcontent).append(canvasQrShow);
             canvasQrShow.style.display = 'block';
             
@@ -1056,7 +1054,7 @@ function roleHasBeenClicked(event) {
 }
 
 
-function isGameOver() {
+function isRoundOver() {
     let now = new Date();
     if (endRoundAt < now) {
         endGame();
@@ -1083,7 +1081,7 @@ function beginRound() {
     document.getElementById('progressBar').setAttribute("value", "100");
     document.getElementById('progressBar').style.setProperty('--progressBarColour', 'green')
     document.getElementById('progressBarContainer').hidden = false;
-    isGameOverTimer = setInterval(isGameOver, 1000);
+    isRoundOverTimer = setInterval(isRoundOver, 1000);
 
     setAdvanceGameStateButton('Videre', 'hidden');
     document.getElementById('firstTradeInfo').innerHTML = '';
@@ -1114,11 +1112,14 @@ function beginRound() {
     }
 
     updateManaCounters();
+
+
+    attackTimer = setInterval(attackChance, 10000);
 }
 
 
 function endGame() {
-    clearInterval(isGameOverTimer);
+    clearInterval(isRoundOverTimer);
     clearInterval(attackTimer);
     document.getElementById('progressBarContainer').hidden = true;
     document.getElementById('booster').hidden = true;
@@ -1143,15 +1144,14 @@ function endGame() {
             currentUser.localMana = 10;
         }
 
-        let packet = new NiffDataPacket('score');
-        packet.id = currentUser.id;
-        packet.participantList = currentUser.playerList;
-        packet.participantListOriginalLength = currentUser.playerList.length;
-        packet.score = (Number(currentUser.globalMana) + Number(currentUser.localMana)).toString();
+        let packet = new NiffDataPacket('s');
+        // packet.id = currentUser.id;
+        // packet.participantList = currentUser.playerList;
+        // packet.participantListOriginalLength = currentUser.playerList.length;
+        packet.sc = (Number(currentUser.globalMana) + Number(currentUser.localMana)).toString();  // (sc)ore
         let QRcontent = JSON.stringify(packet);
         poolMana();
 
-        let canvasQrShow = document.getElementById("canvasQrShow");
         generateQRcode(QRcontent).append(canvasQrShow);
         canvasQrShow.style.display = 'block';
 
@@ -1245,44 +1245,41 @@ function useQRcode(QrNumber) {
         participantList.push(QrNumber);
         setAdvanceGameStateButton('Videre', 'active');
         
-    } else if (QrNumber.packetType == 'participants') {
-        participantList = QrNumber.participantList;
-        endRoundAt = (new Date(QrNumber.endRoundAt)).valueOf();
+    } else if (QrNumber.pt == 'p') {
+        // participantList = QrNumber.participantList;
+        endRoundAt = (new Date(QrNumber.era)).valueOf();
         firstTradeInterval();
 
-    } else if (coordinator && QrNumber.packetType === 'score') {
+    } else if (coordinator && QrNumber.pt === 's') {
         // TODO: Need a visual clue for adding coordinator mana to pool?
         currentUser.globalMana += currentUser.localMana;  // Add coordinators mana to pool.
         currentUser.localMana = 0;
 
-        updateGlobalManaCounters(QrNumber.score);
-        currentUser.globalMana += Number(QrNumber.score);
+        updateGlobalManaCounters(QrNumber.sc);   // (sc)ore
+        currentUser.globalMana += Number(QrNumber.sc);
 
-        participantList = participantList.filter(item => item[0] !== QrNumber.id);  // This kills the coordinators participantlist, but it is backed up in currentUser.playerList
+        // participantList = participantList.filter(item => item[0] !== QrNumber.id);  // This kills the coordinators participantlist, but it is backed up in currentUser.playerList
 
-        if (participantList.length === 1) {
-            setAdvanceGameStateButton('Videre', 'active');
-        }
+        setAdvanceGameStateButton('Videre', 'active');
 
-    } else if (QrNumber.packetType == 'finalMana') {
+    } else if (QrNumber.pt == 'f') {
         // Share the final mana
         honk();
 
-        if (0 < QrNumber.participantList.length) {  // First a round spreading the final score
-            currentUser.globalMana = QrNumber.finalMana;
+        if (0 < QrNumber.pl.length) {  // First a round spreading the final score  // (p)articipant(l)ist
+            currentUser.globalMana = QrNumber.fm;
             currentUser.localMana = 0;  // TODO: Move this to when the useres share their mana?
-            QrNumber.participantList = QrNumber.participantList.filter(item => item[0] !== currentUser.id);
+            QrNumber.pl = QrNumber.pl.filter(item => item[0] !== currentUser.id); // (p)articipant(l)ist
             clearQrCanvas();
             
-            if ( QrNumber.participantList.length === 0) {
-                QrNumber.gameOver = true;
+            if ( QrNumber.pl.length === 0) {  // (p)articipant(l)ist
+                // QrNumber.gameOver = true;
                 endGameAt = (new Date(new Date().valueOf() + Math.random() * 45000 + 30000)).valueOf();  // endGameAt is a global variable that needs to be set
-                QrNumber.endGameAt = endGameAt;
+                QrNumber.era = endGameAt;  // The NiffDataPacket's endRoundAt (era) is reused as endGameAt here. Bad practice?
             }
 
             let QRcontent = JSON.stringify(QrNumber);
 
-            let canvasQrShow = document.getElementById("canvasQrShow");
             generateQRcode(QRcontent).append(canvasQrShow);
             canvasQrShow.style.display = 'block';
 
@@ -1292,14 +1289,13 @@ function useQRcode(QrNumber) {
             clearQrCanvas();
             let QRcontent = JSON.stringify(QrNumber);
 
-            let canvasQrShow = document.getElementById("canvasQrShow");
             generateQRcode(QRcontent).append(canvasQrShow);
             canvasQrShow.style.display = 'block';
 
             // generateQRcode(QRcontent).append(document.getElementById("canvasQrShow"));
             // document.getElementById('canvasQrShow').style.display = 'block';
             // ToDo: Play higher rising tone with each sharing
-            endGameAt = (new Date(QrNumber.endGameAt)).valueOf();
+            endGameAt = (new Date(QrNumber.era)).valueOf();
             isGameOverTimer = setInterval(showEndScreen, 1000);
         }
 
@@ -1317,7 +1313,7 @@ function useQRcode(QrNumber) {
 async function honk() {
     let sound = new Audio('qr-codes/elephant-triumph-sfx-293300.mp3');
     sound.play();
-    navigator.vibrate(200);  // Just to test it. Will not work in Firefox :-/ TODO: Seems to not work in Chrome
+    // navigator.vibrate(200);  // Just to test it. Will not work in Firefox :-/ TODO: Seems to not work in Chrome
 }
 
 
@@ -1336,10 +1332,10 @@ function showEndScreen() {
         setActionButton('Skan', 'hidden');
         setInfoButton('', 'hidden')
         setAdvanceGameStateButton('Videre', 'active');
-        chime();
         showText('<h3> Manaen er spredt! </h3> <br> <p> Game over </p>', false);  // False --> .hidden = false
         gameState = 'gameEnded';
         clearInterval(isGameOverTimer);
+        chime();
     }
 }
 
@@ -1367,7 +1363,6 @@ function clearEndGameInfo() {
 
 
 function clearQrCanvas() {
-    let canvasQrShow = document.getElementById("canvasQrShow");
     if (canvasQrShow.firstChild) {
         canvasQrShow.removeChild(canvasQrShow.firstChild);
     }
@@ -1778,9 +1773,9 @@ function generateQRcode(text) {
 
 // For debugging purposes:
 function scanCoordinator() {
-    let packet = new NiffDataPacket('participants');
-    packet.participantList = [[12345, 'M2T2G1'], [56789, 'M3T2G1'], [98765, 'M3T1G2'], [54321, 'M3T1G1']];
-    packet.endRoundAt = (new Date(new Date().valueOf() + gameTime)).valueOf();
+    let packet = new NiffDataPacket('p');
+    // packet.participantList = [[12345, 'M2T2G1'], [56789, 'M3T2G1'], [98765, 'M3T1G2'], [54321, 'M3T1G1']];
+    packet.era = (new Date(new Date().valueOf() + gameTime)).valueOf();
     useQRcode(JSON.stringify(packet));
 }
 
@@ -1795,11 +1790,12 @@ function scanSeveralParticipants() {
 // document.getElementsByTagName('body')[0].style.background = 'rgb(' + [Math.floor(Math.random()*255), Math.floor(Math.random()*255), Math.floor(Math.random()*255)].join(',') + ')';
 
 function coordinatorScansAllAtTheEnd() {
-    let packet = new NiffDataPacket('score');
-    for (var i=0; i<currentUser.playerList.length; i++) {
-        packet.id = currentUser.playerList[i][0];
-        packet.score = (Math.floor(1000*Math.random())).toString();
-    }
+    let packet = new NiffDataPacket('s');
+    // for (var i=0; i<currentUser.playerList.length; i++) {
+    //     packet.id = currentUser.playerList[i][0];
+    //     packet.score = (Math.floor(1000*Math.random())).toString();
+    // }
+    packet.sc = 5000;
     useQRcode(JSON.stringify(packet));
 }
 
