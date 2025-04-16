@@ -18,8 +18,6 @@ const wrongPatternPrice = 10;
 const showPatternAgainCost = 20;
 const attackedCost = 1;
 
-// Gametime
-const gameTime = 2 * 60000;  // 2 minutes of game time
 
 // Initialize QR-code reader
 const html5Qrcode = new Html5Qrcode("reader");
@@ -30,6 +28,7 @@ const showTextDiv = document.getElementById('showTextDiv');
 const canvasQrShow = document.getElementById("canvasQrShow");
 
 
+let gameTime = 2 * 60000;  // 2 minutes of game time
 let attackTimer = '';
 let whileAttackedTimer = '';                
 let amulet = false;
@@ -38,8 +37,8 @@ let booster = false;
 let coordinator = false;
 let solo = false;
 let currentUser = '';
-let endGameAt = 0;
 let endRoundAt = 0;
+let endGameAt = 0;
 let gameMode = '';
 let gameState = 'chooseCoordinator';
 let participantList = [];
@@ -431,6 +430,7 @@ const gameModes = {
 document.getElementById('start').addEventListener('click', startButtonHasBeenClicked);
 
 document.getElementById('solo').addEventListener('click', soloChecboxHasBeenChecked);
+document.getElementById('coordinator').addEventListener('click', coordinatorChecboxHasBeenChecked);
 
 
 document.getElementById('selectRoleContainer').addEventListener('click', 
@@ -730,7 +730,7 @@ function setUpFunction() {
     document.getElementById('canvasClockfaceOverlay').style.left = '' + -sizeFactor * winWidth / 2 + 'px';
 
     document.getElementById('solo').checked = false;
-    document.getElementById('tovholder').checked = false;
+    document.getElementById('coordinator').checked = false;
 
     location.hash = '#intro';
 }
@@ -975,13 +975,30 @@ function whileAttacked() {
 
 function soloChecboxHasBeenChecked() {
     if (document.getElementById('solo').checked) {
-        document.getElementById('tovholder').checked = false;
+        document.getElementById('coordinator').checked = false;
+        document.getElementById('timeChooseDiv').hidden = false;
+        document.getElementById('timeChooseDiv')[1].checked = true;
         coordinator = false;
-        document.getElementById('tovholder').disabled = true;
-        document.getElementById('tovholderSpan').style.color = 'grey';
+        document.getElementById('coordinator').disabled = true;
+        document.getElementById('coordinatorSpan').style.color = 'grey';
     } else {
-        document.getElementById('tovholder').disabled = false;
-        document.getElementById('tovholderSpan').style.color = 'black';
+        document.getElementById('timeChooseDiv').hidden = true;
+        document.getElementById('coordinator').disabled = false;
+        document.getElementById('coordinatorSpan').style.color = 'black';
+    }
+}
+
+
+function coordinatorChecboxHasBeenChecked() {
+    if (document.getElementById('coordinator').checked) {
+        document.getElementById('timeChooseDiv').hidden = false;
+        document.getElementById('timeChooseDiv')[1].checked = true;
+        document.getElementById('solo').disabled = true;
+        document.getElementById('soloSpan').style.color = 'grey';
+    } else {
+        document.getElementById('timeChooseDiv').hidden = true;
+        document.getElementById('solo').disabled = false;
+        document.getElementById('soloSpan').style.color = 'black';
     }
 }
 
@@ -995,8 +1012,9 @@ async function startButtonHasBeenClicked(event) {
     // } else if (event.target.id === 'coordinator') {
     //     coordinator = true;
     // }
-    if (document.getElementById('tovholder').checked) {
+    if (document.getElementById('coordinator').checked) {
         coordinator = true;
+        gameTime = 60000 * Number(document.querySelector('input[name="timeChooser"]:checked').value);
     } else if (document.getElementById('solo').checked) {
         solo = true;  // TODO: Implement solo-mode
     }
