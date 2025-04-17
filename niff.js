@@ -130,9 +130,9 @@ class M1T1G1 extends NiffGame {  // Healer
         clearInterval(attackTimer);  // Makes sure the Healer is not attacked
 
         showTextDiv.hidden = false;
-        showTextDiv.innerHTML = '<h2> Heal dem der er blevet skadet</h2> <span> (Tryk på Heal-knappen, ' +
+        showTextDiv.innerHTML = '<h2> Heal dem der er blevet skadet</h2> <span> Tryk på Heal-knappen, ' +
         'når spillere <br>kommer med en rød skærm. <br> Det koster mana at heale, så gør det kort <br><br>' + 
-        'Tryk på Skan-knappen og skan 0 en gang imellem for at samle mana) </span>';
+        'Tryk på Skan-knappen og skan 0 en gang imellem for at samle mana </span>';
 
     }
 
@@ -156,8 +156,8 @@ class M2T1G1 extends NiffGame {  // Skan i rækkefølge
         this.lastScan = 0;
 
         showTextDiv.hidden = false;
-        showTextDiv.innerHTML = '<h2> Skan i rækkefølge </h2> <span> (Skan QR-koderne i rækkefølge <br> med eller mod uret) </span>';
-
+        showTextDiv.innerHTML = '<h2> Skan i rækkefølge </h2> <span> Skan QR-koderne i ' +
+        'rækkefølge <br> med eller mod uret<br>(Man kan godt skifte retning) </span>';
 
         setActionButton('Skan', 'active');
     }
@@ -192,10 +192,12 @@ class M2T2G1 extends NiffGame {  // Indstil visere
         this.currentGoal = this.goalArray[this.currentGoalNumber];
         
         showTextDiv.hidden = false;
-        showTextDiv.innerHTML = '<h2>' + this.currentGoal[0] + ':' + this.currentGoal[1] + '</h2> <span> (Sæt den lille viser først) </span>';
+        let colon = ':';
         if (this.currentGoal[1] === 0 || this.currentGoal[1] === 5) {
-            showTextDiv.innerHTML = '<h2>' + this.currentGoal[0] + ':0' + this.currentGoal[1] + '</h2> <span> (Sæt den lille viser først) </span>';
+            colon = ':0';
         }
+        showTextDiv.innerHTML = '<h2> Indstil viserne så de viser </h2><h3>' + this.currentGoal[0] + colon +
+        this.currentGoal[1] + '</h3> <span> (Skan først det tal den lille viser skal pege på) </span>';
 
         document.getElementById('canvasStack').style.display = 'block';
 
@@ -216,18 +218,22 @@ class M2T2G1 extends NiffGame {  // Indstil visere
             let newDelta = 100;
             this.localMana += Number(newDelta);
             updateManaCounters(newDelta);
-            document.getElementsByTagName('h2')[0].style.color = 'rgb(53, 219, 53)';
+            document.getElementsByTagName('h3')[0].style.color = 'rgb(53, 219, 53)';
             setActionButton('Skan', 'inactive');  // Scanning the last digit multiple times shouldn't be possible
             
             setTimeout(() => {drawClockHandOnOverlay(6, false, 12, false)
                 this.updateGoal();
+                
+                let colon = ':';
                 var curGo = this.currentGoal;
-                showTextDiv.innerHTML = '<h2>' + curGo[0] + ':' + curGo[1] + '</h2> <span> (Sæt den lille viser først) </span>';
-                if (this.currentGoal[1] === 0 || this.currentGoal[1] === 5) {
-                    showTextDiv.innerHTML = '<h2>' + this.currentGoal[0] + ':0' + this.currentGoal[1] + '</h2> <span> (Sæt den lille viser først) </span>';
+                if (curGo[1] === 0 || curGo[1] === 5) {
+                    colon = ':0';
                 }
+                showTextDiv.innerHTML = '<h2> Indstil viserne så de viser </h2><h3>' + curGo[0] + colon 
+                + curGo[1] + '</h3> <span> (Skan først det tal den lille viser skal pege på) </span>';
+
                 this.firstGuess = true;
-                document.getElementsByTagName('h2')[0].style.color = 'black';
+                document.getElementsByTagName('h3')[0].style.color = 'black';
                 setActionButton('Skan', 'active');
             }, 3000);
         } else {
@@ -246,7 +252,8 @@ class M3T1G1 extends NiffGame {  // Scan løs
         this.lastScan = 0;
 
         showTextDiv.hidden = false;
-        showTextDiv.innerHTML = '<h2> Skan løs! </h2> <span> (QR-koder der ligger langt fra hinanden giver mere mana) </span>';
+        showTextDiv.innerHTML = '<h2> Skan løs! </h2> <span> Skan så mange QR-koder som muligt<br> '
+        + ' (Jo længere QR-koderne ligger langt fra <br> hinanden, jo mere mana giver de) </span>';
 
 
         setActionButton('Skan', 'active');
@@ -280,6 +287,10 @@ class M3T1G2 extends NiffGame {  // Følg det viste mønster
 
         document.getElementById('canvasStack').style.display = 'block';
         drawClockfaceOverlay(this.currentGoal, [0, 255, 0]);
+
+        showTextDiv.hidden = false;
+        showTextDiv.innerHTML = '<h2> Skan QR-koden med det grønne tal </h2> <span>' +
+        '(Når den rigtige QR-kode er skannet, <br>vises den næste der skal skannes) </span>';
 
         setActionButton('Skan', 'active');
     }
