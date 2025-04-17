@@ -376,7 +376,7 @@ progress::-webkit-progress-bar, progress::-moz-progress-bar {
     justify-content: space-evenly;
 }
 
-#actionButton, .roundButton {
+#actionButton, #action1Button, .roundButton {
     align-self: center;
     border-radius: 25px;
     width: 50px;
@@ -415,9 +415,9 @@ progress::-webkit-progress-bar, progress::-moz-progress-bar {
     background-color: yellow;
 }
 
-.obsButton {
+/* .obsButton {
     background-color: rgba(255, 0, 0, 0.7);
-}
+} */
 
 .score {
     font-size: large;

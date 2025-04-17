@@ -124,14 +124,14 @@ class M1T1G1 extends NiffGame {  // Healer
         generateQRcode("Thy shalst be healed!").append(document.getElementById("canvasQrShow"));
         document.getElementById('canvasQrShow').style.display = 'none';
         // ToDo: Add explaning text?
-        setActionButton('Skan', 'active');
-        setInfoButton('Heal', 'active');
+        setButton('actionButton', 'Skan', 'active', 'green');
+        setButton('action1Button', 'Heal', 'active', 'green');
 
         clearInterval(attackTimer);  // Makes sure the Healer is not attacked
 
         showTextDiv.hidden = false;
         showTextDiv.innerHTML = '<h2> Heal dem der er blevet skadet</h2> <span> Tryk på Heal-knappen, ' +
-        'når spillere <br>kommer med en rød skærm. <br> Det koster mana at heale, så gør det kort <br><br>' + 
+        'når spillere <br>kommer med en rød skærm. <br> (Det koster mana at heale, så gør det kort) <br><br>' + 
         'Tryk på Skan-knappen og skan 0 en gang imellem for at samle mana </span>';
 
     }
@@ -141,9 +141,9 @@ class M1T1G1 extends NiffGame {  // Healer
             let newDelta = 10;
             this.localMana += Number(newDelta);
             await updateManaCounters(newDelta); // Todo: Remove the Healers scan-button for 10 seconds after each scan?
-            setActionButton('Skan', 'inactive');
+            setButton('actionButton', 'Skan', 'inactive', 'green');
             await timer(5000);
-            setActionButton('Skan', 'active');
+            setButton('actionButton', 'Skan', 'active', 'green');
         }
     }
 }
@@ -159,7 +159,7 @@ class M2T1G1 extends NiffGame {  // Skan i rækkefølge
         showTextDiv.innerHTML = '<h2> Skan i rækkefølge </h2> <span> Skan QR-koderne i ' +
         'rækkefølge <br> med eller mod uret<br>(Man kan godt skifte retning) </span>';
 
-        setActionButton('Skan', 'active');
+        setButton('actionButton', 'Skan', 'active', 'green');
     }
 
     applyQrCode(QrNumber) {
@@ -203,7 +203,7 @@ class M2T2G1 extends NiffGame {  // Indstil visere
 
         drawClockHandOnOverlay(6, false, 12, false);  // Draw hands pointing to 6 and 12, not filled, as a placeholder/reminder
 
-        setActionButton('Skan', 'active');
+        setButton('actionButton', 'Skan', 'active', 'green');
     }
 
     applyQrCode(QrNumber) {
@@ -219,7 +219,7 @@ class M2T2G1 extends NiffGame {  // Indstil visere
             this.localMana += Number(newDelta);
             updateManaCounters(newDelta);
             document.getElementsByTagName('h3')[0].style.color = 'rgb(53, 219, 53)';
-            setActionButton('Skan', 'inactive');  // Scanning the last digit multiple times shouldn't be possible
+            setButton('actionButton', 'Skan', 'inactive');  // Scanning the last digit multiple times shouldn't be possible
             
             setTimeout(() => {drawClockHandOnOverlay(6, false, 12, false)
                 this.updateGoal();
@@ -234,7 +234,7 @@ class M2T2G1 extends NiffGame {  // Indstil visere
 
                 this.firstGuess = true;
                 document.getElementsByTagName('h3')[0].style.color = 'black';
-                setActionButton('Skan', 'active');
+                setButton('actionButton', 'Skan', 'active', 'green');
             }, 3000);
         } else {
             let oldText = showTextDiv.innerHTML;
@@ -256,7 +256,7 @@ class M3T1G1 extends NiffGame {  // Scan løs
         + ' (Jo længere QR-koderne ligger langt fra <br> hinanden, jo mere mana giver de) </span>';
 
 
-        setActionButton('Skan', 'active');
+        setButton('actionButton', 'Skan', 'active', 'green');
     }
 
     applyQrCode(QrNumber) {
@@ -292,7 +292,7 @@ class M3T1G2 extends NiffGame {  // Følg det viste mønster
         showTextDiv.innerHTML = '<h2> Skan QR-koden med det grønne tal </h2> <span>' +
         '(Når den rigtige QR-kode er skannet, <br>vises den næste der skal skannes) </span>';
 
-        setActionButton('Skan', 'active');
+        setButton('actionButton', 'Skan', 'active', 'green');
     }
 
     async applyQrCode(QrNumber) {
@@ -329,7 +329,7 @@ class M3T1G3 extends NiffGame {  // Følg mønster efter tal
         showTextDiv.hidden = false;
         showTextDiv.innerHTML = '<h2> Scan ' + this.currentGoal + '</h2>';
 
-        setActionButton('Skan', 'active');
+        setButton('actionButton', 'Skan', 'active', 'green');
     }
     
     async applyQrCode(QrNumber) {
@@ -367,8 +367,8 @@ class M3T2G1 extends NiffGame {  //  Gentag mønster
         this.currentPatternPosition = 0;
         this.patternLenght = 2;
 
-        setActionButton('Skan', 'inactive');
-        setInfoButton('Vis Mønster', 'active', 'green');
+        setButton('actionButton', 'Skan', 'inactive');
+        setButton('infoButton', 'Vis Mønster', 'active', 'green');
     }
 
 
@@ -391,9 +391,9 @@ class M3T2G1 extends NiffGame {  //  Gentag mønster
                 this.currentGoalNumber = 0;
                 this.patternLenght += 1;
                 this.showedPattern = false;
-                setInfoButton('Vis Mønster', 'active', 'green');
+                setButton('infoButton', 'Vis Mønster', 'active', 'green');
                 document.getElementById('infoButton').hidden = false;
-                setActionButton('Skan', 'hidden');
+                setButton('actionButton', 'Skan', 'hidden');
             }
         } else {
             let oldText = showTextDiv.innerHTML;
@@ -448,6 +448,7 @@ document.getElementById('selectRoleContainer').addEventListener('click',
     function(event) { roleHasBeenClicked(event); }, true);
 
 document.getElementById('actionButton').addEventListener('click', actionButtonHasBeenClicked);
+document.getElementById('action1Button').addEventListener('click', action1ButtonHasBeenClicked);
 
 document.getElementById('infoButton').addEventListener('click', infoButtonHasBeenClicked);
 
@@ -469,13 +470,34 @@ async function actionButtonHasBeenClicked() {
                 if (currentUser.coordinator && gameState === 'shareEndInfo') {
                     document.getElementById('canvasQrShow').style.display = 'none';
                 }
-                setActionButton('Stop Skan', 'obs');
+                setButton('actionButton', 'Stop Skan', 'active', 'red');
+                // TODO: Fix Vis mønster button getting inactive while scanning
+                // if (infoButton.classList.contains('activeButton')) {  
+                //     setButton('infoButton', infoButton.textContent , 'inactive')
+                // }
                 scanQRcode();
                 break;
             case 'Stop Skan':
-                setActionButton('Skan', 'active');
+                setButton('actionButton', 'Skan', 'active', 'green');
                 await timer(500); // Stopping a scan right after initiation confuses the scanner...
                 stopScan();
+                break;
+            }
+        }
+    }
+
+
+    async function action1ButtonHasBeenClicked() {
+    let actionButton = document.getElementById('action1Button'); 
+    if (!actionButton.classList.contains('inactiveButton')) { // ! not
+        switch(actionButton.textContent) {
+            case 'Heal':
+                setButton('action1Button', 'Stop Healing', 'active', 'red');
+                heal();
+                break;
+            case 'Stop Healing':
+                stopHealing();
+                setButton('action1Button', 'Heal', 'active', 'green');
                 break;
             }
         }
@@ -487,16 +509,9 @@ async function actionButtonHasBeenClicked() {
         if (!infoButton.classList.contains('inactiveButton')) {  // ! not
             switch(infoButton.textContent) {
                 case 'Vis Mønster':
-                    setInfoButton('Vis Mønster', 'inactive');
+                    setButton('infoButton', 'Vis Mønster', 'inactive');
+                    setButton('actionButton', 'Skan', 'inactive');
                     showPattern(currentUser.patternLenght);
-                case 'Heal':
-                    setInfoButton('Stop Healing', 'obs');
-                    heal();
-                    break;
-                case 'Stop Healing':
-                    stopHealing();
-                    setInfoButton('Heal', 'active');
-                    break;
             }
     }
 }
@@ -508,8 +523,8 @@ function advanceGameStateButtonHasBeenClicked(event) {
     if (coordinator && gameState === 'shareRoleInfo') {
         stopScan();
         
-        setActionButton('Skan', 'hidden');
-        setAdvanceGameStateButton('Videre', 'active');
+        setButton('actionButton', 'Skan', 'hidden');
+        setButton('advanceGameStateButton', 'Videre', 'active', 'green');
 
         participantList.push([id, gameMode]); // Add the coordinators id and gameMode
         
@@ -533,8 +548,8 @@ function advanceGameStateButtonHasBeenClicked(event) {
 
         showTextDiv.innerHTML = '<h2> Skan tovholderens QR kode </h2>';
         
-        setActionButton('Skan', 'active');
-        setAdvanceGameStateButton('Videre', 'hidden');
+        setButton('actionButton', 'Skan', 'active', 'green');
+        setButton('advanceGameStateButton', 'Videre', 'hidden');
         gameState = 'shareStartInfo';
         
     } else if (coordinator && gameState === 'shareStartInfo') {
@@ -542,7 +557,7 @@ function advanceGameStateButtonHasBeenClicked(event) {
         
         showTextDiv.innerHTML = '';
         
-        setAdvanceGameStateButton('Videre', 'hidden');
+        setButton('advanceGameStateButton', 'Videre', 'hidden');
         firstTradeInterval();
         
     } else if (gameState === 'firstTradeInterval') {
@@ -565,12 +580,12 @@ function advanceGameStateButtonHasBeenClicked(event) {
             'Derefter kommer den øverste tavle i bunden, og du trykker Skan ligesom alle andre'
         );
 
-        setActionButton('Skan', 'active');
-        setAdvanceGameStateButton('Videre', 'hidden');
+        setButton('actionButton', 'Skan', 'active', 'green');
+        setButton('advanceGameStateButton', 'Videre', 'hidden');
         
     } else if (!coordinator && gameState === 'shareEndInfo') {
         gameState = 'towerOfPower';
-        setAdvanceGameStateButton('Videre', 'hidden');
+        setButton('advanceGameStateButton', 'Videre', 'hidden');
         clearQrCanvas();
         clearEndGameInfo();
         
@@ -578,8 +593,8 @@ function advanceGameStateButtonHasBeenClicked(event) {
             'Hold jeres tavler over hinanden med koordinatorens nederst og tryk "Skan" <br>' + 
             'Når den øverste tavle har modtaget manaen flyttes den til bunden af tårnet');
             
-        setActionButton('Skan', 'active');
-        setAdvanceGameStateButton('Videre', 'hidden');
+        setButton('actionButton', 'Skan', 'active', 'green');
+        setButton('advanceGameStateButton', 'Videre', 'hidden');
 
         // TODO: Implement a QR code being shown after the coordinators finalScore QR has been scanned
 
@@ -612,8 +627,8 @@ function firstTradeInterval() {
     gameState = 'firstTradeInterval';
     location.hash = '#firstTradeInterval';
 
-    setAdvanceGameStateButton('Videre', 'active');
-    setActionButton('Skan', 'hidden');
+    setButton('advanceGameStateButton', 'Videre', 'active', 'green');
+    setButton('actionButton', 'Skan', 'hidden');
     textNode = document.getElementById('firstTradeInfo');
     textNode.hidden = false;
     let paragraph = document.createElement("p");
@@ -770,45 +785,54 @@ function scanQRcode() {
 function stopScan() {
     if (html5Qrcode.getState() === 2) {  // 1 is not-scanning, 2 is scanning
         html5Qrcode.stop().then((ignore) => {
-            setActionButton('Skan', 'active');
+            setButton('actionButton', 'Skan', 'active', 'green');
             // document.getElementById('cancelScanButton').hidden = true;
             console.log('QR scanning stopped');
         }).catch((err) => {
             console.log('QR scanning did not stop for some reason');
         });
 
-        setActionButton('Skan', 'hidden');
+        setButton('actionButton', 'Skan', 'hidden');
     }
 }
 
-function setActionButton(text, state) {
-    let actionButton = document.getElementById('actionButton');
+function setButton(button, text, state, colour) {
+    let actionButton = document.getElementById(button);
     if (text != '') {
         actionButton.textContent = text;
     }
 
-    toggleButton(actionButton, state);
+    toggleButton(actionButton, state, colour);
 }
 
+// function setActionButton(text, state) {
+//     let actionButton = document.getElementById('actionButton');
+//     if (text != '') {
+//         actionButton.textContent = text;
+//     }
 
-function setInfoButton(text, state, colour) {
-    let infoButton = document.getElementById('infoButton');
-    if (text != '') {
-        infoButton.textContent = text;
-    }
-
-    toggleButton(infoButton, state, colour);
-}
+//     toggleButton(actionButton, state);
+// }
 
 
-function setAdvanceGameStateButton(text, state) {
-    let advanceGameStateButton = document.getElementById('advanceGameStateButton');
-    if (text != '') {
-        advanceGameStateButton.textContent = text;
-    }
+// function setInfoButton(text, state, colour) {
+//     let infoButton = document.getElementById('infoButton');
+//     if (text != '') {
+//         infoButton.textContent = text;
+//     }
 
-    toggleButton(advanceGameStateButton, state);
-}
+//     toggleButton(infoButton, state, colour);
+// }
+
+
+// function setAdvanceGameStateButton(text, state) {
+//     let advanceGameStateButton = document.getElementById('advanceGameStateButton');
+//     if (text != '') {
+//         advanceGameStateButton.textContent = text;
+//     }
+
+//     toggleButton(advanceGameStateButton, state);
+// }
 
 
 function toggleButton(button, state, colour) {
@@ -827,10 +851,10 @@ function toggleButton(button, state, colour) {
     } else if (state === 'hidden') {
         button.hidden = true;
         
-    } else if (state === 'obs') {
-        button.hidden = false;
+    // } else if (state === 'obs') {
+    //     button.hidden = false;
         
-        button.classList.add('obsButton');
+    //     button.classList.add('obsButton');  // Change colour to red
     } else {
         console.log('Wrong state statement for toggleButton');
     }
@@ -848,7 +872,7 @@ function heal() {
     if (9 < currentUser.localMana || 9 < currentUser.globalMana) {
         stopStopHealingTimeOut = setTimeout(stopHealing, 5000);
         document.getElementById('canvasQrShow').style.display = 'block';
-        setInfoButton('Stop Healing', 'obs');
+        setButton('action1Button', 'Stop Healing', 'active', 'red');
         healingDrainTimer = setInterval(whileHealing, 1000);
     } else {  // If there is no mana, the QR code should not be shown
         whileHealing();
@@ -877,7 +901,7 @@ function stopHealing() {
     document.getElementById('canvasQrShow').style.display = 'none';
     clearInterval(healingDrainTimer);
     clearInterval(stopStopHealingTimeOut);
-    setInfoButton('Heal', 'active');
+    setButton('action1Button', 'Heal', 'active', 'green');
 }
 
 
@@ -1050,8 +1074,8 @@ function roleHasBeenClicked(event) {
         if (coordinator) {
             id = 1000000;
             showTextDiv.innerHTML = '<h2> Skan de andre deltageres QR koder </h2> Og tryk så på <em>Videre</em>';
-            setActionButton('Skan', 'active');
-            setAdvanceGameStateButton('Videre', 'inactive');
+            setButton('actionButton', 'Skan', 'active', 'green');
+            setButton('advanceGameStateButton', 'Videre', 'inactive');
     
             gameState = 'shareRoleInfo';
             location.hash = '#gameMode';
@@ -1063,17 +1087,17 @@ function roleHasBeenClicked(event) {
             canvasQrShow.style.display = 'block';
             
             showTextDiv.innerHTML = '<h2> Lad tovholderen skanne din QR kode </h2> Og tryk så på <em>Videre</em>';
-            setActionButton('Skan', 'hidden');
+            setButton('actionButton', 'Skan', 'hidden');
     
             gameState = 'shareRoleInfo';
             location.hash = '#gameMode';
-            setAdvanceGameStateButton('Videre', 'active');
+            setButton('advanceGameStateButton', 'Videre', 'active', 'green');
         } else {
             clearQrCanvas()
         
             showTextDiv.innerHTML = '';
             
-            setAdvanceGameStateButton('Videre', 'hidden');
+            setButton('advanceGameStateButton', 'Videre', 'hidden');
 
             endRoundAt = (new Date(new Date().valueOf() + gameTime)).valueOf();
             location.hash = '#firstTradeInterval';
@@ -1112,7 +1136,7 @@ function beginRound() {
     document.getElementById('progressBarContainer').hidden = false;
     isRoundOverTimer = setInterval(isRoundOver, 1000);
 
-    setAdvanceGameStateButton('Videre', 'hidden');
+    setButton('advanceGameStateButton', 'Videre', 'hidden');
     document.getElementById('firstTradeInfo').innerHTML = '';
     document.getElementById('firstTradeResult').innerHTML = '';
     document.getElementById('showTextDiv').innerHTML = '';
@@ -1154,6 +1178,7 @@ function endGame() {
     document.getElementById('booster').hidden = true;
     document.getElementById('amulet').hidden = true;
     document.getElementById('infoButton').hidden = true;
+    document.getElementById('action1Button').hidden = true;
     document.getElementById('canvasStack').style.display = 'none';
     
     gameState = 'shareEndInfo';
@@ -1163,12 +1188,12 @@ function endGame() {
     
     if (coordinator) {
         showTextDiv.innerHTML = '<h2> Skan de andre deltageres QR koder </h2> Og tryk så på <em>Videre</em>';
-        setActionButton('Skan', 'active');
-        setAdvanceGameStateButton('Videre', 'inactive');  // ToDo: Add functionality to advancing the game state
+        setButton('actionButton', 'Skan', 'active', 'green');
+        setButton('advanceGameStateButton', 'Videre', 'inactive');  // ToDo: Add functionality to advancing the game state
     } else if (!solo) {
         document.getElementById('showTextDiv').hidden = true;  // Turn off old messages. Something of a hack...
-        setAdvanceGameStateButton('Videre', 'active');
-        setActionButton('Skan', 'hidden');
+        setButton('advanceGameStateButton', 'Videre', 'active', 'green');
+        setButton('actionButton', 'Skan', 'hidden');
         if (currentUser.localMana == 0) {
             currentUser.localMana = 10;
         }
@@ -1209,15 +1234,15 @@ async function showPattern(patternLenght){
         await timer(1000);
     }
     document.getElementById("canvasClockfaceOverlay").hidden = true
-    // setActionButton('Skan', 'active');
+    // setButton('actionButton', 'Skan', 'active', 'green');
     if (currentUser.showedPattern) {
         currentUser.localMana -= showPatternAgainCost;
         updateManaCounters(-showPatternAgainCost);
     } else {
         currentUser.showedPattern = true;
     }
-    setInfoButton('Vis Mønster', 'active', 'yellow');
-    setActionButton('Skan', 'active');
+    setButton('infoButton', 'Vis Mønster', 'active', 'yellow');
+    setButton('actionButton', 'Skan', 'active', 'green');
 }
 
 
@@ -1272,7 +1297,7 @@ function useQRcode(QrNumber) {
         
     } else if (coordinator && /M\dT\dG\d/.test(QrNumber[1])) {  // If game ID is scanned it implies that you are the coordinator...
         participantList.push(QrNumber);
-        setAdvanceGameStateButton('Videre', 'active');
+        setButton('advanceGameStateButton', 'Videre', 'active', 'green');
         
     } else if (QrNumber.pt == 'p') {
         // participantList = QrNumber.participantList;
@@ -1289,7 +1314,7 @@ function useQRcode(QrNumber) {
 
         // participantList = participantList.filter(item => item[0] !== QrNumber.id);  // This kills the coordinators participantlist, but it is backed up in currentUser.playerList
 
-        setAdvanceGameStateButton('Videre', 'active');
+        setButton('advanceGameStateButton', 'Videre', 'active', 'green');
 
     } else if (QrNumber.pt == 'f') {
         // Share the final mana
@@ -1358,9 +1383,10 @@ function showEndScreen() {
     if ((endGameAt < now) || solo) {
         stopScan();
         clearQrCanvas();
-        setActionButton('Skan', 'hidden');
-        setInfoButton('', 'hidden')
-        setAdvanceGameStateButton('Videre', 'active');
+        setButton('actionButton', 'Skan', 'hidden');
+        setButton('action1Button', 'Skan', 'hidden');
+        setButton('infoButton', '', 'hidden')
+        setButton('advanceGameStateButton', 'Videre', 'active', 'green');
         showText('<h3> Manaen er spredt! </h3> <br> <p> Game over </p>', false);  // False --> .hidden = false
         gameState = 'gameEnded';
         clearInterval(isGameOverTimer);

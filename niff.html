@@ -42,7 +42,7 @@
             <br><br><br>
 
         
-            <details> <summary class="frontpageSummary" tabindex="2"> Introduktion </summary> 
+            <details> <summary class="frontpageSummary" tabindex="1"> Introduktion </summary> 
                 <p> Feerne mangler mana </p>
                 <p> Jeres opgave er at samle mana fra verdener, der ikke bruger deres </p>
                 <p> Start med at sætte Portal-ankrene 1-12 (Se FAQ) op 
@@ -115,7 +115,7 @@
                 <br>
             </details>
             
-            <details> <summary class="frontpageSummary" tabindex="2">FAQ</summary>
+            <details> <summary class="frontpageSummary" tabindex="3">FAQ</summary>
 
                 <h5> Tovholder </h5>
                 <p> Tovholderens opgave er at koordinere, så ritualerne kan fungere </p>
@@ -158,10 +158,10 @@
             <br><br><br><br><br>
 
             <div id="startDiv">
-                <button id="start" tabindex="1"> Start </button> <br>
+                <button id="start" tabindex="4"> Start </button> <br>
                 <p>
-                    <span id="soloSpan"> <input type="checkbox" id="solo"> Solo </span>
-                    <span id="coordinatorSpan"> <input type="checkbox" id="coordinator"> Tovholder </span>
+                    <span id="soloSpan"> <input type="checkbox" id="solo" tabindex="5"> Solo </span>
+                    <span id="coordinatorSpan"> <input type="checkbox" id="coordinator" tabindex="6"> Tovholder </span>
                     <form id="timeChooseDiv" hidden>
                         Rundelængde <br>
                         <span><input type="radio" name="timeChooser" value="1">1 </span>
@@ -264,13 +264,6 @@
                     <canvas id="canvasClockfaceOverlay">Canvas here. If you can see this, the game is not playable on your device </canvas>
                 </div>
             </div>
-            
-            <!-- Contanier for interacting with game-states
-            <footer id="navigationContainer">
-                <button id="actionButton" type="button"></button>
-                <button id="infoButton" type="button" hidden></button>
-                <button id="advanceGameStateButton" type="button" hidden></button>
-            </footer> -->
         </div>
         
         <div id="firstTradeInterval">
@@ -284,6 +277,7 @@
         <!-- Contanier for interacting with game-states -->
         <footer id="navigationContainer" hidden>
             <button id="actionButton" type="button" hidden></button>
+            <button id="action1Button" type="button" hidden></button>
             <button id="infoButton" type="button" hidden></button>
             <button id="advanceGameStateButton" type="button" hidden></button>
         </footer>
