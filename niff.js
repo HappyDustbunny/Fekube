@@ -39,6 +39,7 @@ let solo = false;
 let currentUser = '';
 let endRoundAt = 0;
 let endGameAt = 0;
+let chordList = [];
 let gameMode = '';
 let gameState = 'chooseCoordinator';
 let participantList = [];
@@ -567,6 +568,7 @@ function advanceGameStateButtonHasBeenClicked(event) {
         let packet = new NiffDataPacket('f');
         packet.fm = currentUser.globalMana.toString();
         packet.pl = currentUser.playerList.filter(item => item[0] !== currentUser.id); // (p)articipant(l)ist
+        packet.n = 0;  // Set first chord number
         let QRcontent = JSON.stringify(packet);
 
         generateQRcode(QRcontent).append(canvasQrShow);
@@ -759,6 +761,12 @@ function setUpFunction() {
     document.getElementById('coordinator').checked = false;
 
     location.hash = '#intro';
+
+    let chord;
+    for (var i=0; i<10; i++) {
+        chord =  new Audio('qr-codes/chord' + i + '.wav');
+        chordList.push(chord);
+    }
 }
 
 
@@ -1318,8 +1326,11 @@ function useQRcode(QrNumber) {
 
     } else if (QrNumber.pt == 'f') {
         // Share the final mana
-        honk();
 
+        playChord(QrNumber.n);
+        QrNumber.n += 1;
+        QrNumber.n %= 10;
+        
         if (0 < QrNumber.pl.length) {  // First a round spreading the final score  // (p)articipant(l)ist
             currentUser.globalMana = QrNumber.fm;
             currentUser.localMana = 0;  // TODO: Move this to when the useres share their mana?
@@ -1371,6 +1382,11 @@ async function honk() {
 }
 
 
+function playChord(n) {
+    chordList[n].play();
+}
+
+
 function chime() {
     let sound = new Audio('qr-codes/chime-hall-reverb-soft-2_99bpm_G_minor.wav');
     sound.play();
@@ -1382,6 +1398,7 @@ function showEndScreen() {
     let now = new Date();
     if ((endGameAt < now) || solo) {
         stopScan();
+        clearInterval(isGameOverTimer);
         clearQrCanvas();
         setButton('actionButton', 'Skan', 'hidden');
         setButton('action1Button', 'Skan', 'hidden');
@@ -1389,7 +1406,6 @@ function showEndScreen() {
         setButton('advanceGameStateButton', 'Videre', 'active', 'green');
         showText('<h3> Manaen er spredt! </h3> <br> <p> Game over </p>', false);  // False --> .hidden = false
         gameState = 'gameEnded';
-        clearInterval(isGameOverTimer);
         chime();
     }
 }
