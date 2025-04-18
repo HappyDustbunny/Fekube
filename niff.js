@@ -171,7 +171,7 @@ class M2T1G1 extends NiffGame {  // Skan i rækkefølge
 }
 
 
-class M2T2G1 extends NiffGame {  // Indstil visere
+class M2T2G1 extends NiffGame {  // Indstil visere efter digitalur
     constructor() {
         super();
         this.gameMode = 'M2T2G1';
@@ -237,6 +237,105 @@ class M2T2G1 extends NiffGame {  // Indstil visere
             setTimeout(() => showTextDiv.innerHTML = oldText, 3000);
         }
     }
+}
+
+
+class M2T3G1 extends NiffGame {  // Indstil visere efter beskrivelse
+    constructor() {
+        super();
+        this.gameMode = 'M2T3G1';
+        this.firstGuess = true;
+        
+        let arrayLen = 20;
+        this.goalArray = [];
+        for (var i = 0; i < arrayLen; i++) {
+            let hour = Math.floor(Math.random() * 24);
+            let min = Math.floor(Math.random() * 12) * 5;
+            this.goalArray.push([hour, min]);
+        }
+        this.currentGoal = this.goalArray[this.currentGoalNumber];
+        
+        showTextDiv.hidden = false;
+        let colon = ':';
+        if (this.currentGoal[1] === 0 || this.currentGoal[1] === 5) {
+            colon = ':0';
+        }
+        showTextDiv.innerHTML = '<h2> Indstil viserne så de viser </h2><h3>' + 
+        timeParser(this.currentGoal[0], this.currentGoal[1]) + '</h3> <span> (Skan først det tal den ' + 
+        'lille viser skal pege på) </span>';
+
+        document.getElementById('canvasStack').style.display = 'block';
+        
+        drawClockHandOnOverlay(6, false, 12, false);  // Draw hands pointing to 6 and 12, not filled, as a placeholder/reminder
+        
+        setButton('actionButton', 'Skan', 'active', 'green');
+    }
+
+    applyQrCode(QrNumber) {
+        let num = Number(QrNumber);
+        var curGo = this.currentGoal;
+        if (this.firstGuess && (num === curGo[0] || num + 12 === curGo[0] || (num === 12 && curGo[0] === 0))) {
+            this.firstGuess = false;
+            this.smallHandNum = QrNumber;
+            drawClockHandOnOverlay(QrNumber, true, 12, false);
+        } else if (!this.firstGuess && (num * 5 === curGo[1] || (curGo[1] === 0 && num === 12))) {
+            drawClockHandOnOverlay(this.smallHandNum, true, QrNumber, true);
+            let newDelta = 100;
+            this.localMana += Number(newDelta);
+            updateManaCounters(newDelta);
+            document.getElementsByTagName('h3')[0].style.color = 'rgb(53, 219, 53)';
+            setButton('actionButton', 'Skan', 'inactive');  // Scanning the last digit multiple times shouldn't be possible
+            
+            setTimeout(() => {drawClockHandOnOverlay(6, false, 12, false)
+                this.updateGoal();
+                
+                let colon = ':';
+                var curGo = this.currentGoal;
+                if (curGo[1] === 0 || curGo[1] === 5) {
+                    colon = ':0';
+                }
+                showTextDiv.innerHTML = '<h2> Indstil viserne så de viser </h2><h3>' + timeParser(curGo[0], curGo[1])  + 
+                '</h3> <span> (Skan først det tal den lille viser skal pege på) </span>';
+                
+                this.firstGuess = true;
+                document.getElementsByTagName('h3')[0].style.color = 'black';
+                setButton('actionButton', 'Skan', 'active', 'green');
+            }, 3000);
+        } else {
+            let oldText = showTextDiv.innerHTML;
+            showTextDiv.innerHTML = '<h1> Prøv igen &#x1F642; </h1>';  // Smiley :-)
+            setTimeout(() => showTextDiv.innerHTML = oldText, 3000);
+        }
+    }
+}
+
+
+function timeParser(hour, min) {  // hour 0-12, min 0, 5, 10, ... , 55
+    // let hour = Math.floor(Math.random() * 12);
+    // let min = Math.floor(Math.random() * 12) * 5;
+    // console.log(hour + ':' + min)
+    hour %= 12;  // Bring 24 hour time back to Donald Duck time
+    
+    minStringList = [ '', 'fem minutter over ', 'ti minutter over ', 'kvart over ', 'tyve minutter over ',
+        'fem minutter i halv ', 'halv ', 'fem minutter over halv ', 'tyve minutter i ', 'kvart i ',
+        'ti minutter i ', 'fem minutter i ', '' ];
+
+    min = min / 5;
+
+    minString = minStringList[min];
+
+    nextHourList = [false, false, false, false, false, true, true, true, true, true, true, true, true, ];
+    if (nextHourList[min]) {
+        hour += 1;
+    }
+
+    hourStringList = ['tolv', 'et', 'to', 'tre', 'fire', 'fem', 'seks', 'syv', 'otte', 'ni', 'ti', 'elleve', 'tolv'];
+    hourString = hourStringList[hour];
+
+    let text = String(minString + hourString).charAt(0).toUpperCase() + String(minString + hourString).slice(1);
+
+    console.log(text);
+    return text;
 }
 
 
@@ -421,7 +520,8 @@ class M3T2G1 extends NiffGame {  //  Gentag mønster
 const gameModes = {
     'M1T1G1': M1T1G1,  // Healer
     'M2T1G1' : M2T1G1, // Skan i rækkefølge
-    'M2T2G1': M2T2G1,  // Indstil visere
+    'M2T2G1': M2T2G1,  // Indstil visere digital
+    'M2T3G1': M2T3G1,  // Indstil visere tekst
     //'M2T2G2': M2T2G2,  // Jæger
     'M3T1G1': M3T1G1,  // Skan løs
     'M3T1G2': M3T1G2,  // Følg det viste mønster
