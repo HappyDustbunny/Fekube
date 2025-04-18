@@ -82,13 +82,7 @@ let clockFaceCoor = { // Used for M3T1G1
 class NiffDataPacket {
     constructor(packetType) {
         this.pt = packetType;  // (p)articipants (s)core (f)inalMana
-        // this.participantList = [];
-        // this.participantListOriginalLength = 0;
         this.era = new Date().valueOf();  // EndRoundAt
-        // this.id = 0;
-        // this.score = 0;
-        // this.finalMana = 0;
-        // this.gameOver = false;
     }
 }
 
@@ -357,7 +351,8 @@ class M3T2G1 extends NiffGame {  //  Gentag mønster
 
         let arrayLen = 20;
         let startNum = 0;
-        let tempArray = Array.from({length: arrayLen},()=> startNum += Math.ceil(Math.random()*6) + 2);  // Avoid the same number twice and neighboring numbers by stepping 2 to 8 steps forward. The next function brings the numbers back into 1-12
+        let random = Math.abs(Math.sin(Date.now()));  // JS randomgenerator Math.random cannot be seeded...
+        let tempArray = Array.from({length: arrayLen},()=> startNum += Math.ceil(random * 6) + 2);  // Avoids the same number twice and neighboring numbers by stepping 2 to 8 steps forward. The next function brings the numbers back into 1-12
         let mod12 = (number) => number%12 + 1; // Plus 1 to avoid 12%12 = 0
         this.goalArray = tempArray.map(mod12);
         this.currentGoal = this.goalArray[this.currentGoalNumber];
@@ -437,8 +432,6 @@ const gameModes = {
 
 // Eventlisteners
 
-// document.getElementById('chooseGameMode').addEventListener('click', 
-//     function(event) { chooseGameModeHasBeenClicked(event); }, true);  // Normal/coordinator
 document.getElementById('start').addEventListener('click', startButtonHasBeenClicked);
 
 document.getElementById('solo').addEventListener('click', soloChecboxHasBeenChecked);
@@ -452,8 +445,6 @@ document.getElementById('actionButton').addEventListener('click', actionButtonHa
 document.getElementById('action1Button').addEventListener('click', action1ButtonHasBeenClicked);
 
 document.getElementById('infoButton').addEventListener('click', infoButtonHasBeenClicked);
-
-// document.getElementById('buyAmuletButton').addEventListener('click', buyAmuletButtonHasBeenClicked);
 
 document.getElementById('advanceGameStateButton').addEventListener('click', 
     advanceGameStateButtonHasBeenClicked);
@@ -472,14 +463,14 @@ async function actionButtonHasBeenClicked() {
                     document.getElementById('canvasQrShow').style.display = 'none';
                 }
                 setButton('actionButton', 'Stop Skan', 'active', 'red');
-                // TODO: Fix Vis mønster button getting inactive while scanning
-                // if (infoButton.classList.contains('activeButton')) {  
-                //     setButton('infoButton', infoButton.textContent , 'inactive')
-                // }
+                setButton('infoButton', infoButton.textContent , 'inactive');
                 scanQRcode();
                 break;
             case 'Stop Skan':
                 setButton('actionButton', 'Skan', 'active', 'green');
+                if (gameMode === 'M3T2G1') {
+                    setButton('infoButton', infoButton.textContent , 'active', 'yellow');
+                }
                 await timer(500); // Stopping a scan right after initiation confuses the scanner...
                 stopScan();
                 break;
@@ -804,60 +795,27 @@ function stopScan() {
     }
 }
 
+
 function setButton(button, text, state, colour) {
     let actionButton = document.getElementById(button);
     if (text != '') {
         actionButton.textContent = text;
     }
 
-    toggleButton(actionButton, state, colour);
-}
-
-// function setActionButton(text, state) {
-//     let actionButton = document.getElementById('actionButton');
-//     if (text != '') {
-//         actionButton.textContent = text;
-//     }
-
-//     toggleButton(actionButton, state);
-// }
-
-
-// function setInfoButton(text, state, colour) {
-//     let infoButton = document.getElementById('infoButton');
-//     if (text != '') {
-//         infoButton.textContent = text;
-//     }
-
-//     toggleButton(infoButton, state, colour);
-// }
-
-
-// function setAdvanceGameStateButton(text, state) {
-//     let advanceGameStateButton = document.getElementById('advanceGameStateButton');
-//     if (text != '') {
-//         advanceGameStateButton.textContent = text;
-//     }
-
-//     toggleButton(advanceGameStateButton, state);
-// }
-
-
-function toggleButton(button, state, colour) {
-    button.removeAttribute('class');
+    actionButton.removeAttribute('class');
 
     if (state === 'active') {
-        button.hidden = false;
-        button.classList.add('activeButton');
-        button.removeAttribute('disabled');
+        actionButton.hidden = false;
+        actionButton.classList.add('activeButton');
+        actionButton.removeAttribute('disabled');
         
     } else if (state === 'inactive') {
-        button.hidden = false;
-        button.classList.add('inactiveButton');
-        button.setAttribute('disabled', true);
+        actionButton.hidden = false;
+        actionButton.classList.add('inactiveButton');
+        actionButton.setAttribute('disabled', true);
         
     } else if (state === 'hidden') {
-        button.hidden = true;
+        actionButton.hidden = true;
         
     // } else if (state === 'obs') {
     //     button.hidden = false;
@@ -868,7 +826,7 @@ function toggleButton(button, state, colour) {
     }
 
     if (['yellow', 'red', 'green'].includes(colour)) {
-        button.classList.add(colour);
+        actionButton.classList.add(colour);
     }
 }
 
@@ -1047,28 +1005,17 @@ function coordinatorChecboxHasBeenChecked() {
 
 
 async function startButtonHasBeenClicked(event) {
-    // if (event.target.id === 'normal') {
-    //     localMana = 0;
-    // // } else if (event.target.id === 'buyAmulet') {
-    // //     localMana = -200;
-    // //     amulet = true;
-    // } else if (event.target.id === 'coordinator') {
-    //     coordinator = true;
-    // }
+    gameTime = 60000 * Number(document.querySelector('input[name="timeChooser"]:checked').value);
+    
     if (document.getElementById('coordinator').checked) {
         coordinator = true;
-        gameTime = 60000 * Number(document.querySelector('input[name="timeChooser"]:checked').value);
     } else if (document.getElementById('solo').checked) {
         solo = true;  // TODO: Implement solo-mode
     }
 
-
     gameState = 'selectRole';
     location.hash = '#selectRole';
-    // document.getElementById('intro').style.display = 'none';
-    // document.getElementById('selectRoleContainer').style.display = 'grid';
     await timer(600);
-    // document.getElementById('startInstruktion').hidden = false;
     document.getElementById('secondInstruction').style.visibility = 'visible';
 }
 
@@ -1121,7 +1068,6 @@ function isRoundOver() {
         endGame();
     } else {
         let progressValue = (endRoundAt - now) / gameTime * 100;
-        // document.getElementById('progressBar').setAttribute("value", "20");
         document.getElementById('progressBar').setAttribute("value", progressValue);
         if (progressValue < 30) {
             document.getElementById('progressBar').style.setProperty('--progressBarColour', 'gold');
@@ -1207,9 +1153,6 @@ function endGame() {
         }
 
         let packet = new NiffDataPacket('s');
-        // packet.id = currentUser.id;
-        // packet.participantList = currentUser.playerList;
-        // packet.participantListOriginalLength = currentUser.playerList.length;
         packet.sc = (Number(currentUser.globalMana) + Number(currentUser.localMana)).toString();  // (sc)ore
         let QRcontent = JSON.stringify(packet);
         poolMana();
@@ -1242,7 +1185,6 @@ async function showPattern(patternLenght){
         await timer(1000);
     }
     document.getElementById("canvasClockfaceOverlay").hidden = true
-    // setButton('actionButton', 'Skan', 'active', 'green');
     if (currentUser.showedPattern) {
         currentUser.localMana -= showPatternAgainCost;
         updateManaCounters(-showPatternAgainCost);
@@ -1268,10 +1210,6 @@ async function showError(number) {  // Blink number red two times
     document.getElementById("canvasClockfaceOverlay").hidden = true
 }
 
-
-// ToDo: Add functionality to advancegamestate after game ends for normal players
-// ToDo: Add functionality to advancegamestate after game ends for coordinators
-// ToDo: Make test routine for endgame
 
 function useQRcode(QrNumber) {
     let deStringify = () => {try {return JSON.parse(QrNumber);} catch {return QrNumber; }};
@@ -1308,7 +1246,6 @@ function useQRcode(QrNumber) {
         setButton('advanceGameStateButton', 'Videre', 'active', 'green');
         
     } else if (QrNumber.pt == 'p') {
-        // participantList = QrNumber.participantList;
         endRoundAt = (new Date(QrNumber.era)).valueOf();
         firstTradeInterval();
 
@@ -1348,8 +1285,6 @@ function useQRcode(QrNumber) {
             generateQRcode(QRcontent).append(canvasQrShow);
             canvasQrShow.style.display = 'block';
 
-            // generateQRcode(QRcontent).append(document.getElementById("canvasQrShow"));
-
         } else {
             clearQrCanvas();
             let QRcontent = JSON.stringify(QrNumber);
@@ -1357,9 +1292,6 @@ function useQRcode(QrNumber) {
             generateQRcode(QRcontent).append(canvasQrShow);
             canvasQrShow.style.display = 'block';
 
-            // generateQRcode(QRcontent).append(document.getElementById("canvasQrShow"));
-            // document.getElementById('canvasQrShow').style.display = 'block';
-            // ToDo: Play higher rising tone with each sharing
             endGameAt = (new Date(QrNumber.era)).valueOf();
             isGameOverTimer = setInterval(showEndScreen, 1000);
         }
@@ -1378,7 +1310,6 @@ function useQRcode(QrNumber) {
 async function honk() {
     let sound = new Audio('qr-codes/elephant-triumph-sfx-293300.mp3');
     sound.play();
-    // navigator.vibrate(200);  // Just to test it. Will not work in Firefox :-/ TODO: Seems to not work in Chrome
 }
 
 
