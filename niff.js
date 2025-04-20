@@ -33,7 +33,7 @@ let attackTimer = '';
 let whileAttackedTimer = '';                
 let amulet = false;
 let attackProbability = 0.001;
-let booster = false;
+let booster = 1.0;  // 100% 
 let coordinator = false;
 let solo = false;
 let currentUser = '';
@@ -43,6 +43,8 @@ let chordList = [];
 let gameMode = '';
 let gameState = 'chooseCoordinator';
 let participantList = [];
+let gameHasHealer = false;
+let gameHasHunter = false;
 let id = 0;
 let globalMana = 500;  // Start with some mana to heal attacked players
 let isVictim = 0;  // Change to 5 if player is attacked and needs healing. Is healed fully by Healer, but need a few scans of '0' to heal alone
@@ -83,6 +85,8 @@ class NiffDataPacket {
     constructor(packetType) {
         this.pt = packetType;  // (p)articipants (s)core (f)inalMana
         this.era = new Date().valueOf();  // EndRoundAt
+        this.he = false;  // Healer
+        this.hu = false;  // Hunter
     }
 }
 
@@ -94,12 +98,14 @@ class NiffGame {
         this.playerList = [];
         // this.healerParticipates = false;
         this.amulet = false;
-        this.booster = false;
+        this.booster = 1.0;
         this.coordinator = false;
         this.id = 0;
         this.goalArray = ['dummyGoal'];
         this.currentGoalNumber = 0; 
         this.currentGoal = this.goalArray[this.currentGoalNumber];
+        this.gameHasHealer = false;
+        this.gameHasHunter = false;
         }
         
         updateGoal () {
@@ -133,7 +139,7 @@ class M1T1G1 extends NiffGame {  // Healer
 
     async applyQrCode(QrNumber) {
         if (QrNumber === 'center') {
-            let newDelta = 10;
+            let newDelta = Math.floor(10 * booster);  // booster is a percentage boost. 10% boost makes booster = 1.1
             this.localMana += Number(newDelta);
             await updateManaCounters(newDelta); // Todo: Remove the Healers scan-button for 10 seconds after each scan?
             setButton('actionButton', 'Skan', 'inactive', 'green');
@@ -160,7 +166,7 @@ class M2T1G1 extends NiffGame {  // Skan i rækkefølge
     applyQrCode(QrNumber) {
         let newDelta = 0;
         if (Math.abs(this.lastScan - QrNumber) === 1) {
-            newDelta = 45;
+            newDelta = Math.floor(45 * booster);
         } else {
             newDelta = 1;
         }
@@ -210,7 +216,7 @@ class M2T2G1 extends NiffGame {  // Indstil visere efter digitalur
             drawClockHandOnOverlay(QrNumber, true, 12, false);
         } else if (!this.firstGuess && (num * 5 === curGo[1] || (curGo[1] === 0 && num === 12))) {
             drawClockHandOnOverlay(this.smallHandNum, true, QrNumber, true);
-            let newDelta = 100;
+            let newDelta = Math.floor(100 * booster);
             this.localMana += Number(newDelta);
             updateManaCounters(newDelta);
             document.getElementsByTagName('h3')[0].style.color = 'rgb(53, 219, 53)';
@@ -280,7 +286,7 @@ class M2T3G1 extends NiffGame {  // Indstil visere efter beskrivelse
             drawClockHandOnOverlay(QrNumber, true, 12, false);
         } else if (!this.firstGuess && (num * 5 === curGo[1] || (curGo[1] === 0 && num === 12))) {
             drawClockHandOnOverlay(this.smallHandNum, true, QrNumber, true);
-            let newDelta = 100;
+            let newDelta = Math.floor(100 * booster);
             this.localMana += Number(newDelta);
             updateManaCounters(newDelta);
             document.getElementsByTagName('h3')[0].style.color = 'rgb(53, 219, 53)';
@@ -360,6 +366,7 @@ class M3T1G1 extends NiffGame {  // Scan løs
         } else {
             newDelta = Math.round(5/10000 * ((clockFaceCoor[QrNumber][0] - clockFaceCoor[this.lastScan][0]) * (clockFaceCoor[QrNumber][0] - clockFaceCoor[this.lastScan][0]) + (clockFaceCoor[QrNumber][1] - clockFaceCoor[this.lastScan][1]) * (clockFaceCoor[QrNumber][1] - clockFaceCoor[this.lastScan][1])) + 1);
         }
+        newDelta = Math.floor(newDelta * booster);
         this.localMana += Number(newDelta);
         updateManaCounters(newDelta);
         this.lastScan = QrNumber;
@@ -391,7 +398,7 @@ class M3T1G2 extends NiffGame {  // Følg det viste mønster
 
     async applyQrCode(QrNumber) {
         if (Number(QrNumber) === this.currentGoal) {
-            let newDelta = 50;
+            let newDelta = Math.floor(50 * booster);
             this.localMana += Number(newDelta);
             updateManaCounters(newDelta);
             this.updateGoal();
@@ -428,7 +435,7 @@ class M3T1G3 extends NiffGame {  // Følg mønster efter tal
     
     async applyQrCode(QrNumber) {
         if (Number(QrNumber) === this.currentGoal) {
-            let newDelta = 50;
+            let newDelta = Math.floor(50 * booster);
             this.localMana += Number(newDelta);
             updateManaCounters(newDelta);
             this.updateGoal();
@@ -478,7 +485,7 @@ class M3T2G1 extends NiffGame {  //  Gentag mønster
                 this.updateGoal();
                 this.currentPatternPosition += 1;
             } else {
-                let newDelta = 50 * this.patternLenght;
+                let newDelta = Math.floor(50 * this.patternLenght * booster);
                 this.localMana += Number(newDelta);
                 updateManaCounters(newDelta);
                 
@@ -620,11 +627,14 @@ function advanceGameStateButtonHasBeenClicked(event) {
 
         participantList.push([id, gameMode]); // Add the coordinators id and gameMode
         
+        gameHasHealer = participantList.map(val => val[1]).includes('M1T1G1');  // Healer
+        gameHasHunter = participantList.map(val => val[1]).includes('M2T2G2');  // Hunter
+        
         let packet = new NiffDataPacket('p');
         endRoundAt = (new Date(new Date().valueOf() + gameTime)).valueOf();  // endRoundAt needs to be set here as a global variable
         packet.era = endRoundAt;
-        // packet.participantList = participantList;
-        // packet.participantListOriginalLength = participantList.length;
+        packet.he = gameHasHealer;
+        packet.hu = gameHasHunter;
         
         let gameData = JSON.stringify(packet);
         
@@ -729,55 +739,64 @@ function firstTradeInterval() {
         'kan der være magiske væsener der angriber dig\n');
     paragraph.appendChild(textContent);
     textNode.appendChild(paragraph);
-        
-    if (!participantList.includes('M2T2G2')) {  // Ingen jæger
-            if (participantList.includes('M1T1G1')) {  // Healer
-                if (gameMode === 'M1T1G1') {  // If you are the healer, skip buying amulets (It is a T1 and not necessary)
-                    beginRound();
-                } else {
-                    attackProbability *= 10;
-                    let paragraph = document.createElement("p");
-                    let textContent = document.createTextNode('Der er en healer på holdet. Find dem og ' +
-                        'skan deres tavle, hvis du bliver angrebet\n');
-                    paragraph.appendChild(textContent);
-                    textNode.appendChild(paragraph);
-                }
-                    
+
+    // if (!participantList.map(val => val[1]).includes('M2T2G2')) {  // Ingen jæger
+    if (!gameHasHunter) {  // Ingen jæger
+        // if (participantList.map(val => val[1]).includes('M1T1G1')) {  // Healer
+        if (gameHasHealer) {  // Healer
+            if (gameMode === 'M1T1G1') {  // If you are the healer, skip buying amulets (It is a T1 and not necessary)
+                beginRound();
             } else {
-                let paragraph1 = document.createElement("p");
-                let textContent1 = document.createTextNode('Hvis du bliver angrebet, kan du blive healet ved at ' +
-                    'skanne 0 flere gange\n');
-                paragraph1.appendChild(textContent1);
-                textNode.appendChild(paragraph1);
-            
-                let paragraph2 = document.createElement("p");
-                paragraph2.setAttribute('id', 'buyAmuletElement')
-                let textContent2 = document.createTextNode('Hvis du ikke kan lide tanken om at blive angrebet, ' +
-                    'kan du bruge lidt mana på at købe en amulet \u{1FAAC} der beskytter mod magiske væsener');
-                paragraph2.appendChild(textContent2);
-                let button1 = document.createElement('button');
-                button1.setAttribute('id', 'buyAmuletButton');
-                button1.innerText = ' Køb amulet \u{1FAAC} mod monstre for ' + manaPrice + ' mana ';
-                paragraph2.appendChild(button1);
-                textNode.appendChild(paragraph2);
-                // document.getElementById('buyAmuletButton').hidden = false;
-                document.getElementById('buyAmuletButton').addEventListener('click', buyAmuletButtonHasBeenClicked);
-                
-                let paragraph3 = document.createElement('p');
-                paragraph3.setAttribute('id', 'buyBoosterElement');
-                let textContent3 = document.createTextNode('Du kan også købe en amulet \u2728 så dine ritualer ' + 
-                    'samler mere mana ');
-                paragraph3.appendChild(textContent3);
-                let button2 = document.createElement('button');
-                button2.setAttribute('id', 'buyBoosterButton');
-                button2.innerText = ' Køb en amulet \u2728 der giver større manaudbytte for ' + boosterPrice + ' mana ';
-                paragraph3.appendChild(button2);
-                textNode.appendChild(paragraph3);
-                document.getElementById('buyBoosterButton').addEventListener('click', buyBoosterButtonHasBeenClicked);
+                attackProbability *= 10;
+                let paragraph = document.createElement("p");
+                let textContent = document.createTextNode('Der er en healer på holdet. Find dem og ' +
+                    'skan deres tavle, hvis du bliver angrebet\n');
+                paragraph.appendChild(textContent);
+                textNode.appendChild(paragraph);
             }
+                
         } else {
-            amulet = true;
-            let hunter1 = 'en jæger';
+            let paragraph1 = document.createElement("p");
+            let textContent1 = document.createTextNode('Hvis du bliver angrebet, kan du blive healet ved at ' +
+                'skanne 0 flere gange\n');
+            paragraph1.appendChild(textContent1);
+            textNode.appendChild(paragraph1);
+        
+            let paragraph2 = document.createElement("p");
+            paragraph2.setAttribute('id', 'buyAmuletElement')
+            let textContent2 = document.createTextNode('Hvis du ikke kan lide tanken om at blive angrebet, ' +
+                'kan du bruge lidt mana på at købe en amulet \u{1FAAC} der beskytter mod magiske væsener');
+            paragraph2.appendChild(textContent2);
+            let button1 = document.createElement('button');
+            button1.setAttribute('id', 'buyAmuletButton');
+            button1.innerText = ' Køb amulet \u{1FAAC} mod monstre for ' + manaPrice + ' mana ';
+            paragraph2.appendChild(button1);
+            textNode.appendChild(paragraph2);
+            // document.getElementById('buyAmuletButton').hidden = false;
+            document.getElementById('buyAmuletButton').addEventListener('click', buyAmuletButtonHasBeenClicked);
+            
+        }
+
+        let breakEl = document.createElement('br');
+        textNode.appendChild(breakEl);
+        let paragraph3 = document.createElement('p');
+        paragraph3.setAttribute('id', 'buyBoosterElement');
+        let word = 'også';
+        if (gameHasHealer) {
+            word = '';
+        }
+        let textContent3 = document.createTextNode('Du kan ' + word + ' købe en amulet \u2728 så dine ritualer ' + 
+            'samler mere mana ');
+        paragraph3.appendChild(textContent3);
+        let button2 = document.createElement('button');
+        button2.setAttribute('id', 'buyBoosterButton');
+        button2.innerText = ' Køb en amulet \u2728 der giver større manaudbytte for ' + boosterPrice + ' mana ';
+        paragraph3.appendChild(button2);
+        textNode.appendChild(paragraph3);
+        document.getElementById('buyBoosterButton').addEventListener('click', buyBoosterButtonHasBeenClicked);
+    } else {
+        amulet = true;
+        let hunter1 = 'en jæger';
         let hunter2 = 'en';
         if (1 < participantList.filter(elem => elem === 'M2T2G2').length) {
             hunter1 = 'jægere';
@@ -797,7 +816,7 @@ function firstTradeInterval() {
 
 
 function buyAmuletButtonHasBeenClicked() {
-    localMana -= manaPrice;
+    globalMana -= manaPrice;
     amulet = true;
     // document.getElementById('buyAmuletButton').hidden = true;
     
@@ -807,7 +826,7 @@ function buyAmuletButtonHasBeenClicked() {
     textNode.removeChild(document.getElementById('buyAmuletElement'));
     
     let textNode1 = document.getElementById('firstTradeResult');
-    if (!booster) {
+    if (booster === 1.0) {  // No booster
         let hr = document.createElement('hr');
         textNode1.appendChild(hr);
     }
@@ -820,8 +839,8 @@ function buyAmuletButtonHasBeenClicked() {
     
     
 function buyBoosterButtonHasBeenClicked() {
-    localMana -= boosterPrice;
-    booster = true;
+    globalMana -= boosterPrice;
+    booster = 1.1;  // From 100% to 110%
     // document.getElementById('buyBoosterButton').hidden = true;
     
     let textNode = document.getElementById('firstTradeInfo');
@@ -834,7 +853,7 @@ function buyBoosterButtonHasBeenClicked() {
         textNode1.appendChild(hr);
     }
     let paragraph = document.createElement("p");
-    let textContent = document.createTextNode('\u2022 Du har købt en amulet \u2728 der giver større ' +
+    let textContent = document.createTextNode('\u2022 Du har købt en amulet \u2728 der giver ' + Math.floor((booster - 1) * 100) + '% større ' +
         'manaudbytte');
     paragraph.appendChild(textContent);
     textNode1.appendChild(paragraph);
@@ -1206,14 +1225,16 @@ function beginRound() {
     currentUser.id = id;
     currentUser.globalMana = globalMana;
     currentUser.localMana = localMana;
-    currentUser.playerList = participantList;
+    // currentUser.playerList = participantList;  // Unnecessary as only the coordinator needs the playerlist
     currentUser.coordinator = coordinator;
+    currentUser.gameHasHealer = gameHasHealer;
+    currentUser.gameHasHunter = gameHasHunter;
     
     if (amulet) {
         document.getElementById('amulet').hidden = false;
         currentUser.amulet = amulet;
     }
-    if (booster) {
+    if (booster != 1.0) {
         document.getElementById('booster').hidden = false;
         currentUser.booster = booster;
     }
@@ -1345,11 +1366,13 @@ function useQRcode(QrNumber) {
         participantList.push(QrNumber);
         setButton('advanceGameStateButton', 'Videre', 'active', 'green');
         
-    } else if (QrNumber.pt == 'p') {
+    } else if (QrNumber.pt == 'p') {  // (p)articipants
         endRoundAt = (new Date(QrNumber.era)).valueOf();
+        gameHasHealer = QrNumber.he;
+        gameHasHunter = QrNumber.hu;
         firstTradeInterval();
 
-    } else if (coordinator && QrNumber.pt === 's') {
+    } else if (coordinator && QrNumber.pt === 's') {  // (s)core
         // TODO: Need a visual clue for adding coordinator mana to pool?
         currentUser.globalMana += currentUser.localMana;  // Add coordinators mana to pool.
         currentUser.localMana = 0;
@@ -1361,7 +1384,7 @@ function useQRcode(QrNumber) {
 
         setButton('advanceGameStateButton', 'Videre', 'active', 'green');
 
-    } else if (QrNumber.pt == 'f') {
+    } else if (QrNumber.pt == 'f') {  // (f)inalMana
         // Share the final mana
 
         playChord(QrNumber.n);
@@ -1882,6 +1905,7 @@ function scanCoordinator() {
 }
 
 function scanSeveralParticipants() {
+    useQRcode([10000, 'M1T1G1'])
     useQRcode([12345, 'M2T2G1'])
     useQRcode([56789, 'M3T2G1'])
     useQRcode([98765, 'M3T1G2'])
