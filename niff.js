@@ -399,17 +399,18 @@ class M2T3G2 extends NiffGame {    // Find ord
         this.gameMode = 'M2T3G2';
         this.wordCanHaveMoreCharacters = true;
 
-        this.wordIndex = Math.floor(Math.random() * 42);  // Length of anagramArray is 42
+        this.wordIndexes = shuffleArray(Array.from({length: 43}, (e, i) =>  i));  // Length of anagramArray is 42
+        this.wordIndex = this.wordIndexes.pop();
         this.currentMainWord = anagramArray[this.wordIndex][0];
         this.currentWord = '';
         this.wordList = [];
+        this.usedNumbers = [];
 
         showTextDiv.hidden = false;
         showTextDiv.innerHTML = '<h2> Find ord ud fra bogstaverne i </h2><h3>' + this.currentMainWord + '</h3>'
         + '<span>Skan QR-koden for hvert bogstav du vil bruge og afslut ordet ved at skanne \'0\' </span>';
 
-        // document.getElementById('canvasStack').style.display = 'block';
-        showWord(this.wordIndex);
+        showWord(this.currentMainWord);
         
         setButton('actionButton', 'Skan', 'active', 'green');
         console.log(this. currentMainWord);
@@ -417,21 +418,26 @@ class M2T3G2 extends NiffGame {    // Find ord
     
     applyQrCode(QrNumber) {
         if (QrNumber === 'center') {
-            document.getElementById('QrContainer').innerHTML += this.currentWord;
-            this.wordList.push(this.currentWord);
-            this.currentWord = '';
-            this.localMana += 50 * this.currentWord.length();
-            updateManaCounters();
-        } else {
-            this.currentWord += anagramArray[this.wordIndex][0][QrNumber - 1];
-            drawClockfaceOverlay(QrNumber, [0, 255, 0]);
-            if (1 < this.currentWord.length && !anagramArray[this.wordIndex][1].includes(this.currentWord)) {  // Not!
-                this.currentWord.slice(0, this.currentWord.length - 1);
+            if (!anagramArray[this.wordIndex][1].includes(this.currentWord)) {  // Not!
+                // this.currentWord.slice(0, this.currentWord.length - 1);
                 showMessage('Ordet er ikke i Niffs liste. Skan 0 for at afslutte ordet', 3);
                 drawClockfaceOverlay(QrNumber, [255, 0, 0]);
+            } else {
+                document.getElementById('QrContainer').innerHTML += this.currentWord;
+                this.wordList.push(this.currentWord);
+                this.currentWord = '';
+                this.localMana += 50 * this.currentWord.length();
+                updateManaCounters();
+                this.wordIndex = this.wordIndexes.pop();
+                this.currentMainWord = anagramArray[this.wordIndex][0];
+                showWord(this.currentMainWord);
+                this.usedNumbers = [];
             }
+        } else {
+            this.currentWord += anagramArray[this.wordIndex][0][QrNumber - 1];
+            this.usedNumbers.push(QrNumber);
+            drawClockfaceOverlay(this.usedNumbers, [0, 255, 0]);
         }
-        showWord(this.wordIndex);
     }
 }
 
@@ -478,7 +484,8 @@ class M3T1G2 extends NiffGame {  // Følg det viste mønster
         this.currentGoal = this.goalArray[this.currentGoalNumber];
 
         document.getElementById('canvasStack').style.display = 'block';
-        drawClockfaceOverlay(this.currentGoal, [0, 255, 0]);
+        drawClockface();
+        drawClockfaceOverlay([this.currentGoal], [0, 255, 0]);
 
         showTextDiv.hidden = false;
         showTextDiv.innerHTML = '<h2> Skan QR-koden med det grønne tal </h2> <span>' +
@@ -493,14 +500,16 @@ class M3T1G2 extends NiffGame {  // Følg det viste mønster
             this.localMana += Number(newDelta);
             updateManaCounters(newDelta);
             this.updateGoal();
-            drawClockfaceOverlay(this.currentGoal, [0, 255, 0]);
+            drawClockface();
+            drawClockfaceOverlay([this.currentGoal], [0, 255, 0]);
         } else {
             showError(QrNumber);
             await timer(1600);
             currentUser.localMana -= wrongPatternPrice;
             updateManaCounters(-wrongPatternPrice);
             await timer(300);
-            drawClockfaceOverlay(this.currentGoal, [0, 255, 0]);
+            drawClockface();
+            drawClockfaceOverlay([this.currentGoal], [0, 255, 0]);
         }
     }
 }
@@ -569,7 +578,8 @@ class M3T2G1 extends NiffGame {  //  Gentag mønster
     async applyQrCode(QrNumber) {
         let num = Number(QrNumber);
         if (num === this.goalArray[this.currentGoalNumber]) {
-            drawClockfaceOverlay(currentUser.goalArray[this.currentPatternPosition], [255, 255, 0]);
+            drawClockface();
+            drawClockfaceOverlay([currentUser.goalArray[this.currentPatternPosition]], [255, 255, 0]);
             await timer(1000);
             document.getElementById("canvasClockfaceOverlay").hidden = true;
             if (this.currentPatternPosition < this.patternLenght - 1) {
@@ -958,6 +968,7 @@ function setUpFunction() {
     document.getElementById('canvasQrShow').style.left = '' + -sizeFactor * winWidth / 2 + 'px';
     document.getElementById('canvasClockface').style.left = '' + -sizeFactor * winWidth / 2 + 'px';
     document.getElementById('canvasClockfaceOverlay').style.left = '' + -sizeFactor * winWidth / 2 + 'px';
+    document.getElementById('canvasClockfaceOverlay1').style.left = '' + -sizeFactor * winWidth / 2 + 'px';
 
     document.getElementById('solo').checked = false;
     document.getElementById('coordinator').checked = false;
@@ -971,6 +982,16 @@ function setUpFunction() {
     }
 }
 
+
+function shuffleArray(array) {
+    let len = array.length;
+    let j = 1;
+    for (var i = array.length - 1; 0 < i; i--) {
+        j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+}
 
 // ToDO: Change the non-functioning config parameter or incorporate the following line:
 // document.getElementsByTagName('video')[0].style.width = "" + sizeFactor * winWidth + "px";
@@ -1390,7 +1411,7 @@ function endGame() {
 }
 
 
-function showWord(wordIndex) {
+function showWord(currentMainWord) {
     drawClockface();
 
     document.getElementById('canvasStack').style.display = 'block';
@@ -1415,7 +1436,7 @@ function showWord(wordIndex) {
             drawArea.moveTo(xc + r, yc);  // Add radius to avoid drawing a horizontal radius
             drawArea.arc(xc, yc, r, 0, 2*pi);
             drawArea.stroke();
-            character = anagramArray[wordIndex][0][i - 1];
+            character = currentMainWord[i - 1];
             // if (i < 12) {
             // } else if (i == 12) {  // i is '12' so == is needed, not ===
             //     character = anagramArray[wordIndex][0][0];
@@ -1430,7 +1451,8 @@ async function showPattern(patternLenght){
     drawClockface();
     await timer(500);
     for (var i = 0; i < patternLenght; i++) {
-        drawClockfaceOverlay(currentUser.goalArray[i], [0, 255, 0]);
+        drawClockface();
+        drawClockfaceOverlay([currentUser.goalArray[i]], [0, 255, 0]);
         await timer(1000);
     }
     document.getElementById("canvasClockfaceOverlay").hidden = true
@@ -1448,13 +1470,17 @@ async function showPattern(patternLenght){
 async function showError(number) {  // Blink number red two times
     drawClockface();
     await timer(300);
-    drawClockfaceOverlay(number, [255, 0, 0]);
+    drawClockface();
+    drawClockfaceOverlay([number], [255, 0, 0]);
     await timer(300);
-    drawClockfaceOverlay(number, [255, 255, 255]);
+    drawClockface();
+    drawClockfaceOverlay([number], [255, 255, 255]);
     await timer(300);
-    drawClockfaceOverlay(number, [255, 0, 0]);
+    drawClockface();
+    drawClockfaceOverlay([number], [255, 0, 0]);
     await timer(300);
-    drawClockfaceOverlay(number, [255, 255, 255]);
+    drawClockface();
+    drawClockfaceOverlay([number], [255, 255, 255]);
     await timer(300);
     document.getElementById("canvasClockfaceOverlay").hidden = true
 }
@@ -1665,43 +1691,40 @@ function drawClockface() {
     }
 }
 
-function drawClockfaceOverlay(number, rgb) {
-    drawClockface();
-    // let red = 0;
-    // let green = 255;
-    // if (colour === 'red') {
-    //     red = 255;
-    //     green = 0;
-    // }
+function drawClockfaceOverlay(numbers, rgb) {  // numbers is an array with the numbers that should be painted
+    // drawClockface();  // <--- Moved before function call to make multiple drawings possible
+
     // Find and show ClockfaceOverlay
     document.getElementById('canvasStack').style.display = 'block';
-    let canvasClockfaceOverlay = document.getElementById("canvasClockfaceOverlay");
-    canvasClockfaceOverlay.hidden = false;
-    let drawArea = canvasClockfaceOverlay.getContext("2d");
-    canvasClockfaceOverlay.width = sizeFactor * winWidth;
-    canvasClockfaceOverlay.height = sizeFactor * winHeight;
+    let canvasClockfaceOverlay1 = document.getElementById("canvasClockfaceOverlay1");
+    canvasClockfaceOverlay1.hidden = false;
+    let drawArea = canvasClockfaceOverlay1.getContext("2d");
+    canvasClockfaceOverlay1.width = sizeFactor * winWidth;
+    canvasClockfaceOverlay1.height = sizeFactor * winHeight;
     drawArea.scale(zoomFactor, zoomFactor);
 
-    let r = 10;
-    let offset = 3;
-    if (number) {
-        let xc = Math.floor(clockFaceCoor[number][0]);
-        let yc = Math.floor(clockFaceCoor[number][1]);
-        const radgrad3 = drawArea.createRadialGradient(xc - 4, yc - 4, 1, xc, yc, r); // Red sphere
-        radgrad3.addColorStop(0, 'rgba(' + rgb[0] + ', ' + rgb[1] + ', ' + rgb[2] + ',.3)');
-        radgrad3.addColorStop(0.5, 'rgb(' + rgb[0] + ', ' + rgb[1] + ', ' + rgb[2] + ')');
-        radgrad3.addColorStop(0.9, 'rgb(' + rgb[0] + ', ' + rgb[1] + ', ' + rgb[2] + ')');
-        radgrad3.addColorStop(1, 'rgba(' + rgb[0] + ', ' + rgb[1] + ', ' + rgb[2] + ', 0)');
-        drawArea.fillStyle = radgrad3;
-        drawArea.fillRect(xc-r, yc -r, 2 * r, 2 * r)
-
-        // drawArea.moveTo(xc + r, yc);
-        // drawArea.arc(xc, yc, r, 0, 2*pi);
-        // drawArea.fillStyle = "red";
-        // drawArea.fill();
-        if (9 < Number(number)) {offset = 7}
-        drawArea.fillStyle = "black";
-        drawArea.fillText(number, xc - offset, yc + 3);
+    for (number of numbers) {
+        let r = 10;
+        let offset = 3;
+        if (number) {
+            let xc = Math.floor(clockFaceCoor[number][0]);
+            let yc = Math.floor(clockFaceCoor[number][1]);
+            const radgrad3 = drawArea.createRadialGradient(xc - 4, yc - 4, 1, xc, yc, r); // Red sphere
+            radgrad3.addColorStop(0, 'rgba(' + rgb[0] + ', ' + rgb[1] + ', ' + rgb[2] + ',.3)');
+            radgrad3.addColorStop(0.5, 'rgb(' + rgb[0] + ', ' + rgb[1] + ', ' + rgb[2] + ')');
+            radgrad3.addColorStop(0.9, 'rgb(' + rgb[0] + ', ' + rgb[1] + ', ' + rgb[2] + ')');
+            radgrad3.addColorStop(1, 'rgba(' + rgb[0] + ', ' + rgb[1] + ', ' + rgb[2] + ', 0)');
+            drawArea.fillStyle = radgrad3;
+            drawArea.fillRect(xc-r, yc -r, 2 * r, 2 * r)
+    
+            // drawArea.moveTo(xc + r, yc);
+            // drawArea.arc(xc, yc, r, 0, 2*pi);
+            // drawArea.fillStyle = "red";
+            // drawArea.fill();
+            if (9 < Number(number)) {offset = 7}
+            drawArea.fillStyle = "black";
+            drawArea.fillText(number, xc - offset, yc + 3);
+        }
     }
 }
 

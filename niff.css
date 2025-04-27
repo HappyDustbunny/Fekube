@@ -179,7 +179,8 @@ li {
 }
 
 #canvasClockface,
-#canvasClockfaceOverlay {
+#canvasClockfaceOverlay,
+#canvasClockfaceOverlay1 {
     position: absolute;
     left: -150px;
     /* width: 300px;
