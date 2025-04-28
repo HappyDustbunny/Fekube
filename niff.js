@@ -126,6 +126,8 @@ let anagramArray =[
     "ankom","dansk","koste","karen","narko","krone","koner","marie","metal","desto","tales","korte","knald","skred","modet","enorm","lorte","meldt","laser","troen","stone","kiste","latin","kalder","mindre","minder","landet","skolen","mister","kaldte","kaldet","stoler","ekstra","kaster","tanker","klaret","klatre","mindst","soldat","skridt","koster","sektor","tiders","samlet","smider","danser","andres","kaldes","listen","ordnet","normal","samler","skader","dertil","mordet","klient","midten","midnat","kilden","smadre","lander","merlin","tasken","sikret","island","skadet","drinks","smiler","kilder","midler","smarte","skride","danske","indser","iorden","enormt","aktier","stolen","marken","knalde","mindste","normalt","senator","stinker","kristen","radioen","maskine","monster","stormen","mirakel","normale","smadret","artikel","anmoder","landets","omsider","ankomst","diskret","lektion","soldater","reaktion","maskiner","mistanke","romantisk"]],
 ]
 
+let logicArray = [['lejemorder', 'hun', 'han', 'de'], [['mæt', 'sulten'], ['fed', 'tynd'], ['rask', 'syg'], ['langhåret', 'skaldet'], ['fuld', 'ædru']]]
+
 
 // Gamemodes below
 
@@ -420,7 +422,7 @@ class M2T3G2 extends NiffGame {    // Find ord
         if (QrNumber === 'center') {
             if (!anagramArray[this.wordIndex][1].includes(this.currentWord)) {  // Not!
                 // this.currentWord.slice(0, this.currentWord.length - 1);
-                showMessage('Ordet er ikke i Niffs liste. Skan 0 for at afslutte ordet', 3);
+                showMessage('Ordet er ikke i Niffs liste. Skan 0 for at afslutte ordet', 3000);
                 drawClockfaceOverlay(QrNumber, [255, 0, 0]);
             } else {
                 document.getElementById('QrContainer').innerHTML += this.currentWord;
@@ -611,6 +613,85 @@ class M3T2G1 extends NiffGame {  //  Gentag mønster
     }
 }
 
+
+class M3T3G1 extends NiffGame {  // Logik for viderekommende
+    constructor() {
+        super();
+        this.gameMode = 'M3T3G1';
+        this.answer = 0; // 1:Ja  2:Nej  3:Sludder
+
+        this.choseRiddle();
+
+        setButton('actionButton', 'Skan', 'active', 'green');
+
+    }
+
+    choseRiddle() {
+        showTextDiv.hidden = false;
+        showTextDiv.innerHTML = '<h2> Logik for viderekommende </h2> <span> Skan QR-koden<br>3 for ' 
+        + 'JA<br>7 for NEJ og<br>11 for SLUDDER </span><br><br>';
+        let cat = 0;
+        let pronoun = rand(3, 0);  // Not 0
+        this.answer = rand(3, 0);  // 1:Ja  2:Nej  3:Sludder
+        let antonym1, antonym2, antonym3, antonym4, antonymSet1, antonymSet2, antonymSet3, antonymSet4;
+        switch (this.answer) {
+            case 1:
+                [antonymSet1, antonymSet2, antonymSet3, antonymSet4] = returnMOutOf5(4);
+                [antonym1, antonym2, antonym3, antonym4] = [coinFlip(), coinFlip(), coinFlip(), coinFlip()];
+                console.log('Ja');
+                break
+            case 2:
+                if (coinFlip()) {
+                    [antonymSet1, antonymSet2, antonymSet4] = returnMOutOf5(3);
+                    antonymSet3 = antonymSet2;
+                    [antonym1, antonym2, antonym4] = [coinFlip(), coinFlip(), coinFlip()];
+                    antonym3 = 1 - antonym2;
+                } else {
+                    [antonymSet1, antonymSet2, antonymSet4] = returnMOutOf5(3);
+                    antonymSet3 = antonymSet1;
+                    [antonym1, antonym2, antonym4] = [coinFlip(), coinFlip(), coinFlip()];
+                    antonym3 = 1 - antonym1;
+                }
+                console.log('Nej');
+                break
+            case 3:
+                if (coinFlip()) {
+                    [antonymSet1, antonymSet2, antonymSet3] = returnMOutOf5(3);
+                    antonymSet4 = antonymSet1;
+                    [antonym1, antonym2, antonym3] = [coinFlip(), coinFlip(), coinFlip()];
+                    antonym4 = 1 - antonym1;
+                } else {
+                    [antonymSet1, antonymSet2, antonymSet3] = returnMOutOf5(3);
+                    antonymSet4 = antonymSet2;
+                    [antonym1, antonym2, antonym3] = [coinFlip(), coinFlip(), coinFlip()];
+                    antonym4 = 1 - antonym2;
+                }
+                console.log('Sludder');
+                break
+        }
+        showTextDiv.innerHTML += 'Kan en '+ logicArray[1][antonymSet1][antonym1] + ' ' + logicArray[cat][0] 
+        + ', der er ' + logicArray[1][antonymSet2][antonym2] + ', være '
+        + logicArray[1][antonymSet3][antonym3] + ', hvis ' + logicArray[cat][pronoun] 
+        + ' er ' + logicArray[1][antonymSet4][antonym4] + '?'
+    }
+
+    applyQrCode(QrNumber) {
+        if (Number(QrNumber) == 3 && this.answer == 1) {
+            this.localMana += 200;
+        } else if (Number(QrNumber) == 7 && this.answer == 2) {
+            this.localMana += 200;
+        } else if (Number(QrNumber) == 11 && this.answer == 3) {
+            this.localMana += 200;
+        } else if ([1, 2, 4, 5, 6, 8, 9, 10, 12].includes(Number(QrNumber))) {
+            showMessage('Kun QR-koderne 3, 7 og 11 kan bruges her', 3000)
+        } else {
+            showMessage('Forkert svar. Prøv igen :-)', 3000)
+        }
+        updateManaCounters();
+        this.choseRiddle();
+    }
+}
+
 // Game modes above
 
 
@@ -636,6 +717,7 @@ const gameModes = {
     'M3T1G2': M3T1G2,  // Følg det viste mønster
     'M3T1G3': M3T1G3,  // Følg mønster efter tal
     'M3T2G1': M3T2G1,  // Gentag mønster
+    'M3T3G1': M3T3G1,  // Logik for viderekommende
 }
 
 
@@ -825,6 +907,32 @@ function showText(innerHtmlMessage, show) {  // String, bool
     paragraph.innerHTML = innerHtmlMessage;
     showTextDiv.appendChild(paragraph);
     showTextDiv.hidden = show;
+}
+
+
+function rand(max, notThisNumber) {  // Returns a random number between 0 and max (incl), but not notThisNumber
+    let randomNumber = notThisNumber;
+    do {
+        randomNumber = Math.floor(Math.random() * max + 1);
+    } while(randomNumber === notThisNumber);
+    return randomNumber;
+}
+
+function returnMOutOf5(m) {
+    m -= 1;
+    let array = [0, 1, 2, 3, 4];
+    let newArray = [];
+    do {
+        let i = Math.floor(Math.random() * array.length);
+        newArray.push(array[i]);
+        array.splice(i, 1);
+    } while(m--);
+    return newArray;
+}
+
+
+function coinFlip() {
+    return Math.floor(Math.random() * 2);
 }
 
 
