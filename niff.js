@@ -126,7 +126,16 @@ let anagramArray =[
     "ankom","dansk","koste","karen","narko","krone","koner","marie","metal","desto","tales","korte","knald","skred","modet","enorm","lorte","meldt","laser","troen","stone","kiste","latin","kalder","mindre","minder","landet","skolen","mister","kaldte","kaldet","stoler","ekstra","kaster","tanker","klaret","klatre","mindst","soldat","skridt","koster","sektor","tiders","samlet","smider","danser","andres","kaldes","listen","ordnet","normal","samler","skader","dertil","mordet","klient","midten","midnat","kilden","smadre","lander","merlin","tasken","sikret","island","skadet","drinks","smiler","kilder","midler","smarte","skride","danske","indser","iorden","enormt","aktier","stolen","marken","knalde","mindste","normalt","senator","stinker","kristen","radioen","maskine","monster","stormen","mirakel","normale","smadret","artikel","anmoder","landets","omsider","ankomst","diskret","lektion","soldater","reaktion","maskiner","mistanke","romantisk"]],
 ]
 
-let logicArray = [['lejemorder', 'hun', 'han', 'de'], [['mæt', 'sulten'], ['fed', 'tynd'], ['rask', 'syg'], ['langhåret', 'skaldet'], ['fuld', 'ædru']]]
+let logicArray = [
+    [['lejemorder', 'hun', 'han', 'de'], [['mæt', 'sulten'], ['fed', 'tynd'], ['rask', 'syg'], ['langhåret', 'skaldet'], ['fuld', 'ædru']]],
+    [['astronaut', 'hun', 'han', 'de'], [['fjollet', 'alvorlig'], ['lang', 'kort'], ['ung', 'gammel'], ['glad', 'trist'], ['høflig', 'uhøflig']]],
+    [['sø', 'den', 'den', 'den'], [['forurenet', 'ren'], ['klar', 'uklar'], ['højtliggende', 'lavtliggende'], ['kold', 'varm'], ['nær', 'fjern']]],
+    [['vandpyt', 'den', 'den', 'den'], [['stor', 'lille'], ['rund', 'firkantet'], ['lavvandet', 'dyb'], ['frosset', 'tøet'], ['snavset', 'ren']]],
+    [['præst', 'hun', 'han', 'de'], [['fed', 'mager'], ['ædru', 'fuld'], ['ophidset', 'rolig'], ['grusom', 'rar'], ['løgnagtig', 'sanddru']]],
+    [['vase', 'den', 'den', 'den'], [['dyr', 'billig'], ['lav', 'høj'], ['solid', 'skrøbelig'], ['gammel', 'ny'], ['sjælden', 'almindelig']]],
+    // [['', 'hun', 'han', 'de'], [['', ''], ['', ''], ['', ''], ['', ''], ['', '']]],
+    [['politiker', 'hun', 'han', 'de'], [['ærlig', 'uærlig'], ['modig', 'fej'],  ['korthåret', 'langhåret'],['ekstrem', 'moderat'], ['skyldig', 'uskyldig']]]
+]
 
 
 // Gamemodes below
@@ -630,7 +639,7 @@ class M3T3G1 extends NiffGame {  // Logik for viderekommende
         showTextDiv.hidden = false;
         showTextDiv.innerHTML = '<h2> Logik for viderekommende </h2> <span> Skan QR-koden<br>3 for ' 
         + 'JA<br>7 for NEJ og<br>11 for SLUDDER </span><br><br>';
-        let cat = 0;
+        let cat = rand(logicArray.length, logicArray.length);
         let pronoun = rand(3, 0);  // Not 0
         this.answer = rand(3, 0);  // 1:Ja  2:Nej  3:Sludder
         let antonym1, antonym2, antonym3, antonym4, antonymSet1, antonymSet2, antonymSet3, antonymSet4;
@@ -669,10 +678,10 @@ class M3T3G1 extends NiffGame {  // Logik for viderekommende
                 console.log('Sludder');
                 break
         }
-        showTextDiv.innerHTML += '<h4 id="riddle">Kan en '+ logicArray[1][antonymSet1][antonym1] + ' ' + logicArray[cat][0] 
-        + ', der er ' + logicArray[1][antonymSet2][antonym2] + ', være '
-        + logicArray[1][antonymSet3][antonym3] + ', hvis ' + logicArray[cat][pronoun] 
-        + ' er ' + logicArray[1][antonymSet4][antonym4] + '?</h4>'
+        showTextDiv.innerHTML += '<h4 id="riddle">Kan en '+ logicArray[cat][1][antonymSet1][antonym1] + ' ' 
+        + logicArray[cat][0][0] + ', der er ' + logicArray[cat][1][antonymSet2][antonym2] + ', være '
+        + logicArray[cat][1][antonymSet3][antonym3] + ', hvis ' + logicArray[cat][0][pronoun] 
+        + ' er ' + logicArray[cat][1][antonymSet4][antonym4] + '?</h4>'
     }
 
     async applyQrCode(QrNumber) {
