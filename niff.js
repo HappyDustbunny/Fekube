@@ -669,25 +669,34 @@ class M3T3G1 extends NiffGame {  // Logik for viderekommende
                 console.log('Sludder');
                 break
         }
-        showTextDiv.innerHTML += 'Kan en '+ logicArray[1][antonymSet1][antonym1] + ' ' + logicArray[cat][0] 
+        showTextDiv.innerHTML += '<h4 id="riddle">Kan en '+ logicArray[1][antonymSet1][antonym1] + ' ' + logicArray[cat][0] 
         + ', der er ' + logicArray[1][antonymSet2][antonym2] + ', være '
         + logicArray[1][antonymSet3][antonym3] + ', hvis ' + logicArray[cat][pronoun] 
-        + ' er ' + logicArray[1][antonymSet4][antonym4] + '?'
+        + ' er ' + logicArray[1][antonymSet4][antonym4] + '?</h4>'
     }
 
-    applyQrCode(QrNumber) {
+    async applyQrCode(QrNumber) {
+        let newMana;
+        let riddle = document.getElementById('riddle');
         if (Number(QrNumber) == 3 && this.answer == 1) {
-            this.localMana += 200;
+            newMana = 200;
+            this.localMana += newMana;
+            riddle.hidden = true;
         } else if (Number(QrNumber) == 7 && this.answer == 2) {
-            this.localMana += 200;
+            newMana = 200;
+            this.localMana += newMana;
+            riddle.hidden = true;
         } else if (Number(QrNumber) == 11 && this.answer == 3) {
-            this.localMana += 200;
+            newMana = 200;
+            this.localMana += newMana;
+            riddle.hidden = true;
         } else if ([1, 2, 4, 5, 6, 8, 9, 10, 12].includes(Number(QrNumber))) {
             showMessage('Kun QR-koderne 3, 7 og 11 kan bruges her', 3000)
         } else {
-            showMessage('Forkert svar. Prøv igen :-)', 3000)
+            showMessage('Forkert svar. <br>Prøv et nyt spørgsmål :-)', 3000)
         }
-        updateManaCounters();
+        updateManaCounters(newMana);
+        await timer(3000);
         this.choseRiddle();
     }
 }
@@ -754,7 +763,9 @@ async function actionButtonHasBeenClicked() {
                     canvasQrShow.style.display = 'none';
                 }
                 setButton('actionButton', 'Stop Skan', 'active', 'red');
-                setButton('infoButton', infoButton.textContent , 'inactive');
+                if (gameMode === 'M3T2G1') {
+                    setButton('infoButton', infoButton.textContent , 'inactive');
+                }
                 scanQRcode();
                 break;
             case 'Stop Skan':
@@ -1212,7 +1223,7 @@ function stopHealing() {
 
 
 async function updateManaCounters(newMana) {
-    if (newMana) {
+    if (newMana) {   // Show animation only if a number is supplied
         let sign  = '';
         let showAddingManaP = document.getElementById('showAddingMana');
         if (0 <= newMana) {sign = '+';}

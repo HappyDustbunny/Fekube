@@ -41,6 +41,11 @@ h3 {
     margin: 0;
 }
 
+h4 {
+    font-size: x-large;
+    color: darkblue;
+}
+
 h5 {
     font-size: larger;
 }
