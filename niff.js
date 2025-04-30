@@ -686,27 +686,31 @@ class M3T3G1 extends NiffGame {  // Logik for viderekommende
 
     async applyQrCode(QrNumber) {
         let newMana;
-        let riddle = document.getElementById('riddle');
         if (Number(QrNumber) == 3 && this.answer == 1) {
-            newMana = 200;
-            this.localMana += newMana;
-            riddle.hidden = true;
+            this.addMana(200);
         } else if (Number(QrNumber) == 7 && this.answer == 2) {
-            newMana = 200;
-            this.localMana += newMana;
-            riddle.hidden = true;
+            this.addMana(200);
         } else if (Number(QrNumber) == 11 && this.answer == 3) {
-            newMana = 200;
-            this.localMana += newMana;
-            riddle.hidden = true;
+            this.addMana(200);
+        } else if (QrNumber === 'center') {
+            this.choseRiddle();
         } else if ([1, 2, 4, 5, 6, 8, 9, 10, 12].includes(Number(QrNumber))) {
             showMessage('Kun QR-koderne 3, 7 og 11 kan bruges her', 3000)
         } else {
             showMessage('Forkert svar. <br>Prøv et nyt spørgsmål :-)', 3000)
+            await timer(3000);
+            this.choseRiddle();
         }
+    }
+    
+    async addMana(newMana) {
+        let riddle = document.getElementById('riddle');
+        this.localMana += newMana;
+        riddle.hidden = true;
+        
         updateManaCounters(newMana);
-        await timer(3000);
-        this.choseRiddle();
+        await timer(1000);
+        showTextDiv.innerHTML = 'Skan 0 for det næste spørgsmål'
     }
 }
 
@@ -1623,7 +1627,7 @@ function useQRcode(QrNumber) {
         showTextDiv.hidden = true;
         messageDiv.innerHTML = '<p> Du er skadet og skal heales før du kan andet <br> Find en Healer eller scan 0 flere gange </p>'
     
-    } else if (QrNumber === 'center' && currentUser.gameMode === 'M1T1G1') { // The healer can scan 0 for mana
+    } else if (QrNumber === 'center' && ['M1T1G1', 'M3T3G1'].includes(currentUser.gameMode)) { // The healer can scan 0 for mana. Logic needs it for new riddle
         currentUser.applyQrCode(QrNumber);
 
     } else if (isVictim !== 0  && QrNumber === 'center') {  // Non-healers can scan 0 five times to get healed
