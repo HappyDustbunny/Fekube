@@ -288,6 +288,11 @@ progress::-webkit-progress-bar, progress::-moz-progress-bar {
     /* position: relative; */
 }
 
+#M1Buttons {
+    display: flex;
+    justify-content: space-around;
+}
+
 #showAddingMana {
     position: absolute;
     left: 50%;
