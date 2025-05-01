@@ -176,13 +176,13 @@ class NiffGame {
 }
 
 
-class Logic extends NiffGame {  // Logic framework
+class LogicEngine extends NiffGame {  // Logic framework
     constructor() {
         super();
         this.answer = 0; // 1:Ja  2:Nej  3:Sludder
     }
 
-    choseRiddle(activityLevel) {
+    choseRiddle(activityLevel, difficult) {  // acitvityLevel 1 or 3, difficult false or true
         showTextDiv.hidden = false;
         showTextDiv.innerHTML = '<h2> Logik for viderekommende </h2>';
 
@@ -201,38 +201,102 @@ class Logic extends NiffGame {  // Logic framework
                 console.log('Ja');
                 break
             case 2:
-                if (coinFlip()) {
-                    [antonymSet1, antonymSet2, antonymSet4] = returnMOutOf5(3);
-                    antonymSet3 = antonymSet2;
-                    [antonym1, antonym2, antonym4] = [coinFlip(), coinFlip(), coinFlip()];
-                    antonym3 = 1 - antonym2;
+                if (difficult) {
+                    if (coinFlip()) {
+                        [antonymSet1, antonymSet2, antonymSet4] = returnMOutOf5(3);
+                        antonymSet3 = antonymSet2;
+                        [antonym1, antonym2, antonym4] = [coinFlip(), coinFlip(), coinFlip()];
+                        antonym3 = 1 - antonym2;
+                    } else {
+                        [antonymSet1, antonymSet2, antonymSet4] = returnMOutOf5(3);
+                        antonymSet3 = antonymSet1;
+                        [antonym1, antonym2, antonym4] = [coinFlip(), coinFlip(), coinFlip()];
+                        antonym3 = 1 - antonym1;
+                    }
                 } else {
-                    [antonymSet1, antonymSet2, antonymSet4] = returnMOutOf5(3);
-                    antonymSet3 = antonymSet1;
-                    [antonym1, antonym2, antonym4] = [coinFlip(), coinFlip(), coinFlip()];
-                    antonym3 = 1 - antonym1;
+                    [antonymSet1, antonymSet3] = returnMOutOf5(2);
+                    antonymSet2 = antonymSet1;
+                    [antonym1, antonym2, antonym3] = [coinFlip(), coinFlip(), coinFlip()];
+                    antonym2 = 1 - antonym1;
                 }
                 console.log('Nej');
                 break
             case 3:
-                if (coinFlip()) {
-                    [antonymSet1, antonymSet2, antonymSet3] = returnMOutOf5(3);
-                    antonymSet4 = antonymSet1;
-                    [antonym1, antonym2, antonym3] = [coinFlip(), coinFlip(), coinFlip()];
-                    antonym4 = 1 - antonym1;
+                if (difficult) {
+                    if (coinFlip()) {
+                        [antonymSet1, antonymSet2, antonymSet3] = returnMOutOf5(3);
+                        antonymSet4 = antonymSet1;
+                        [antonym1, antonym2, antonym3] = [coinFlip(), coinFlip(), coinFlip()];
+                        antonym4 = 1 - antonym1;
+                    } else {
+                        [antonymSet1, antonymSet2, antonymSet3] = returnMOutOf5(3);
+                        antonymSet4 = antonymSet2;
+                        [antonym1, antonym2, antonym3] = [coinFlip(), coinFlip(), coinFlip()];
+                        antonym4 = 1 - antonym2;
+                    }
                 } else {
-                    [antonymSet1, antonymSet2, antonymSet3] = returnMOutOf5(3);
-                    antonymSet4 = antonymSet2;
+                    [antonymSet1, antonymSet2] = returnMOutOf5(2);
+                    antonymSet3 = antonymSet1;
                     [antonym1, antonym2, antonym3] = [coinFlip(), coinFlip(), coinFlip()];
-                    antonym4 = 1 - antonym2;
+                    antonym3 = 1 - antonym1;
                 }
                 console.log('Sludder');
                 break
         }
-        showTextDiv.innerHTML += '<h4 id="riddle">Kan en '+ logicArray[cat][1][antonymSet1][antonym1] + ' ' 
-        + logicArray[cat][0][0] + ', der er ' + logicArray[cat][1][antonymSet2][antonym2] + ', være '
-        + logicArray[cat][1][antonymSet3][antonym3] + ', hvis ' + logicArray[cat][0][pronoun] 
-        + ' er ' + logicArray[cat][1][antonymSet4][antonym4] + '?</h4>'
+        let riddle = '';
+        if (!difficult) {  // Basic logic
+            riddle = '<h4 id="riddle">Kan en ' + logicArray[cat][1][antonymSet1][antonym1] + ' ' 
+            + logicArray[cat][0][0]
+            + ', være ' + logicArray[cat][1][antonymSet2][antonym2] + ', hvis ' 
+            + logicArray[cat][0][pronoun] + ' er ' + logicArray[cat][1][antonymSet3][antonym3] + '?</h4>';
+        } else if (difficult) {  // Advanced logic
+            riddle = '<h4 id="riddle">Kan en '+ logicArray[cat][1][antonymSet1][antonym1] + ' ' 
+            + logicArray[cat][0][0] + ', der er ' + logicArray[cat][1][antonymSet2][antonym2]
+            + ', være ' + logicArray[cat][1][antonymSet3][antonym3] + ', hvis ' 
+            + logicArray[cat][0][pronoun] + ' er ' + logicArray[cat][1][antonymSet4][antonym4] + '?</h4>';
+        }
+        showTextDiv.innerHTML += riddle;
+    }
+}
+
+
+
+class LogicControlsLow extends LogicEngine {  // Controls for low activity Logic gamemodes
+    constructor() {
+        super();
+
+        setButton('M1Button1', 'Ja', 'active', 'green');
+        setButton('M1Button2', 'Sludder', 'active', 'yellow');
+        setButton('M1Button3', 'Nej', 'active', 'red');
+    }
+
+    async useAnswer(event) {
+        let answer = event.target.id;
+        let newMana = 200;
+        if (answer == 'M1Button1' && this.answer == 1) {
+            this.addMana(newMana);
+        } else if (answer == 'M1Button3' && this.answer == 2) {
+            this.addMana(newMana);
+        } else if (answer == 'M1Button2' && this.answer == 3) {
+            this.addMana(newMana);
+        } else {
+            showMessage('Forkert svar. <br>Prøv et nyt spørgsmål :-)', 3000)
+            await timer(3000);
+            this.choseARiddle();
+        }
+    }
+    
+    async addMana(newMana) {
+        let riddle = document.getElementById('riddle');
+        this.localMana += newMana;
+        let h4 = document.getElementById('riddle');
+        h4.style.color = 'cornflowerblue';
+        
+        updateManaCounters(newMana);
+        await timer(2000);
+        h4.style.color = 'darkblue';
+        riddle.hidden = true;
+        this.choseARiddle();
     }
 }
 
@@ -270,43 +334,29 @@ class M1T1G1 extends NiffGame {  // Healer
 }
 
 
-class M1T3G1 extends Logic {  // Logik for viderekommende, M1
+class M1T2G1 extends LogicControlsLow {  // Logik for begyndere, M1  T2
+    constructor() {
+        super();
+        this.gameMode = 'M1T2G1';
+
+        this.choseRiddle(1, 0);
+    }
+
+    choseARiddle() {
+        this. choseRiddle(1,0)
+    }
+}
+
+class M1T3G1 extends LogicControlsLow {  // Logik for viderekommende, M1
     constructor() {
         super();
         this.gameMode = 'M1T3G1';
 
-        this.choseRiddle(1);
-
-        setButton('M1Button1', 'Ja', 'active', 'green');
-        setButton('M1Button2', 'Sludder', 'active', 'yellow');
-        setButton('M1Button3', 'Nej', 'active', 'red');
+        this.choseRiddle(1, 1);
     }
 
-    async useAnswer(event) {
-        let answer = event.target.id;
-        let newMana = 200;
-        if (answer == 'M1Button1' && this.answer == 1) {
-            this.addMana(newMana);
-        } else if (answer == 'M1Button3' && this.answer == 2) {
-            this.addMana(newMana);
-        } else if (answer == 'M1Button2' && this.answer == 3) {
-            this.addMana(newMana);
-        } else {
-            console.log('Broken logic in class M1T3G1')
-        }
-    }
-    
-    async addMana(newMana) {
-        let riddle = document.getElementById('riddle');
-        this.localMana += newMana;
-        let h4 = document.getElementById('riddle');
-        h4.style.color = 'cornflowerblue';
-        
-        updateManaCounters(newMana);
-        await timer(2000);
-        h4.style.color = 'darkblue';
-        riddle.hidden = true;
-        this.choseRiddle();
+    choseARiddle() {
+        this. choseRiddle(1,1)
     }
 }
 
@@ -725,13 +775,10 @@ class M3T2G1 extends NiffGame {  //  Gentag mønster
 }
 
 
-class M3T3G1 extends Logic {  // Logik for viderekommende M3
+class LogicControlsHigh extends LogicEngine {   // Controls for high activity Logic gamemodes
     constructor() {
         super();
-        this.gameMode = 'M3T3G1';
-
-        this.choseRiddle(3);
-
+        
         setButton('actionButton', 'Skan', 'active', 'green');
     }
 
@@ -744,24 +791,55 @@ class M3T3G1 extends Logic {  // Logik for viderekommende M3
         } else if (Number(QrNumber) == 11 && this.answer == 3) {
             this.addMana(newMana);
         } else if (QrNumber === 'center') {
-            this.choseRiddle();
+            this.choseARiddle();
         } else if ([1, 2, 4, 5, 6, 8, 9, 10, 12].includes(Number(QrNumber))) {
             showMessage('Kun QR-koderne 3, 7 og 11 kan bruges her', 3000)
         } else {
             showMessage('Forkert svar. <br>Prøv et nyt spørgsmål :-)', 3000)
             await timer(3000);
-            this.choseRiddle(3);
+            this.choseARiddle();
         }
     }
     
-    async addMana(newMana) {
+    async addMana(newMana) {  // TODO: Move a class-level up?
         let riddle = document.getElementById('riddle');
         this.localMana += newMana;
-        riddle.hidden = true;
+        let h4 = document.getElementById('riddle');
+        h4.style.color = 'cornflowerblue';
         
         updateManaCounters(newMana);
-        await timer(1000);
+        await timer(2000);
+        h4.style.color = 'darkblue';
+        riddle.hidden = true;
         showTextDiv.innerHTML = 'Skan 0 for det næste spørgsmål'
+    }
+}
+
+
+class M3T2G2 extends LogicControlsHigh {  // Logik for viderekommende M3 T2
+    constructor() {
+        super();
+        this.gameMode = 'M3T2G2';
+        
+        this.choseRiddle(3, 0);        
+    }
+    
+    choseARiddle() {
+        this.choseRiddle(3, 0);
+    }
+}
+
+
+class M3T3G1 extends LogicControlsHigh {  // Logik for viderekommende M3 T3
+    constructor() {
+        super();
+        this.gameMode = 'M3T3G1';
+
+        this.choseRiddle(3, 1);        
+    }
+
+    choseARiddle() {
+        this.choseRiddle(3, 1);
     }
 }
 
@@ -770,9 +848,9 @@ class M3T3G1 extends Logic {  // Logik for viderekommende M3
 
 // class M1T1G1 extends NiffGame {  // 
 //     constructor() {
-//         super();
-//         this.gameMode = 'M1T1G1';
-
+    //         super();
+    //         this.gameMode = 'M1T1G1';
+    
 //     }
 
 //     applyQrCode(QrNumber) {
@@ -781,7 +859,8 @@ class M3T3G1 extends Logic {  // Logik for viderekommende M3
 
 const gameModes = {
     'M1T1G1': M1T1G1,  // Healer
-    'M1T3G1': M1T3G1,  // Healer
+    'M1T2G1': M1T2G1,  // Logik for begyndere
+    'M1T3G1': M1T3G1,  // Logik for viderekommende
     'M2T1G1' : M2T1G1, // Skan i rækkefølge
     'M2T2G1': M2T2G1,  // Indstil visere digital
     //'M2T2G2': M2T2G2,  // Jæger
@@ -791,6 +870,7 @@ const gameModes = {
     'M3T1G2': M3T1G2,  // Følg det viste mønster
     'M3T1G3': M3T1G3,  // Følg mønster efter tal
     'M3T2G1': M3T2G1,  // Gentag mønster
+    'M3T2G2': M3T2G2,  // Logik for begyndere
     'M3T3G1': M3T3G1,  // Logik for viderekommende
 }
 
@@ -1683,7 +1763,7 @@ function useQRcode(QrNumber) {
         showTextDiv.hidden = true;
         messageDiv.innerHTML = '<p> Du er skadet og skal heales før du kan andet <br> Find en Healer eller scan 0 flere gange </p>'
     
-    } else if (QrNumber === 'center' && ['M1T1G1', 'M3T3G1'].includes(currentUser.gameMode)) { // The healer can scan 0 for mana. Logic needs it for new riddle
+    } else if (QrNumber === 'center' && ['M1T1G1', 'M3T2G2', 'M3T3G1'].includes(currentUser.gameMode) && isVictim === 0) { // The healer can scan 0 for mana. Logic needs it for new riddle
         currentUser.applyQrCode(QrNumber);
 
     } else if (isVictim !== 0  && QrNumber === 'center') {  // Non-healers can scan 0 five times to get healed
