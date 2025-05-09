@@ -25,7 +25,7 @@ const config = {fps: 10, qrbox: {width: sizeFactor * winWidth, height: sizeFacto
 
 const messageDiv = document.getElementById('messageDiv');
 const showTextDiv = document.getElementById('showTextDiv');
-const canvasQrShow = document.getElementById("canvasQrShow");
+const canvasQrShow = document.getElementById('canvasQrShow');
 
 
 let gameTime = 2 * 60000;  // 2 minutes of game time
@@ -761,7 +761,7 @@ class M3T2G1 extends NiffGame {  //  Gentag mønster
             drawClockface();
             drawClockfaceOverlay([currentUser.goalArray[this.currentPatternPosition]], [255, 255, 0]);
             await timer(1000);
-            document.getElementById("canvasClockfaceOverlay").hidden = true;
+            document.getElementById('canvasClockfaceOverlay').hidden = true;
             if (this.currentPatternPosition < this.patternLenght - 1) {
                 this.updateGoal();
                 this.currentPatternPosition += 1;
@@ -1063,7 +1063,7 @@ function advanceGameStateButtonHasBeenClicked(event) {
         // TODO: Implement a QR code being shown after the coordinators finalScore QR has been scanned
 
         // if (currentUser.coordinator) {
-        //     generateQRcode("Thy shalst be healed!").append(document.getElementById("canvasQrShow"));
+        //     generateQRcode("Thy shalst be healed!").append(document.getElementById('canvasQrShow'));
         //     document.getElementById('canvasQrShow').style.display = 'block';
         // }
         
@@ -1704,8 +1704,8 @@ function showWord(currentMainWord) {
     drawClockface();
 
     document.getElementById('canvasStack').style.display = 'block';
-    let canvasClockfaceOverlay = document.getElementById("canvasClockfaceOverlay");
-    let canvasClockfaceOverlay1 = document.getElementById("canvasClockfaceOverlay1");  // Necessary to set size here
+    let canvasClockfaceOverlay = document.getElementById('canvasClockfaceOverlay');
+    let canvasClockfaceOverlay1 = document.getElementById('canvasClockfaceOverlay1');  // Necessary to set size here
     let drawArea = canvasClockfaceOverlay.getContext("2d");
     canvasClockfaceOverlay.hidden = false;
     canvasClockfaceOverlay.width = sizeFactor * winWidth;
@@ -1748,7 +1748,7 @@ async function showPattern(patternLenght){
         drawClockfaceOverlay([currentUser.goalArray[i]], [0, 255, 0]);
         await timer(1000);
     }
-    document.getElementById("canvasClockfaceOverlay1").hidden = true
+    document.getElementById('canvasClockfaceOverlay1').hidden = true
     if (currentUser.showedPattern) {
         currentUser.localMana -= showPatternAgainCost;
         updateManaCounters(-showPatternAgainCost);
@@ -1775,7 +1775,7 @@ async function showError(number) {  // Blink number red two times
     drawClockface();
     drawClockfaceOverlay([number], [255, 255, 255]);
     await timer(300);
-    document.getElementById("canvasClockfaceOverlay").hidden = true
+    document.getElementById('canvasClockfaceOverlay').hidden = true;
 }
 
 
@@ -1962,7 +1962,7 @@ function drawOnCameraOverlay() {  // TODO: Draw on qr-canvas instead? Gets rid o
 // Draw clockface    TODO: Make colour gradients instead of arcs
 function drawClockface() {
     // Find and show Clockface
-    let canvasClockface = document.getElementById("canvasClockface");
+    let canvasClockface = document.getElementById('canvasClockface');
     canvasClockface.hidden = false;
     let drawArea = canvasClockface.getContext("2d");
     canvasClockface.width = sizeFactor * winWidth;
@@ -1989,7 +1989,7 @@ function drawClockfaceOverlay(numbers, rgb) {  // numbers is an array with the n
 
     // Find and show ClockfaceOverlay
     document.getElementById('canvasStack').style.display = 'block';
-    let canvasClockfaceOverlay1 = document.getElementById("canvasClockfaceOverlay1");
+    let canvasClockfaceOverlay1 = document.getElementById('canvasClockfaceOverlay1');
     canvasClockfaceOverlay1.hidden = false;
     let drawArea = canvasClockfaceOverlay1.getContext("2d");
     canvasClockfaceOverlay1.width = sizeFactor * winWidth;
@@ -2029,7 +2029,7 @@ function drawClockHandOnOverlay(smallHandNum, sFill, bigHandNum, bFill) {
     drawClockface();
     // Find and show ClockfaceOverlay
     document.getElementById('canvasStack').style.display = 'block';
-    let canvasClockfaceOverlay = document.getElementById("canvasClockfaceOverlay");
+    let canvasClockfaceOverlay = document.getElementById('canvasClockfaceOverlay');
     canvasClockfaceOverlay.hidden = false;
     let drawArea = canvasClockfaceOverlay.getContext("2d");
     canvasClockfaceOverlay.width = sizeFactor * winWidth;
@@ -2139,7 +2139,7 @@ class NiffArc {
 
 function drawPuzzle(puzzle) {
     drawClockface();
-    let canvasClockfaceOverlay = document.getElementById("canvasClockfaceOverlay");
+    let canvasClockfaceOverlay = document.getElementById('canvasClockfaceOverlay');
     canvasClockfaceOverlay.hidden = false;
     let drawArea = canvasClockfaceOverlay.getContext("2d");
     canvasClockfaceOverlay.width = sizeFactor * winWidth;
@@ -2177,7 +2177,7 @@ function drawPuzzle(puzzle) {
 function drawArcOnOverlay(cx, cy, R, v1, v2, drawArea) {
     drawClockface();
     // Find and show ClockfaceOverlay
-    // let canvasClockfaceOverlay = document.getElementById("canvasClockfaceOverlay");
+    // let canvasClockfaceOverlay = document.getElementById('canvasClockfaceOverlay');
     // canvasClockfaceOverlay.hidden = false;
     // let drawArea = canvasClockfaceOverlay.getContext("2d");
     // canvasClockfaceOverlay.width = sizeFactor * winWidth;
