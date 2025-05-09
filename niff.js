@@ -408,8 +408,8 @@ class M2T2G1 extends NiffGame {  // Indstil visere efter digitalur
         if (this.currentGoal[1] === 0 || this.currentGoal[1] === 5) {
             colon = ':0';
         }
-        showTextDiv.innerHTML = '<h2> Indstil viserne så de viser </h2><h3>' + this.currentGoal[0] + colon +
-        this.currentGoal[1] + '</h3> <span> (Skan først det tal den lille viser skal pege på) </span>';
+        showTextDiv.innerHTML = '<h2> Flyt viserne så de viser </h2><h3>' + this.currentGoal[0] + colon +
+        this.currentGoal[1] + '</h3> <span> (Skan først det tal den lille viser skal pege på. <br> For 14:50 skan 2 og så 10) </span>';
 
         document.getElementById('canvasStack').style.display = 'block';
 
@@ -441,8 +441,8 @@ class M2T2G1 extends NiffGame {  // Indstil visere efter digitalur
                 if (curGo[1] === 0 || curGo[1] === 5) {
                     colon = ':0';
                 }
-                showTextDiv.innerHTML = '<h2> Indstil viserne så de viser </h2><h3>' + curGo[0] + colon 
-                + curGo[1] + '</h3> <span> (Skan først det tal den lille viser skal pege på) </span>';
+                showTextDiv.innerHTML = '<h2> Flyt viserne så de viser </h2><h3>' + curGo[0] + colon 
+                + curGo[1] + '</h3> <span> (Skan først det tal den lille viser skal pege på. <br> For 14:50 skan 2 og så 10) </span>';
 
                 this.firstGuess = true;
                 document.getElementsByTagName('h3')[0].style.color = 'black';
@@ -477,9 +477,9 @@ class M2T3G1 extends NiffGame {  // Indstil visere efter beskrivelse
         if (this.currentGoal[1] === 0 || this.currentGoal[1] === 5) {
             colon = ':0';
         }
-        showTextDiv.innerHTML = '<h2> Indstil viserne så de viser </h2><h3>' + 
+        showTextDiv.innerHTML = '<h2> Flyt viserne så de viser </h2><h3>' + 
         timeParser(this.currentGoal[0], this.currentGoal[1]) + '</h3> <span> (Skan først det tal den ' + 
-        'lille viser skal pege på) </span>';
+        'lille viser skal pege på. <br> For 14:50 skan 2 og så 10) </span>';
 
         document.getElementById('canvasStack').style.display = 'block';
         
@@ -511,8 +511,8 @@ class M2T3G1 extends NiffGame {  // Indstil visere efter beskrivelse
                 if (curGo[1] === 0 || curGo[1] === 5) {
                     colon = ':0';
                 }
-                showTextDiv.innerHTML = '<h2> Indstil viserne så de viser </h2><h3>' + timeParser(curGo[0], curGo[1])  + 
-                '</h3> <span> (Skan først det tal den lille viser skal pege på) </span>';
+                showTextDiv.innerHTML = '<h2> Flyt viserne så de viser </h2><h3>' + timeParser(curGo[0], curGo[1])  + 
+                '</h3> <span> (Skan først det tal den lille viser skal pege på. <br> For 14:50 skan 2 og så 10) </span>';
                 
                 this.firstGuess = true;
                 document.getElementsByTagName('h3')[0].style.color = 'black';
@@ -1254,6 +1254,10 @@ function setUpFunction() {
     document.getElementById('canvasClockface').style.left = '' + -sizeFactor * winWidth / 2 + 'px';
     document.getElementById('canvasClockfaceOverlay').style.left = '' + -sizeFactor * winWidth / 2 + 'px';
     document.getElementById('canvasClockfaceOverlay1').style.left = '' + -sizeFactor * winWidth / 2 + 'px';
+    document.getElementById('canvasClockfaceOverlay').width = sizeFactor * winWidth;
+    document.getElementById('canvasClockfaceOverlay').height = sizeFactor * winHeight;
+    document.getElementById('canvasClockfaceOverlay1').width = sizeFactor * winWidth;
+    document.getElementById('canvasClockfaceOverlay1').height = sizeFactor * winHeight;
 
     document.getElementById('solo').checked = false;
     document.getElementById('coordinator').checked = false;
@@ -1744,7 +1748,7 @@ async function showPattern(patternLenght){
         drawClockfaceOverlay([currentUser.goalArray[i]], [0, 255, 0]);
         await timer(1000);
     }
-    document.getElementById("canvasClockfaceOverlay").hidden = true
+    document.getElementById("canvasClockfaceOverlay1").hidden = true
     if (currentUser.showedPattern) {
         currentUser.localMana -= showPatternAgainCost;
         updateManaCounters(-showPatternAgainCost);
