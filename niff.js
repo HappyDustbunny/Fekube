@@ -742,8 +742,11 @@ class M3T2G1 extends NiffGame {  //  Gentag mønster
 
         let arrayLen = 20;
         let startNum = 0;
-        let random = Math.abs(Math.sin(Date.now()));  // JS randomgenerator Math.random cannot be seeded...
-        let tempArray = Array.from({length: arrayLen},()=> startNum += Math.ceil(random * 6) + 2);  // Avoids the same number twice and neighboring numbers by stepping 2 to 8 steps forward. The next function brings the numbers back into 1-12
+        // TODO: Fix randomness not being random
+        // myArray = new Uint32Array(10); 
+        // myArray = crypto.getRandomValues(myArray)
+        let random = () => Math.abs(Math.sin(Date.now()));  // JS randomgenerator Math.random cannot be seeded...
+        let tempArray = Array.from({length: arrayLen},()=> startNum += Math.ceil(random() * 6) + 2);  // Avoids the same number twice and neighboring numbers by stepping 2 to 8 steps forward. The next function brings the numbers back into 1-12
         let mod12 = (number) => number%12 + 1; // Plus 1 to avoid 12%12 = 0
         this.goalArray = tempArray.map(mod12);
         this.currentGoal = this.goalArray[this.currentGoalNumber];
@@ -814,6 +817,8 @@ class LogicControlsHigh extends LogicEngine {   // Controls for high activity Lo
             this.addMana(newMana);
         } else if (Number(QrNumber) == 11 && this.answer == 3) {
             this.addMana(newMana);
+        } else if ([3, 7, 11].includes(Number(QrNumber)) && this.answer == '')  {
+            showMessage('Skan 0 for næste spørgsmål', 2000)
         } else if (QrNumber === 'center') {
             this.choseARiddle();
         } else if ([1, 2, 4, 5, 6, 8, 9, 10, 12].includes(Number(QrNumber))) {
@@ -835,6 +840,7 @@ class LogicControlsHigh extends LogicEngine {   // Controls for high activity Lo
         await timer(2000);
         riddle.style.color = 'darkblue';
         riddle.hidden = true;
+        this.answer = '';
         showTextDiv.innerHTML = 'Skan 0 for det næste spørgsmål'
     }
 }
@@ -1999,8 +2005,8 @@ function drawClockfaceOverlay(numbers, rgb) {  // numbers is an array with the n
     let canvasClockfaceOverlay1 = document.getElementById('canvasClockfaceOverlay1');
     canvasClockfaceOverlay1.hidden = false;
     let drawArea = canvasClockfaceOverlay1.getContext("2d");
-    // canvasClockfaceOverlay1.width = sizeFactor * winWidth;
-    // canvasClockfaceOverlay1.height = sizeFactor * winHeight;
+    canvasClockfaceOverlay1.width = sizeFactor * winWidth;
+    canvasClockfaceOverlay1.height = sizeFactor * winHeight;
     drawArea.scale(zoomFactor, zoomFactor);
 
     if (numbers) {
