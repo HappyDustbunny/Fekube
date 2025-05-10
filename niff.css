@@ -426,9 +426,23 @@ progress::-webkit-progress-bar, progress::-moz-progress-bar {
     background-color: yellow;
 }
 
-/* .obsButton {
-    background-color: rgba(255, 0, 0, 0.7);
-} */
+#M1Button1 {
+    height: 30px;
+    width: 30px;
+    border-radius: 15px;
+}
+
+#M1Button2 {
+    height: 30px;
+    width: 65px;
+    border-radius: 15px;
+}
+
+#M1Button3 {
+    height: 30px;
+    width: 35px;
+    border-radius: 15px;
+}
 
 .score {
     font-size: large;

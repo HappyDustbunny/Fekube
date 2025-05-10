@@ -184,7 +184,9 @@ class LogicEngine extends NiffGame {  // Logic framework
 
     choseRiddle(activityLevel, difficult) {  // acitvityLevel 1 or 3, difficult false or true
         showTextDiv.hidden = false;
-        showTextDiv.innerHTML = '<h2> Logik for viderekommende </h2>';
+        let targetGroup = 'begyndere';
+        if (difficult) {targetGroup = 'viderekommende'}
+        showTextDiv.innerHTML = '<h2> Logik for ' + targetGroup + ' </h2>';
 
         if (activityLevel === 3) {
             showTextDiv.innerHTML += ' <span> Skan QR-koden<br>3 for ' 
@@ -273,6 +275,8 @@ class LogicControlsLow extends LogicEngine {  // Controls for low activity Logic
     async useAnswer(event) {
         let answer = event.target.id;
         let newMana = 200;
+        let allText = document.getElementById('showTextDiv');
+        let riddle = document.getElementById('riddle');
         if (answer == 'M1Button1' && this.answer == 1) {
             this.addMana(newMana);
         } else if (answer == 'M1Button3' && this.answer == 2) {
@@ -280,23 +284,24 @@ class LogicControlsLow extends LogicEngine {  // Controls for low activity Logic
         } else if (answer == 'M1Button2' && this.answer == 3) {
             this.addMana(newMana);
         } else {
-            showMessage('Forkert svar. <br>Prøv et nyt spørgsmål :-)', 3000)
+            riddle.style.color = 'darkorange';
+            showMessage(allText.innerHTML + 'Forkert svar. <br>Prøv et nyt spørgsmål :-) <br>', 3000);
             await timer(3000);
-            this.choseARiddle();
+            riddle.style.color = 'darkblue';
+            this.choseARiddle();  // choseARiddle, not choseRiddle
         }
     }
     
     async addMana(newMana) {
         let riddle = document.getElementById('riddle');
         this.localMana += newMana;
-        let h4 = document.getElementById('riddle');
-        h4.style.color = 'cornflowerblue';
+        riddle.style.color = 'cornflowerblue';
         
         updateManaCounters(newMana);
         await timer(2000);
-        h4.style.color = 'darkblue';
+        riddle.style.color = 'darkblue';
         riddle.hidden = true;
-        this.choseARiddle();
+        this.choseARiddle();  // choseARiddle, not choseRiddle
     }
 }
 
@@ -479,7 +484,7 @@ class M2T3G1 extends NiffGame {  // Indstil visere efter beskrivelse
         }
         showTextDiv.innerHTML = '<h2> Flyt viserne så de viser </h2><h3>' + 
         timeParser(this.currentGoal[0], this.currentGoal[1]) + '</h3> <span> (Skan først det tal den ' + 
-        'lille viser skal pege på. <br> For 14:50 skan 2 og så 10) </span>';
+        'lille viser skal pege på. <br> For KVART I SYV skan 6 og så 9) </span>';
 
         document.getElementById('canvasStack').style.display = 'block';
         
@@ -801,6 +806,8 @@ class LogicControlsHigh extends LogicEngine {   // Controls for high activity Lo
 
     async applyQrCode(QrNumber) {
         let newMana = 200;
+        let allText = document.getElementById('showTextDiv');
+        let riddle = document.getElementById('riddle');
         if (Number(QrNumber) == 3 && this.answer == 1) {
             this.addMana(newMana);
         } else if (Number(QrNumber) == 7 && this.answer == 2) {
@@ -812,21 +819,21 @@ class LogicControlsHigh extends LogicEngine {   // Controls for high activity Lo
         } else if ([1, 2, 4, 5, 6, 8, 9, 10, 12].includes(Number(QrNumber))) {
             showMessage('Kun QR-koderne 3, 7 og 11 kan bruges her', 3000)
         } else {
-            showMessage('Forkert svar. <br>Prøv et nyt spørgsmål :-)', 3000)
+            riddle.style.color = 'darkorange';
+            showMessage(allText.innerHTML + 'Forkert svar. <br>Prøv et nyt spørgsmål :-) <br>', 3000);
             await timer(3000);
-            this.choseARiddle();
+            this.choseARiddle();  // choseARiddle, not choseRiddle
         }
     }
     
     async addMana(newMana) {  // TODO: Move a class-level up?
         let riddle = document.getElementById('riddle');
         this.localMana += newMana;
-        let h4 = document.getElementById('riddle');
-        h4.style.color = 'cornflowerblue';
+        riddle.style.color = 'cornflowerblue';
         
         updateManaCounters(newMana);
         await timer(2000);
-        h4.style.color = 'darkblue';
+        riddle.style.color = 'darkblue';
         riddle.hidden = true;
         showTextDiv.innerHTML = 'Skan 0 for det næste spørgsmål'
     }
@@ -1992,8 +1999,8 @@ function drawClockfaceOverlay(numbers, rgb) {  // numbers is an array with the n
     let canvasClockfaceOverlay1 = document.getElementById('canvasClockfaceOverlay1');
     canvasClockfaceOverlay1.hidden = false;
     let drawArea = canvasClockfaceOverlay1.getContext("2d");
-    canvasClockfaceOverlay1.width = sizeFactor * winWidth;
-    canvasClockfaceOverlay1.height = sizeFactor * winHeight;
+    // canvasClockfaceOverlay1.width = sizeFactor * winWidth;
+    // canvasClockfaceOverlay1.height = sizeFactor * winHeight;
     drawArea.scale(zoomFactor, zoomFactor);
 
     if (numbers) {
