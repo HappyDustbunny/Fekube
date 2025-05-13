@@ -742,11 +742,11 @@ class M3T2G1 extends NiffGame {  //  Gentag mønster
 
         let arrayLen = 20;
         let startNum = 0;
-        // TODO: Fix randomness not being random
+        // TODO: Fix randomness not being random - IF it is really a problem??
         // myArray = new Uint32Array(10); 
         // myArray = crypto.getRandomValues(myArray)
-        let random = () => Math.abs(Math.sin(Date.now()));  // JS randomgenerator Math.random cannot be seeded...
-        let tempArray = Array.from({length: arrayLen},()=> startNum += Math.ceil(random() * 6) + 2);  // Avoids the same number twice and neighboring numbers by stepping 2 to 8 steps forward. The next function brings the numbers back into 1-12
+        // let random = () => Math.abs(Math.sin(Date.now()));  // JS randomgenerator Math.random cannot be seeded...
+        let tempArray = Array.from({length: arrayLen},()=> startNum += Math.ceil(Math.random() * 6) + 2);  // Avoids the same number twice and neighboring numbers by stepping 2 to 8 steps forward. The next function brings the numbers back into 1-12
         let mod12 = (number) => number%12 + 1; // Plus 1 to avoid 12%12 = 0
         this.goalArray = tempArray.map(mod12);
         this.currentGoal = this.goalArray[this.currentGoalNumber];
@@ -769,7 +769,7 @@ class M3T2G1 extends NiffGame {  //  Gentag mønster
             drawClockface();
             drawClockfaceOverlay([currentUser.goalArray[this.currentPatternPosition]], [255, 255, 0]);
             await timer(1000);
-            document.getElementById('canvasClockfaceOverlay').hidden = true;
+            document.getElementById('canvasClockfaceOverlay1').hidden = true;
             if (this.currentPatternPosition < this.patternLenght - 1) {
                 this.updateGoal();
                 this.currentPatternPosition += 1;
