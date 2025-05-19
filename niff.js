@@ -916,6 +916,7 @@ document.getElementById('coordinator').addEventListener('click', coordinatorChec
 document.getElementById('selectRoleContainer').addEventListener('click', 
     function(event) { roleHasBeenClicked(event); }, true);
 
+document.getElementById('goBackButton').addEventListener('click', goBackButtonHasBeenClicked);
 document.getElementById('actionButton').addEventListener('click', actionButtonHasBeenClicked);
 document.getElementById('action1Button').addEventListener('click', action1ButtonHasBeenClicked);
 
@@ -996,6 +997,7 @@ function advanceGameStateButtonHasBeenClicked(event) {
     if (coordinator && gameState === 'shareRoleInfo') {
         stopScan();
         
+        setButton('goBackButton', 'Tilbage', 'active', 'green');
         setButton('actionButton', 'Skan', 'hidden');
         setButton('advanceGameStateButton', 'Videre', 'active', 'green');
 
@@ -1025,6 +1027,7 @@ function advanceGameStateButtonHasBeenClicked(event) {
         showTextDiv.innerHTML = '<h2> Skan tovholderens QR kode </h2>';
         
         setButton('actionButton', 'Skan', 'active', 'green');
+        setButton('goBackButton', 'Tilbage', 'active', 'green');
         setButton('advanceGameStateButton', 'Videre', 'hidden');
         gameState = 'shareStartInfo';
         
@@ -1130,6 +1133,7 @@ function firstTradeInterval() {
     gameState = 'firstTradeInterval';
     location.hash = '#firstTradeInterval';
 
+    setButton('goBackButton', 'Tilbage', 'hidden');
     setButton('advanceGameStateButton', 'Videre', 'active', 'green');
     setButton('actionButton', 'Skan', 'hidden');
     textNode = document.getElementById('firstTradeInfo');
@@ -1561,26 +1565,9 @@ function roleHasBeenClicked(event) {
     if (gameMode !== '' && gameMode !== 'selectRoleContainer') {
         
         if (coordinator) {
-            id = 1000000;
-            showTextDiv.innerHTML = '<h2> Skan de andre deltageres QR koder </h2> Og tryk så på <em>Videre</em>';
-            setButton('actionButton', 'Skan', 'active', 'green');
-            setButton('advanceGameStateButton', 'Videre', 'inactive');
-    
-            gameState = 'shareRoleInfo';
-            location.hash = '#gameMode';
+            scanOthers();
         } else if (!solo) {
-            id = Math.floor(Math.random() * 1000000);
-            let QRcontent = JSON.stringify([id, gameMode]);
-            
-            generateQRcode(QRcontent).append(canvasQrShow);
-            canvasQrShow.style.display = 'block';
-            
-            showTextDiv.innerHTML = '<h2> Lad tovholderen skanne din QR kode </h2> Og tryk så på <em>Videre</em>';
-            setButton('actionButton', 'Skan', 'hidden');
-    
-            gameState = 'shareRoleInfo';
-            location.hash = '#gameMode';
-            setButton('advanceGameStateButton', 'Videre', 'active', 'green');
+            shareRole();
         } else {
             clearQrCanvas()
         
@@ -1592,6 +1579,50 @@ function roleHasBeenClicked(event) {
             location.hash = '#firstTradeInterval';
             firstTradeInterval();
         }
+    }
+}
+
+
+function scanOthers() {
+    clearQrCanvas();
+    id = 1000000;
+    showTextDiv.innerHTML = '<h2> Skan de andre deltageres QR koder </h2> Og tryk så på <em>Videre</em>';
+    setButton('goBackButton', 'Tilbage', 'hidden');
+    setButton('actionButton', 'Skan', 'active', 'green');
+    if (participantList.length == 0) {
+        setButton('advanceGameStateButton', 'Videre', 'inactive');
+    } else {
+        setButton('advanceGameStateButton', 'Videre', 'active', 'green');
+    }
+
+    gameState = 'shareRoleInfo';
+    location.hash = '#gameMode';
+}
+
+
+function shareRole() {
+    id = Math.floor(Math.random() * 1000000);
+    let QRcontent = JSON.stringify([id, gameMode]);
+    
+    generateQRcode(QRcontent).append(canvasQrShow);
+    canvasQrShow.style.display = 'block';
+    
+    showTextDiv.innerHTML = '<h2> Lad tovholderen skanne din QR kode </h2> Og tryk så på <em>Videre</em>';
+    setButton('actionButton', 'Skan', 'hidden');
+
+    gameState = 'shareRoleInfo';
+    location.hash = '#gameMode';
+
+    setButton('advanceGameStateButton', 'Videre', 'active', 'green');
+    setButton('goBackButton', 'Tilbage', 'hidden');
+}
+
+
+function goBackButtonHasBeenClicked() {
+    if (coordinator && gameState == 'shareStartInfo') {
+        scanOthers();
+    } else if (!solo && gameState == "shareStartInfo") {
+        shareRole();
     }
 }
 
