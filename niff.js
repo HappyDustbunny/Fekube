@@ -1043,6 +1043,7 @@ function advanceGameStateButtonHasBeenClicked(event) {
         beginRound();
         
     } else if (coordinator && gameState === 'shareEndInfo') {
+        gameState = 'towerOfPower';
         let packet = new NiffDataPacket('f');
         packet.fm = currentUser.globalMana.toString();
         packet.pl = currentUser.playerList.filter(item => item[0] !== currentUser.id); // (p)articipant(l)ist
@@ -1060,12 +1061,12 @@ function advanceGameStateButtonHasBeenClicked(event) {
             'Derefter kommer den øverste tavle i bunden, og du trykker Skan ligesom alle andre'
         );
 
+        setButton('goBackButton', 'Tilbage', 'active', 'green');
         setButton('actionButton', 'Skan', 'active', 'green');
         setButton('advanceGameStateButton', 'Videre', 'hidden');
         
     } else if (!coordinator && gameState === 'shareEndInfo') {
         gameState = 'towerOfPower';
-        setButton('advanceGameStateButton', 'Videre', 'hidden');
         clearQrCanvas();
         clearEndGameInfo();
         
@@ -1073,6 +1074,7 @@ function advanceGameStateButtonHasBeenClicked(event) {
             'Hold jeres tavler over hinanden med koordinatorens nederst og tryk "Skan" <br>' + 
             'Når den øverste tavle har modtaget manaen flyttes den til bunden af tårnet');
             
+        setButton('goBackButton', 'Tilbage', 'active', 'green');
         setButton('actionButton', 'Skan', 'active', 'green');
         setButton('advanceGameStateButton', 'Videre', 'hidden');
 
@@ -1278,6 +1280,8 @@ function setUpFunction() {
 
     document.getElementById('solo').checked = false;
     document.getElementById('coordinator').checked = false;
+
+    sessionStorage.finalManaPacket = 'empty';
 
     location.hash = '#intro';
 
@@ -1621,6 +1625,10 @@ function shareRole() {
 function goBackButtonHasBeenClicked() {
     if (coordinator && gameState == 'shareStartInfo') {
         scanOthers();
+    } else if (coordinator && gameState == "towerOfPower") {
+        collectFinalMana();
+    } else if (!solo && gameState == "towerOfPower") {
+        showFinalMana();
     } else if (!solo && gameState == "shareStartInfo") {
         shareRole();
     }
@@ -1708,31 +1716,9 @@ function endGame() {
     clearQrCanvas()
     
     if (coordinator) {
-        showTextDiv.innerHTML = '<h2> Skan de andre deltageres QR koder </h2> Og tryk så på <em>Videre</em>';
-        setButton('actionButton', 'Skan', 'active', 'green');
-        setButton('advanceGameStateButton', 'Videre', 'inactive');  // ToDo: Add functionality to advancing the game state
+        collectFinalMana();
     } else if (!solo) {
-        document.getElementById('showTextDiv').hidden = true;  // Turn off old messages. Something of a hack...
-        setButton('advanceGameStateButton', 'Videre', 'active', 'green');
-        setButton('actionButton', 'Skan', 'hidden');
-        if (currentUser.localMana == 0) {
-            currentUser.localMana = 10;
-        }
-
-        let packet = new NiffDataPacket('s');
-        packet.sc = (Number(currentUser.globalMana) + Number(currentUser.localMana)).toString();  // (sc)ore
-        let QRcontent = JSON.stringify(packet);
-        poolMana();
-
-        generateQRcode(QRcontent).append(canvasQrShow);
-        canvasQrShow.style.display = 'block';
-
-        textNode = document.getElementById('endGameInfo');
-        textNode.hidden = false;
-        let paragraph = document.createElement("p");
-        paragraph.innerHTML = 'Lad koordinatoren skanne din tavle for at ' + 
-            'samle holdets mana\n - og tryk så <em>Videre</em>';
-        textNode.appendChild(paragraph);
+        showFinalMana();
     } else {
         textNode = document.getElementById('showTextDiv');
         textNode.innerHTML = '';
@@ -1741,6 +1727,54 @@ function endGame() {
         paragraph.innerHTML = 'Skan 0 flere gange for at forstærke manaen og sende den ud over hele Niff';
         textNode.appendChild(paragraph);
     }
+}
+
+
+function collectFinalMana() {
+    clearQrCanvas()
+    showTextDiv.innerHTML = '<h2> Skan de andre deltageres QR koder for at samle deres mana </h2> Og tryk så på <em>Videre</em>';
+    setButton('goBackButton', 'Tilbage', 'hidden');
+    setButton('actionButton', 'Skan', 'active', 'green');
+    if (participantList.length == 0) {
+        setButton('advanceGameStateButton', 'Videre', 'inactive');
+    } else {
+        setButton('advanceGameStateButton', 'Videre', 'active', 'green');
+    }
+
+    gameState = 'shareEndInfo';
+}
+
+
+function showFinalMana() {
+    document.getElementById('showTextDiv').hidden = true;  // Turn off old messages. Something of a hack...
+    setButton('goBackButton', 'Tilbage', 'hidden');
+    setButton('advanceGameStateButton', 'Videre', 'active', 'green');
+    setButton('actionButton', 'Skan', 'hidden');
+    if (currentUser.localMana == 0) {
+        currentUser.localMana = 10;
+    }
+    
+    let packet = new NiffDataPacket('s');
+    if (sessionStorage.finalManaPacket == 'empty') {
+        packet.sc = (Number(currentUser.globalMana) + Number(currentUser.localMana)).toString();  // (sc)ore
+        sessionStorage.finalManaPacket = JSON.stringify(packet);
+    } else {
+        packet = sessionStorage.finalManaPacket;
+    }
+    let QRcontent = packet;
+    poolMana();
+    
+    generateQRcode(QRcontent).append(canvasQrShow);
+    canvasQrShow.style.display = 'block';
+    
+    textNode = document.getElementById('endGameInfo');
+    textNode.hidden = false;
+    let paragraph = document.createElement("p");
+    paragraph.innerHTML = 'Lad koordinatoren skanne din tavle for at ' + 
+    'samle holdets mana\n - og tryk så <em>Videre</em>';
+    textNode.appendChild(paragraph);
+
+    gameState = 'shareEndInfo';
 }
 
 
