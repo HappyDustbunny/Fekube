@@ -143,9 +143,9 @@ let logicArray = [
 class NiffDataPacket {
     constructor(packetType) {
         this.pt = packetType;  // (p)articipants (s)core (f)inalMana
-        this.era = new Date().valueOf();  // EndRoundAt
-        this.he = false;  // Healer
-        this.hu = false;  // Hunter
+        // this.era = new Date().valueOf();  // EndRoundAt
+        // this.he = false;  // Healer
+        // this.hu = false;  // Hunter
     }
 }
 
@@ -1009,8 +1009,8 @@ function advanceGameStateButtonHasBeenClicked(event) {
         let packet = new NiffDataPacket('p');
         endRoundAt = (new Date(new Date().valueOf() + gameTime)).valueOf();  // endRoundAt needs to be set here as a global variable
         packet.era = endRoundAt;
-        packet.he = gameHasHealer;
-        packet.hu = gameHasHunter;
+        if (gameHasHealer) {packet.he = 1};
+        if (gameHasHunter) {packet.hu = 1};
         
         let gameData = JSON.stringify(packet);
         
@@ -1045,7 +1045,7 @@ function advanceGameStateButtonHasBeenClicked(event) {
     } else if (coordinator && gameState === 'shareEndInfo') {
         gameState = 'towerOfPower';
         let packet = new NiffDataPacket('f');
-        packet.fm = currentUser.globalMana.toString();
+        packet.fm = currentUser.globalMana.toString();  // Final mana
         packet.pl = currentUser.playerList.filter(item => item[0] !== currentUser.id); // (p)articipant(l)ist
         packet.n = 0;  // Set first chord number
         let QRcontent = JSON.stringify(packet);
@@ -1758,10 +1758,8 @@ function showFinalMana() {
     if (sessionStorage.finalManaPacket == 'empty') {
         packet.sc = (Number(currentUser.globalMana) + Number(currentUser.localMana)).toString();  // (sc)ore
         sessionStorage.finalManaPacket = JSON.stringify(packet);
-    } else {
-        packet = sessionStorage.finalManaPacket;
     }
-    let QRcontent = packet;
+    let QRcontent = sessionStorage.finalManaPacket;  // Should be stringified above at creation
     poolMana();
     
     generateQRcode(QRcontent).append(canvasQrShow);
@@ -1893,8 +1891,8 @@ function useQRcode(QrNumber) {
         
     } else if (QrNumber.pt == 'p') {  // (p)articipants
         endRoundAt = (new Date(QrNumber.era)).valueOf();
-        gameHasHealer = QrNumber.he;
-        gameHasHunter = QrNumber.hu;
+        if (QrNumber.he == 1) {gameHasHealer = true};
+        if (QrNumber.hu == 1) {gameHasHunter = true};
         firstTradeInterval();
 
     } else if (coordinator && QrNumber.pt === 's') {  // (s)core
