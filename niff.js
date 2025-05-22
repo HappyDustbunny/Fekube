@@ -26,6 +26,7 @@ const config = {fps: 10, qrbox: {width: sizeFactor * winWidth, height: sizeFacto
 const messageDiv = document.getElementById('messageDiv');
 const showTextDiv = document.getElementById('showTextDiv');
 const canvasQrShow = document.getElementById('canvasQrShow');
+const infoButton = document.getElementById('infoButton');
 
 
 let gameTime = 2 * 60000;  // 2 minutes of game time
@@ -783,7 +784,7 @@ class M3T2G1 extends NiffGame {  //  Gentag mønster
                 this.patternLenght += 1;
                 this.showedPattern = false;
                 setButton('infoButton', 'Vis Mønster', 'active', 'green');
-                document.getElementById('infoButton').hidden = false;
+                // document.getElementById('infoButton').hidden = false;
                 setButton('actionButton', 'Skan', 'hidden');
             }
         } else {
@@ -979,7 +980,6 @@ async function actionButtonHasBeenClicked() {
     
     
     function infoButtonHasBeenClicked() {
-        let infoButton = document.getElementById('infoButton');
         if (!infoButton.classList.contains('inactiveButton')) {  // ! not
             switch(infoButton.textContent) {
                 case 'Vis Mønster':
@@ -1047,9 +1047,9 @@ function advanceGameStateButtonHasBeenClicked(event) {
         let packet = new NiffDataPacket('f');
         packet.fm = currentUser.globalMana.toString();  // Final mana
         // packet.pl = currentUser.playerList.filter(item => item[0] !== currentUser.id); // (p)articipant(l)ist
-        packet.i = 0;  // Set first chord number
+        packet.cn = 0;  // Set first chord number
         packet.k = 0;  // Set number of scans while boosting mana in the Tower of Power
-        packet.n = playerList.length + playerList.length * Math.floor(1 + Math.random() * 3);  // Set the number of scans to ending of game
+        packet.n = participantList.length + Math.floor(1 + Math.random() * participantList.length);  // Set the number of scans to ending of game
         let QRcontent = JSON.stringify(packet);
 
         generateQRcode(QRcontent).append(canvasQrShow);
@@ -1066,6 +1066,7 @@ function advanceGameStateButtonHasBeenClicked(event) {
         setButton('goBackButton', 'Tilbage', 'active', 'green');
         setButton('actionButton', 'Skan', 'active', 'green');
         setButton('advanceGameStateButton', 'Videre', 'hidden');
+        setButton('infoButton', infoButton.textContent , 'hidden');
         
     } else if (!coordinator && gameState === 'shareEndInfo') {
         gameState = 'towerOfPower';
@@ -1079,6 +1080,7 @@ function advanceGameStateButtonHasBeenClicked(event) {
         setButton('goBackButton', 'Tilbage', 'active', 'green');
         setButton('actionButton', 'Skan', 'active', 'green');
         setButton('advanceGameStateButton', 'Videre', 'hidden');
+        setButton('infoButton', infoButton.textContent , 'hidden');
 
         // TODO: Implement a QR code being shown after the coordinators finalScore QR has been scanned
 
@@ -1912,13 +1914,15 @@ function useQRcode(QrNumber) {
     } else if (QrNumber.pt == 'f') {  // (f)inalMana
         // Share the final mana
 
-        playChord(QrNumber.i);
-        QrNumber.i += 1;
-        QrNumber.i %= 10;
+        playChord(QrNumber.cn);
+        QrNumber.cn += 1;
+        QrNumber.cn %= 10;
 
         QrNumber.k += 1;
 
-        if (QrNumber.k < QrNumber.n) {
+        console.log(i, k);
+
+        if (QrNumber.n <= QrNumber.k) {
             clearQrCanvas();
             let QRcontent = JSON.stringify(QrNumber);
 
@@ -1986,19 +1990,19 @@ function chime() {
 
 
 function showEndScreen() {
-    let now = new Date();
-    if ((endGameAt < now) || solo) {
-        stopScan();
-        clearInterval(isGameOverTimer);
-        clearQrCanvas();
-        setButton('actionButton', 'Skan', 'hidden');
-        setButton('action1Button', 'Skan', 'hidden');
-        setButton('infoButton', '', 'hidden')
-        setButton('advanceGameStateButton', 'Videre', 'active', 'green');
-        showText('<h3> Manaen er spredt! </h3> <br> <p> Game over </p>', false);  // False --> .hidden = false
-        gameState = 'gameEnded';
-        chime();
-    }
+    // let now = new Date();
+    // if ((endGameAt < now) || solo) {
+    // }
+    stopScan();
+    clearInterval(isGameOverTimer);
+    clearQrCanvas();
+    setButton('actionButton', 'Skan', 'hidden');
+    setButton('action1Button', 'Skan', 'hidden');
+    setButton('infoButton', '', 'hidden')
+    setButton('advanceGameStateButton', 'Videre', 'active', 'green');
+    showText('<h3> Manaen er spredt! </h3> <br> <p> Game over </p>', false);  // False --> .hidden = false
+    gameState = 'gameEnded';
+    chime();
 }
 
 
@@ -2468,4 +2472,12 @@ function reload() {
 
 function videre() {
     document.getElementById('advanceGameStateButton').click();
+}
+
+function jumpToEndgame() {
+    videre(); scanCoordinator(); videre(); endGame();
+}
+
+function jumpToEndgameCoordinator() {
+    scanSeveralParticipants(); videre(); videre(); videre(); endGame();
 }
