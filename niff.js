@@ -1046,8 +1046,10 @@ function advanceGameStateButtonHasBeenClicked(event) {
         gameState = 'towerOfPower';
         let packet = new NiffDataPacket('f');
         packet.fm = currentUser.globalMana.toString();  // Final mana
-        packet.pl = currentUser.playerList.filter(item => item[0] !== currentUser.id); // (p)articipant(l)ist
-        packet.n = 0;  // Set first chord number
+        // packet.pl = currentUser.playerList.filter(item => item[0] !== currentUser.id); // (p)articipant(l)ist
+        packet.i = 0;  // Set first chord number
+        packet.k = 0;  // Set number of scans while boosting mana in the Tower of Power
+        packet.n = playerList.length + playerList.length * Math.floor(1 + Math.random() * 3);  // Set the number of scans to ending of game
         let QRcontent = JSON.stringify(packet);
 
         generateQRcode(QRcontent).append(canvasQrShow);
@@ -1910,37 +1912,49 @@ function useQRcode(QrNumber) {
     } else if (QrNumber.pt == 'f') {  // (f)inalMana
         // Share the final mana
 
-        playChord(QrNumber.n);
-        QrNumber.n += 1;
-        QrNumber.n %= 10;
-        
-        if (0 < QrNumber.pl.length) {  // First a round spreading the final score  // (p)articipant(l)ist
-            currentUser.globalMana = QrNumber.fm;
-            currentUser.localMana = 0;  // TODO: Move this to when the useres share their mana?
-            QrNumber.pl = QrNumber.pl.filter(item => item[0] !== currentUser.id); // (p)articipant(l)ist
-            clearQrCanvas();
-            
-            if ( QrNumber.pl.length === 0) {  // (p)articipant(l)ist
-                // QrNumber.gameOver = true;
-                endGameAt = (new Date(new Date().valueOf() + Math.random() * 45000 + 30000)).valueOf();  // endGameAt is a global variable that needs to be set
-                QrNumber.era = endGameAt;  // The NiffDataPacket's endRoundAt (era) is reused as endGameAt here. Bad practice?
-            }
+        playChord(QrNumber.i);
+        QrNumber.i += 1;
+        QrNumber.i %= 10;
 
+        QrNumber.k += 1;
+
+        if (QrNumber.k < QrNumber.n) {
+            clearQrCanvas();
             let QRcontent = JSON.stringify(QrNumber);
 
             generateQRcode(QRcontent).append(canvasQrShow);
             canvasQrShow.style.display = 'block';
-
         } else {
-            clearQrCanvas();
-            let QRcontent = JSON.stringify(QrNumber);
-
-            generateQRcode(QRcontent).append(canvasQrShow);
-            canvasQrShow.style.display = 'block';
-
-            endGameAt = (new Date(QrNumber.era)).valueOf();
-            isGameOverTimer = setInterval(showEndScreen, 1000);
+            showEndScreen();
         }
+        
+        // if (0 < QrNumber.pl.length) {  // First a round spreading the final score  // (p)articipant(l)ist
+        //     currentUser.globalMana = QrNumber.fm;
+        //     currentUser.localMana = 0;  // TODO: Move this to when the useres share their mana?
+        //     QrNumber.pl = QrNumber.pl.filter(item => item[0] !== currentUser.id); // (p)articipant(l)ist
+        //     clearQrCanvas();
+            
+        //     if ( QrNumber.pl.length === 0) {  // (p)articipant(l)ist
+        //         // QrNumber.gameOver = true;
+        //         endGameAt = (new Date(new Date().valueOf() + Math.random() * 45000 + 30000)).valueOf();  // endGameAt is a global variable that needs to be set
+        //         QrNumber.era = endGameAt;  // The NiffDataPacket's endRoundAt (era) is reused as endGameAt here. Bad practice?
+        //     }
+
+        //     let QRcontent = JSON.stringify(QrNumber);
+
+        //     generateQRcode(QRcontent).append(canvasQrShow);
+        //     canvasQrShow.style.display = 'block';
+
+        // } else {
+        //     clearQrCanvas();
+        //     let QRcontent = JSON.stringify(QrNumber);
+
+        //     generateQRcode(QRcontent).append(canvasQrShow);
+        //     canvasQrShow.style.display = 'block';
+
+        //     endGameAt = (new Date(QrNumber.era)).valueOf();
+        //     isGameOverTimer = setInterval(showEndScreen, 1000);
+        // }
 
     } else if (solo  && QrNumber === 'center') {
         soloEndScans -= 1;
