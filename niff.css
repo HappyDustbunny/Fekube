@@ -379,6 +379,7 @@ progress::-webkit-progress-bar, progress::-moz-progress-bar {
     position: absolute;
     bottom: 0px;
     width: 100%;
+    height: 55px;
     display: flex;
     grid-area: navCont;
     justify-content: center;

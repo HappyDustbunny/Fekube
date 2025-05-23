@@ -907,6 +907,9 @@ const gameModes = {
 
 
 // Eventlisteners
+const controller = new AbortController();
+const signal = controller.signal;
+window.addEventListener('beforeunload', function(event) { event.preventDefault(); }, {signal});
 
 document.getElementById('start').addEventListener('click', startButtonHasBeenClicked);
 
@@ -944,14 +947,14 @@ async function actionButtonHasBeenClicked() {
                     canvasQrShow.style.display = 'none';
                 }
                 setButton('actionButton', 'Stop Skan', 'active', 'red');
-                if (gameMode === 'M3T2G1') {
+                if (gameMode === 'M3T2G1' && gameState == 'firstRound') {
                     setButton('infoButton', infoButton.textContent , 'inactive');
                 }
                 scanQRcode();
                 break;
             case 'Stop Skan':
                 setButton('actionButton', 'Skan', 'active', 'green');
-                if (gameMode === 'M3T2G1') {
+                if (gameMode === 'M3T2G1' && gameState == 'firstRound') {
                     setButton('infoButton', infoButton.textContent , 'active', 'yellow');
                 }
                 await timer(500); // Stopping a scan right after initiation confuses the scanner...
@@ -1090,10 +1093,10 @@ function advanceGameStateButtonHasBeenClicked(event) {
         // }
         
     } else if (gameState === 'gameEnded') {
-        window.location.reload();
-    } else if (gameState === 'towerOfPower') {
-        // ToDo: Implement
-        
+        controller.abort();  // Removes the eventlistner on beforeUnload
+        window.location.replace(window.location.href);
+        // window.location.reload();
+
     } else {
         console.log('AdvanceGameStateButton clicked outside gameflow')
     }
@@ -1281,6 +1284,7 @@ function setUpFunction() {
     document.getElementById('canvasClockfaceOverlay').height = sizeFactor * winHeight;
     document.getElementById('canvasClockfaceOverlay1').width = sizeFactor * winWidth;
     document.getElementById('canvasClockfaceOverlay1').height = sizeFactor * winHeight;
+    document.getElementById('navigationContainer').style.display = 'none';
 
     document.getElementById('solo').checked = false;
     document.getElementById('coordinator').checked = false;
@@ -1330,8 +1334,9 @@ function scanQRcode() {
 function stopScan() {
     if (html5Qrcode.getState() === 2) {  // 1 is not-scanning, 2 is scanning
         html5Qrcode.stop().then((ignore) => {
-            setButton('actionButton', 'Skan', 'active', 'green');
-            // document.getElementById('cancelScanButton').hidden = true;
+            if (!gameState == 'gameEnded') {
+                setButton('actionButton', 'Skan', 'active', 'green');
+            }
             console.log('QR scanning stopped');
         }).catch((err) => {
             console.log('QR scanning did not stop for some reason');
@@ -1597,6 +1602,7 @@ function scanOthers() {
     showTextDiv.innerHTML = '<h2> Skan de andre deltageres QR koder </h2> Og tryk så på <em>Videre</em>';
     setButton('goBackButton', 'Tilbage', 'hidden');
     setButton('actionButton', 'Skan', 'active', 'green');
+    setButton('infoButton', '', 'hidden');
     if (participantList.length == 0) {
         setButton('advanceGameStateButton', 'Videre', 'inactive');
     } else {
@@ -1616,6 +1622,7 @@ function shareRole() {
     canvasQrShow.style.display = 'block';
     
     showTextDiv.innerHTML = '<h2> Lad tovholderen skanne din QR kode </h2> Og tryk så på <em>Videre</em>';
+    document.getElementById('navigationContainer').style.display = 'flex';
     setButton('actionButton', 'Skan', 'hidden');
 
     gameState = 'shareRoleInfo';
@@ -1708,6 +1715,9 @@ function endGame() {
     clearInterval(isRoundOverTimer);
     clearInterval(attackTimer);
     document.getElementById('progressBarContainer').hidden = true;
+    document.getElementById('canvasClockface').hidden = true;
+    document.getElementById('canvasClockfaceOverlay').hidden = true;
+    document.getElementById('canvasClockfaceOverlay1').hidden = true;
     document.getElementById('booster').hidden = true;
     document.getElementById('amulet').hidden = true;
     document.getElementById('infoButton').hidden = true;
@@ -1929,7 +1939,7 @@ function useQRcode(QrNumber) {
             generateQRcode(QRcontent).append(canvasQrShow);
             canvasQrShow.style.display = 'block';
         } else {
-            showEndScreen();
+            showEndScreen(true);
         }
         
         // if (0 < QrNumber.pl.length) {  // First a round spreading the final score  // (p)articipant(l)ist
@@ -1963,9 +1973,11 @@ function useQRcode(QrNumber) {
     } else if (solo  && QrNumber === 'center') {
         soloEndScans -= 1;
         if (soloEndScans < 1) {
-            showEndScreen();
+            showEndScreen(true);
         }
 
+    } else if (QrNumber === 'gameOver') {
+        showEndScreen(false);
     } else {
         showMessage('<p> Denne QR kode er dårlig magi! <br> Scan en anden </p>', 3000);
     }
@@ -1989,7 +2001,7 @@ function chime() {
 }
 
 
-function showEndScreen() {
+function showEndScreen(chimeNow) {
     // let now = new Date();
     // if ((endGameAt < now) || solo) {
     // }
@@ -1999,11 +2011,16 @@ function showEndScreen() {
     setButton('goBackButton', 'Tilbage', 'hidden');
     setButton('action1Button', 'Skan', 'hidden');
     setButton('actionButton', 'Skan', 'hidden');
-    setButton('infoButton', '', 'hidden')
-    setButton('advanceGameStateButton', 'Videre', 'active', 'green');
-    showText('<h3> Manaen er spredt! </h3> <br> <p> Game over </p>', false);  // False --> .hidden = false
+    setButton('infoButton', '', 'hidden');
+    setButton('advanceGameStateButton', 'Slut', 'active', 'green');
+    showText('<h3> Manaen er spredt! </h3> <br> <h3> Game over </h3>', false);  // False --> .hidden = false
     gameState = 'gameEnded';
-    chime();
+    if (chimeNow) {chime();}
+    
+    clearQrCanvas();
+    let QRcontent = 'gameOver';
+    generateQRcode(QRcontent).append(canvasQrShow);
+    canvasQrShow.style.display = 'block';
 }
 
 
