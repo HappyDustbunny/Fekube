@@ -997,7 +997,7 @@ function advanceGameStateButtonHasBeenClicked(event) {
     if (coordinator && gameState === 'shareRoleInfo') {
         stopScan();
         
-        setButton('goBackButton', 'Tilbage', 'active', 'green');
+        setButton('goBackButton', 'Tilbage', 'active', 'lightgreen');
         setButton('actionButton', 'Skan', 'hidden');
         setButton('advanceGameStateButton', 'Videre', 'active', 'green');
 
@@ -1027,7 +1027,7 @@ function advanceGameStateButtonHasBeenClicked(event) {
         showTextDiv.innerHTML = '<h2> Skan tovholderens QR kode </h2>';
         
         setButton('actionButton', 'Skan', 'active', 'green');
-        setButton('goBackButton', 'Tilbage', 'active', 'green');
+        setButton('goBackButton', 'Tilbage', 'active', 'lightgreen');
         setButton('advanceGameStateButton', 'Videre', 'hidden');
         gameState = 'shareStartInfo';
         
@@ -1063,7 +1063,7 @@ function advanceGameStateButtonHasBeenClicked(event) {
             'Derefter kommer den øverste tavle i bunden, og du trykker Skan ligesom alle andre'
         );
 
-        setButton('goBackButton', 'Tilbage', 'active', 'green');
+        setButton('goBackButton', 'Tilbage', 'active', 'lightgreen');
         setButton('actionButton', 'Skan', 'active', 'green');
         setButton('advanceGameStateButton', 'Videre', 'hidden');
         setButton('infoButton', infoButton.textContent , 'hidden');
@@ -1077,7 +1077,7 @@ function advanceGameStateButtonHasBeenClicked(event) {
             'Hold jeres tavler over hinanden med koordinatorens nederst og tryk "Skan" <br>' + 
             'Når den øverste tavle har modtaget manaen flyttes den til bunden af tårnet');
             
-        setButton('goBackButton', 'Tilbage', 'active', 'green');
+        setButton('goBackButton', 'Tilbage', 'active', 'lightgreen');
         setButton('actionButton', 'Skan', 'active', 'green');
         setButton('advanceGameStateButton', 'Videre', 'hidden');
         setButton('infoButton', infoButton.textContent , 'hidden');
@@ -1371,7 +1371,7 @@ function setButton(button, text, state, colour) {
         console.log('Wrong state statement for toggleButton');
     }
 
-    if (['yellow', 'red', 'green'].includes(colour)) {
+    if (['yellow', 'red', 'green', 'lightgreen'].includes(colour)) {
         actionButton.classList.add(colour);
     }
 }
@@ -1920,9 +1920,9 @@ function useQRcode(QrNumber) {
 
         QrNumber.k += 1;
 
-        console.log(i, k);
+        console.log(QrNumber.k, QrNumber.n);
 
-        if (QrNumber.n <= QrNumber.k) {
+        if (QrNumber.k <= QrNumber.n) {
             clearQrCanvas();
             let QRcontent = JSON.stringify(QrNumber);
 
@@ -1993,11 +1993,12 @@ function showEndScreen() {
     // let now = new Date();
     // if ((endGameAt < now) || solo) {
     // }
-    stopScan();
+    // stopScan();
     clearInterval(isGameOverTimer);
     clearQrCanvas();
-    setButton('actionButton', 'Skan', 'hidden');
+    setButton('goBackButton', 'Tilbage', 'hidden');
     setButton('action1Button', 'Skan', 'hidden');
+    setButton('actionButton', 'Skan', 'hidden');
     setButton('infoButton', '', 'hidden')
     setButton('advanceGameStateButton', 'Videre', 'active', 'green');
     showText('<h3> Manaen er spredt! </h3> <br> <p> Game over </p>', false);  // False --> .hidden = false

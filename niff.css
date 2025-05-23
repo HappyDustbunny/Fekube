@@ -426,6 +426,10 @@ progress::-webkit-progress-bar, progress::-moz-progress-bar {
     background-color: yellow;
 }
 
+.lightgreen {
+    background-color: rgba(127, 255, 0, 0.05);
+}
+
 #M1Button1 {
     height: 30px;
     width: 30px;
