@@ -960,13 +960,13 @@ async function actionButtonHasBeenClicked() {
                 await timer(500); // Stopping a scan right after initiation confuses the scanner...
                 stopScan();
                 break;
-            }
         }
     }
+}
 
 
-    async function action1ButtonHasBeenClicked() {
-    let actionButton = document.getElementById('action1Button'); 
+async function action1ButtonHasBeenClicked() {
+let actionButton = document.getElementById('action1Button'); 
     if (!actionButton.classList.contains('inactiveButton')) { // ! not
         switch(actionButton.textContent) {
             case 'Heal':
@@ -977,19 +977,19 @@ async function actionButtonHasBeenClicked() {
                 stopHealing();
                 setButton('action1Button', 'Heal', 'active', 'green');
                 break;
-            }
         }
     }
-    
-    
-    function infoButtonHasBeenClicked() {
-        if (!infoButton.classList.contains('inactiveButton')) {  // ! not
-            switch(infoButton.textContent) {
-                case 'Vis Mønster':
-                    setButton('infoButton', 'Vis Mønster', 'inactive');
-                    setButton('actionButton', 'Skan', 'inactive');
-                    showPattern(currentUser.patternLenght);
-            }
+}
+
+
+function infoButtonHasBeenClicked() {
+    if (!infoButton.classList.contains('inactiveButton')) {  // ! not
+        switch(infoButton.textContent) {
+            case 'Vis Mønster':
+                setButton('infoButton', 'Vis Mønster', 'inactive');
+                setButton('actionButton', 'Skan', 'inactive');
+                showPattern(currentUser.patternLenght);
+        }
     }
 }
    
@@ -1094,8 +1094,7 @@ function advanceGameStateButtonHasBeenClicked(event) {
         
     } else if (gameState === 'gameEnded') {
         controller.abort();  // Removes the eventlistner on beforeUnload
-        window.location.replace(window.location.href);
-        // window.location.reload();
+        window.location.replace('niff.html')
 
     } else {
         console.log('AdvanceGameStateButton clicked outside gameflow')
@@ -1574,6 +1573,7 @@ async function startButtonHasBeenClicked(event) {
 function roleHasBeenClicked(event) {
     gameMode = event.target.id; // Id in the format M3T1G1 for Movement level 3, Thinking level 1 and Game number 1
     console.log(gameMode);
+    document.getElementById('navigationContainer').style.display = 'flex';
     
     if (gameMode !== '' && gameMode !== 'selectRoleContainer') {
         
@@ -1622,7 +1622,6 @@ function shareRole() {
     canvasQrShow.style.display = 'block';
     
     showTextDiv.innerHTML = '<h2> Lad tovholderen skanne din QR kode </h2> Og tryk så på <em>Videre</em>';
-    document.getElementById('navigationContainer').style.display = 'flex';
     setButton('actionButton', 'Skan', 'hidden');
 
     gameState = 'shareRoleInfo';
@@ -1941,6 +1940,8 @@ function useQRcode(QrNumber) {
         } else {
             showEndScreen(true);
         }
+
+        setButton('actionButton', 'Skan', 'active', 'green');
         
         // if (0 < QrNumber.pl.length) {  // First a round spreading the final score  // (p)articipant(l)ist
         //     currentUser.globalMana = QrNumber.fm;
