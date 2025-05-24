@@ -465,8 +465,21 @@ progress::-webkit-progress-bar, progress::-moz-progress-bar {
 }
 
 .summarySubSubHeading {
-    font-size: 1em;
+    font-size: 1.1em;
     background-color: rgba(128, 255, 255, .25);
+    padding-top: 3px;
+    padding-bottom: 3px;
+}
+
+.descrDiv {
+    flex: 1;
+}
+
+.textAndButton {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 10px;
 }
 
 .mirrorEmoji {
@@ -478,7 +491,6 @@ progress::-webkit-progress-bar, progress::-moz-progress-bar {
     display: flex;
     justify-content: center;
 }
-
 
 @media screen and (min-width: 420px) {
     page {
