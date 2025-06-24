@@ -262,7 +262,7 @@ class LogicEngine extends NiffGame {  // Logic framework
     }
 }
 
-
+// TODO: Make scanning 0 possible for low activity logic gamemodes in case of attack - or disable attacks
 
 class LogicControlsLow extends LogicEngine {  // Controls for low activity Logic gamemodes
     constructor() {
@@ -459,6 +459,51 @@ class M2T2G1 extends NiffGame {  // Indstil visere efter digitalur
             showTextDiv.innerHTML = '<h1> Prøv igen &#x1F642; </h1>';  // Smiley :-)
             setTimeout(() => showTextDiv.innerHTML = oldText, 3000);
         }
+    }
+}
+
+
+class M2T2G2 extends NiffGame {  // Jæger
+    constructor() {
+            super();
+            this.gameMode = 'M2T2G2';
+            this.acc;
+            this.rot;
+
+            setButton('M1Button1', 'Start jagt', 'active', 'green');
+    }
+        
+    useAnswer(event) {
+        let answer = event.target.id;
+        if (answer == 'M1Button1') {  // Start hunt
+            setButton('M1Button1', 'Start jagt', 'hidden', 'green');
+            setButton('M1Button2', 'Skyd!', 'active', 'green');
+            setButton('M1Button3', 'Stop jagt', 'active', 'red');
+
+            scanQRcode();
+            if (window.DeviceMotionEvent) {  // TODO: Maybe move this check to beginRound()?
+                window.addEventListener('devicemotion', function(event) {this.getMotion(event)});
+            } else {
+                alert("Din browser understøtter ikke bevægelsesregistrering. Prøv at bruge Firefox eller Chrome");
+            }
+        } else if (answer == 'M1Button2') {  // Shoot
+            this.localMana += 100;
+            updateManaCounters(100);
+            // TODO: Implement action based on current position
+        } else if (answer == 'M1Button3') {  // Stop hunt
+            setButton('M1Button1', 'Start jagt', 'active', 'green');
+            setButton('M1Button2', 'Skyd!', 'hidden', 'green');
+            setButton('M1Button3', 'Stop jagt', 'hidden', 'red');
+
+            stopScan();
+            window.removeEventListener('devicemotion', function(event) {this.getMotion(event)})
+        }
+    }
+
+    getMotion(event) {
+        this.acc = event.acceleration;
+        this.rot = event.rotationRate;
+        // TODO: Implement updating position in (game)space
     }
 }
 
@@ -894,7 +939,7 @@ const gameModes = {
     'M1T3G1': M1T3G1,  // Logik for viderekommende
     'M2T1G1' : M2T1G1, // Skan i rækkefølge
     'M2T2G1': M2T2G1,  // Indstil visere digital
-    //'M2T2G2': M2T2G2,  // Jæger
+    'M2T2G2': M2T2G2,  // Jæger
     'M2T3G1': M2T3G1,  // Indstil visere tekst
     'M2T3G2': M2T3G2,  // Find ord
     'M3T1G1': M3T1G1,  // Skan løs
