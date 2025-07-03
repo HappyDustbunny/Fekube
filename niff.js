@@ -467,8 +467,13 @@ class M2T2G2 extends NiffGame {  // Jæger
     constructor() {
             super();
             this.gameMode = 'M2T2G2';
-            this.acc;
-            this.rot;
+            // this.acc;
+            // this.rot;
+            this.xCoor = 0;
+            this.vxCoor = 0;
+            this.damping = 0.9;
+
+            // this.getMotion = this.getMotion.bind(this);
 
             setButton('M1Button1', 'Start jagt', 'active', 'green');
     }
@@ -482,7 +487,7 @@ class M2T2G2 extends NiffGame {  // Jæger
 
             scanQRcode();
             if (window.DeviceMotionEvent) {  // TODO: Maybe move this check to beginRound()?
-                window.addEventListener('devicemotion', function(event) {this.getMotion(event)});
+                window.addEventListener('devicemotion', function(event) {currentUser.getMotion(event)});
             } else {
                 alert("Din browser understøtter ikke bevægelsesregistrering. Prøv at bruge Firefox eller Chrome");
             }
@@ -500,9 +505,20 @@ class M2T2G2 extends NiffGame {  // Jæger
         }
     }
 
-    getMotion(event) {
-        this.acc = event.acceleration;
-        this.rot = event.rotationRate;
+    getMotion = (event) => {
+        let acc = event.acceleration;
+        let rot = event.rotationRate;
+        let dt = 1/50;
+        // let dt = event.interval;
+        this.vxCoor += acc.x * dt;
+        this.vxCoor *= this.damping;
+        if (Math.abs(this.vxCoor) < 0.001) { this.vxCoor = 0; }
+        this.xCoor += this.vxCoor * dt;
+
+// 
+        document.getElementById('gameName').innerHTML = this.xCoor;
+        // document.getElementById('gameName').innerHTML = xCoor.toFixed(3);
+        // document.getElementById('gameName').innerHTML = acc.x + ' ' + rot.alpha;
         // TODO: Implement updating position in (game)space
     }
 }
