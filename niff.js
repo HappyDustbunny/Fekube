@@ -471,7 +471,7 @@ class M2T2G2 extends NiffGame {  // Jæger
             // this.rot;
             this.xCoor = 0;
             this.vxCoor = 0;
-            this.damping = 0.9;
+            this.damping = 0.96;
 
             // this.getMotion = this.getMotion.bind(this);
 
@@ -508,7 +508,7 @@ class M2T2G2 extends NiffGame {  // Jæger
     getMotion = (event) => {
         let acc = event.acceleration;
         let rot = event.rotationRate;
-        let dt = 1/50;
+        let dt = 1/60;
         // let dt = event.interval;
         this.vxCoor += acc.x * dt;
         this.vxCoor *= this.damping;
@@ -520,6 +520,16 @@ class M2T2G2 extends NiffGame {  // Jæger
         // document.getElementById('gameName').innerHTML = xCoor.toFixed(3);
         // document.getElementById('gameName').innerHTML = acc.x + ' ' + rot.alpha;
         // TODO: Implement updating position in (game)space
+    }
+    
+    // For test purposes
+    shakeItBaby(ax = 0, ay = 0, az = 0, alpha = 0, beta = 0, gamma = 0) {
+        this.getMotion({
+            acceleration: { x: ax, y: ay, z: az },
+            accelerationIncludingGravity: null,
+            rotationRate: { alpha: alpha, beta: beta, gamma: gamma },
+            interval: 16,
+        });
     }
 }
 
