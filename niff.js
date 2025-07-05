@@ -463,7 +463,7 @@ class M2T2G1 extends NiffGame {  // Indstil visere efter digitalur
 }
 
 
-class M2T2G2 extends NiffGame {  // Jæger
+class M2T2G2 extends NiffGame {  // Hunter
     constructor() {
             super();
             this.gameMode = 'M2T2G2';
@@ -472,6 +472,7 @@ class M2T2G2 extends NiffGame {  // Jæger
             this.xCoor = 0;
             this.vxCoor = 0;
             this.damping = 0.96;
+            this.animationID;
 
             // this.getMotion = this.getMotion.bind(this);
 
@@ -485,12 +486,10 @@ class M2T2G2 extends NiffGame {  // Jæger
             setButton('M1Button2', 'Skyd!', 'active', 'green');
             setButton('M1Button3', 'Stop jagt', 'active', 'red');
 
+            window.addEventListener('devicemotion', function(event) {currentUser.getMotion(event)});
             scanQRcode();
-            if (window.DeviceMotionEvent) {  // TODO: Maybe move this check to beginRound()?
-                window.addEventListener('devicemotion', function(event) {currentUser.getMotion(event)});
-            } else {
-                alert("Din browser understøtter ikke bevægelsesregistrering. Prøv at bruge Firefox eller Chrome");
-            }
+            this.animationID = requestAnimationFrame(monsterMovement);
+            
         } else if (answer == 'M1Button2') {  // Shoot
             this.localMana += 100;
             updateManaCounters(100);
@@ -500,6 +499,7 @@ class M2T2G2 extends NiffGame {  // Jæger
             setButton('M1Button2', 'Skyd!', 'hidden', 'green');
             setButton('M1Button3', 'Stop jagt', 'hidden', 'red');
 
+            cancelAnimationFrame(this.animationID);
             stopScan();
             window.removeEventListener('devicemotion', function(event) {this.getMotion(event)})
         }
@@ -1652,6 +1652,8 @@ function roleHasBeenClicked(event) {
             scanOthers();
         } else if (!solo) {
             shareRole();
+        } else if (gameMode == 'M2T2G2' && !window.DeviceMotionEvent) {  // If Hunter ...
+            alert("Din browser understøtter ikke bevægelsesregistrering. Prøv at bruge Firefox eller Chrome eller vælg en anden rolle");
         } else {
             clearQrCanvas()
         
@@ -2129,17 +2131,29 @@ function clearQrCanvas() {
 // DRAWING BELOW
 
 // Draw on cameraOverlay
-function drawOnCameraOverlay() {  // TODO: Draw on qr-canvas instead? Gets rid of positioning problems. Have to check if camera is active, but whatevs...
+function drawOnCameraOverlay(xPos, yPos) {  // TODO: Draw on qr-canvas instead? Gets rid of positioning problems. Have to check if camera is active, but whatevs...
     let cameraOverlay = document.getElementById('canvasCameraOverlay');
     cameraOverlay.hidden = false;
     let drawArea = cameraOverlay.getContext('2d');
-    cameraOverlay.width = sizeFactor * winWidth;  
+    let img = new Image;
+    img.src = 'qr-codes/foe1.png';
+    cameraOverlay.width = sizeFactor * winWidth;
     cameraOverlay.height = sizeFactor * winHeight;
     drawArea.scale(zoomFactor, zoomFactor);
 
-    drawArea.moveTo(winWidth / 2 + 50, winHeight / 2);
-    drawArea.arc(winWidth / 2, winHeight / 2, 50, 0, 2*pi);  // Draw disk-monster... Camera position needst to be changed to absolute after camera is started.
-    drawArea.fill();
+    img.onload = () => { drawArea.drawImage(img, xPos, yPos); };
+
+    drawArea.beginPath();
+    drawArea.rect(0, 0, sizeFactor * winWidth, sizeFactor * winHeight);
+    drawArea.stroke();
+
+    // drawArea.moveTo(winWidth / 2 + 50, winHeight / 2);
+    // drawArea.arc(winWidth / 2, winHeight / 2, 50, 0, 2*pi);  // Draw disk-monster... Camera position needst to be changed to absolute after camera is started.
+    // drawArea.fill();
+}
+
+function monsterMovement() {
+    drawOnCameraOverlay(xPos = 0, yPos = 0);
 }
 
 
