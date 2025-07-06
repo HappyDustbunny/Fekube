@@ -54,6 +54,8 @@ let isRoundOverTimer;
 let isGameOverTimer;
 let soloEndScans = Math.floor((Math.random() * 6) + 3);
 
+let cameraStream;
+
 let healMsgs = [
     '',  // No message when healing has occured
     'Og ... sidste gang',
@@ -479,7 +481,7 @@ class M2T2G2 extends NiffGame {  // Hunter
             setButton('M1Button1', 'Start jagt', 'active', 'green');
     }
         
-    useAnswer(event) {
+     useAnswer(event) {
         let answer = event.target.id;
         if (answer == 'M1Button1') {  // Start hunt
             setButton('M1Button1', 'Start jagt', 'hidden', 'green');
@@ -487,7 +489,9 @@ class M2T2G2 extends NiffGame {  // Hunter
             setButton('M1Button3', 'Stop jagt', 'active', 'red');
 
             window.addEventListener('devicemotion', function(event) {currentUser.getMotion(event)});
-            scanQRcode();
+            // scanQRcode();
+            useCamera().catch(console.error);
+
             this.animationID = requestAnimationFrame(monsterMovement);
             
         } else if (answer == 'M1Button2') {  // Shoot
@@ -500,7 +504,8 @@ class M2T2G2 extends NiffGame {  // Hunter
             setButton('M1Button3', 'Stop jagt', 'hidden', 'red');
 
             cancelAnimationFrame(this.animationID);
-            stopScan();
+            // stopScan();
+            stopCamera();
             window.removeEventListener('devicemotion', function(event) {this.getMotion(event)})
         }
     }
@@ -508,8 +513,8 @@ class M2T2G2 extends NiffGame {  // Hunter
     getMotion = (event) => {
         let acc = event.acceleration;
         let rot = event.rotationRate;
-        let dt = 1/60;
-        // let dt = event.interval;
+        // let dt = 1/60;
+        let dt = event.interval;
         this.vxCoor += acc.x * dt;
         this.vxCoor *= this.damping;
         if (Math.abs(this.vxCoor) < 0.001) { this.vxCoor = 0; }
@@ -2131,20 +2136,37 @@ function clearQrCanvas() {
 // DRAWING BELOW
 
 // Draw on cameraOverlay
+
+async function useCamera() {
+    const constraints = { video: { width:300, height:300 }, facingMode: { exact: "environment" } };
+    cameraStream = await navigator.mediaDevices.getUserMedia(constraints);
+    const videoElement = document.getElementById('videoWindow');
+    videoElement.srcObject = cameraStream;
+    await videoElement.play();    
+}
+
+function stopCamera() {
+    if (cameraStream) {
+        cameraStream.getTracks().forEach(track => track.stop());
+        document.getElementById('videoWindow').srcObject = null;
+    }
+}
+
+
 function drawOnCameraOverlay(xPos, yPos) {  // TODO: Draw on qr-canvas instead? Gets rid of positioning problems. Have to check if camera is active, but whatevs...
     let cameraOverlay = document.getElementById('canvasCameraOverlay');
     cameraOverlay.hidden = false;
     let drawArea = cameraOverlay.getContext('2d');
     let img = new Image;
     img.src = 'qr-codes/foe1.png';
-    cameraOverlay.width = sizeFactor * winWidth;
-    cameraOverlay.height = sizeFactor * winHeight;
-    drawArea.scale(zoomFactor, zoomFactor);
+    cameraOverlay.width = 300;
+    cameraOverlay.height = 300;
+    // drawArea.scale(zoomFactor, zoomFactor);
 
     img.onload = () => { drawArea.drawImage(img, xPos, yPos); };
 
     drawArea.beginPath();
-    drawArea.rect(0, 0, sizeFactor * winWidth, sizeFactor * winHeight);
+    drawArea.rect(0, 0, 300, 300);
     drawArea.stroke();
 
     // drawArea.moveTo(winWidth / 2 + 50, winHeight / 2);
@@ -2152,8 +2174,8 @@ function drawOnCameraOverlay(xPos, yPos) {  // TODO: Draw on qr-canvas instead? 
     // drawArea.fill();
 }
 
-function monsterMovement() {
-    drawOnCameraOverlay(xPos = 0, yPos = 0);
+function monsterMovement(xPos = 0, yPos = 0) {
+    drawOnCameraOverlay(xPos, yPos);
 }
 
 
