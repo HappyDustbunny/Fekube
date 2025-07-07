@@ -55,6 +55,8 @@ let isGameOverTimer;
 let soloEndScans = Math.floor((Math.random() * 6) + 3);
 
 let cameraStream;
+let videoWidth;
+let videoHeight;
 
 let healMsgs = [
     '',  // No message when healing has occured
@@ -504,8 +506,8 @@ class M2T2G2 extends NiffGame {  // Hunter
             setButton('M1Button3', 'Stop jagt', 'hidden', 'red');
 
             cancelAnimationFrame(this.animationID);
-            // stopScan();
             stopCamera();
+            // document.getElementById('canvasCameraOverlay').hidden = true;  // todo: Check this
             window.removeEventListener('devicemotion', function(event) {this.getMotion(event)})
         }
     }
@@ -2138,11 +2140,21 @@ function clearQrCanvas() {
 // Draw on cameraOverlay
 
 async function useCamera() {
-    const constraints = { video: { width:300, height:300 }, facingMode: { exact: "environment" } };
+    const constraints = {
+        video: { width:{ideal: 300}, height:{ideal: 300} }, 
+        facingMode: { exact: "environment" }
+    };
     cameraStream = await navigator.mediaDevices.getUserMedia(constraints);
     const videoElement = document.getElementById('videoWindow');
+    const canvasElement = document.getElementById('canvasCameraOverlay');
     videoElement.srcObject = cameraStream;
-    await videoElement.play();    
+    videoElement.onloadedmetadata = () => { videoElement.play() };
+
+    videoWidth = videoElement.videoWidth;
+    videoHeight = videoElement.videoHeight;
+
+    canvasElement.width = videoWidth;
+    canvasElement.height = videoHeight;
 }
 
 function stopCamera() {
@@ -2159,14 +2171,14 @@ function drawOnCameraOverlay(xPos, yPos) {  // TODO: Draw on qr-canvas instead? 
     let drawArea = cameraOverlay.getContext('2d');
     let img = new Image;
     img.src = 'qr-codes/foe1.png';
-    cameraOverlay.width = 300;
-    cameraOverlay.height = 300;
+    cameraOverlay.width = videoWidth;
+    cameraOverlay.height = videoHeight;
     // drawArea.scale(zoomFactor, zoomFactor);
 
     img.onload = () => { drawArea.drawImage(img, xPos, yPos); };
 
     drawArea.beginPath();
-    drawArea.rect(0, 0, 300, 300);
+    drawArea.rect(0, 0, videoWidth, videoHeight);
     drawArea.stroke();
 
     // drawArea.moveTo(winWidth / 2 + 50, winHeight / 2);
