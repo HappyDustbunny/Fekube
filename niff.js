@@ -2147,20 +2147,35 @@ async function useCamera() {
     cameraStream = await navigator.mediaDevices.getUserMedia(constraints);
     const videoElement = document.getElementById('videoWindow');
     const canvasElement = document.getElementById('canvasCameraOverlay');
+    videoElement.style.display = 'block';
+    canvasElement.style.display = 'block';
+
     videoElement.srcObject = cameraStream;
-    videoElement.onloadedmetadata = () => { videoElement.play() };
 
-    videoWidth = videoElement.videoWidth;
-    videoHeight = videoElement.videoHeight;
+    videoElement.onloadedmetadata = () => {
+        videoElement.play();
 
-    canvasElement.width = videoWidth;
-    canvasElement.height = videoHeight;
+        videoWidth = videoElement.videoWidth;
+        videoHeight = videoElement.videoHeight;
+
+        canvasElement.width = videoWidth;
+        canvasElement.height = videoHeight;
+    }
 }
 
 function stopCamera() {
     if (cameraStream) {
         cameraStream.getTracks().forEach(track => track.stop());
-        document.getElementById('videoWindow').srcObject = null;
+        let video = document.getElementById('videoWindow');
+        let canvas = document.getElementById('canvasCameraOverlay');
+
+        let context = canvas.getContext('2d');
+        context.clearRect(0, 0, canvas.width, canvas.height);
+        
+        video.style.display = 'none';
+        canvas.style.display = 'none';
+
+        video.srcObject = null;
     }
 }
 
@@ -2171,15 +2186,14 @@ function drawOnCameraOverlay(xPos, yPos) {  // TODO: Draw on qr-canvas instead? 
     let drawArea = cameraOverlay.getContext('2d');
     let img = new Image;
     img.src = 'qr-codes/foe1.png';
-    cameraOverlay.width = videoWidth;
-    cameraOverlay.height = videoHeight;
-    // drawArea.scale(zoomFactor, zoomFactor);
+
+    drawArea.clearRect(0, 0, cameraOverlay.width, cameraOverlay.height)  // Clear drawArea
 
     img.onload = () => { drawArea.drawImage(img, xPos, yPos); };
 
-    drawArea.beginPath();
-    drawArea.rect(0, 0, videoWidth, videoHeight);
-    drawArea.stroke();
+    // drawArea.beginPath();
+    // drawArea.rect(0, 0, 300, 300);
+    // drawArea.stroke();
 
     // drawArea.moveTo(winWidth / 2 + 50, winHeight / 2);
     // drawArea.arc(winWidth / 2, winHeight / 2, 50, 0, 2*pi);  // Draw disk-monster... Camera position needst to be changed to absolute after camera is started.
