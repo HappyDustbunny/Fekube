@@ -193,9 +193,10 @@ li {
     border: 1px solid;
 }
 
+#videoWindow, 
 #canvasCameraOverlay {
-    position: relative;
-    top: -240px;
+    position: absolute;
+    left: 0px;
 }
 
 #start, #coordinator, #normal {
@@ -269,6 +270,7 @@ progress::-webkit-progress-bar, progress::-moz-progress-bar {
 
 #QrContainer {
     grid-area: QrCont;
+    position: relative;
 }
 
 #textContainer {
