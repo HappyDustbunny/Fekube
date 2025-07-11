@@ -434,21 +434,21 @@ progress::-webkit-progress-bar, progress::-moz-progress-bar {
 }
 
 #M1Button1 {
-    height: 30px;
-    width: 30px;
-    border-radius: 15px;
+    height: 50px;
+    width: 50px;
+    border-radius: 25px;
 }
 
 #M1Button2 {
-    height: 30px;
+    height: 50px;
     width: 65px;
-    border-radius: 15px;
+    border-radius: 25px;
 }
 
 #M1Button3 {
-    height: 30px;
-    width: 35px;
-    border-radius: 15px;
+    height: 50px;
+    width: 50px;
+    border-radius: 25px;
 }
 
 .score {

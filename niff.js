@@ -494,7 +494,8 @@ class M2T2G2 extends NiffGame {  // Hunter
             // scanQRcode();
             useCamera().catch(console.error);
 
-            this.animationID = requestAnimationFrame(monsterMovement);
+            // this.animationID = requestAnimationFrame(monsterMovement);
+            drawOnCameraOverlay(0, 0);
             
         } else if (answer == 'M1Button2') {  // Shoot
             this.localMana += 100;
@@ -2158,8 +2159,10 @@ async function useCamera() {
         videoWidth = videoElement.videoWidth;
         videoHeight = videoElement.videoHeight;
 
-        canvasElement.width = videoWidth;
-        canvasElement.height = videoHeight;
+        canvasElement.width = 100;
+        canvasElement.height = 100;
+        // canvasElement.width = videoWidth;
+        // canvasElement.height = videoHeight;
     }
 }
 
@@ -2187,7 +2190,7 @@ function drawOnCameraOverlay(xPos, yPos) {  // TODO: Draw on qr-canvas instead? 
     let img = new Image;
     img.src = 'qr-codes/foe1.png';
 
-    drawArea.clearRect(0, 0, cameraOverlay.width, cameraOverlay.height)  // Clear drawArea
+    // drawArea.clearRect(0, 0, cameraOverlay.width, cameraOverlay.height)  // Clear drawArea
 
     img.onload = () => { drawArea.drawImage(img, xPos, yPos); };
 
@@ -2201,7 +2204,9 @@ function drawOnCameraOverlay(xPos, yPos) {  // TODO: Draw on qr-canvas instead? 
 }
 
 function monsterMovement(xPos = 0, yPos = 0) {
-    drawOnCameraOverlay(xPos, yPos);
+    const canvasElement = document.getElementById('canvasCameraOverlay');
+    canvasElement.style.transform = 'translate(' + xPos + 'px, ' + yPos + 'px)';
+    // drawOnCameraOverlay(xPos, yPos);
 }
 
 
