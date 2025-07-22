@@ -193,8 +193,15 @@ li {
     border: 1px solid;
 }
 
-#videoWindow, 
+/* #videoWindow, 
 #canvasCameraOverlay {
+    position: absolute;
+    left: 0px;
+} */
+
+#otherWorldBackgroundCanvas,
+#otherWorldMonsterCanvas,
+#otherWorldRecticleCanvas {
     position: absolute;
     left: 0px;
 }

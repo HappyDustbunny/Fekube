@@ -492,10 +492,12 @@ class M2T2G2 extends NiffGame {  // Hunter
 
             window.addEventListener('devicemotion', function(event) {currentUser.getMotion(event)});
             // scanQRcode();
-            useCamera().catch(console.error);
+            // useCamera().catch(console.error);  // TODO: Use a canvas to avoid the need for promises and stuff. The next command is run befor this resolve
 
             // this.animationID = requestAnimationFrame(monsterMovement);
-            drawOnCameraOverlay(0, 0);
+            drawBackground(1965, 294);
+            drawRecticle(100, 100, 100, 100);
+            drawMonster(100, 100);
             
         } else if (answer == 'M1Button2') {  // Shoot
             this.localMana += 100;
@@ -518,13 +520,25 @@ class M2T2G2 extends NiffGame {  // Hunter
         let rot = event.rotationRate;
         // let dt = 1/60;
         let dt = event.interval;
+
         this.vxCoor += acc.x * dt;
         this.vxCoor *= this.damping;
         if (Math.abs(this.vxCoor) < 0.001) { this.vxCoor = 0; }
         this.xCoor += this.vxCoor * dt;
 
+        this.vyCoor += acc.y * dt;
+        this.vyCoor *= this.damping;
+        if (Math.abs(this.vyCoor) < 0.001) { this.vyCoor = 0; }
+        this.yCoor += this.vyCoor * dt;
+
+        this.vzCoor += acc.y * dt;
+        this.vzCoor *= this.damping;
+        if (Math.abs(this.vzCoor) < 0.001) { this.vzCoor = 0; }
+        this.zCoor += this.vzCoor * dt;
+
 // 
         document.getElementById('gameName').innerHTML = this.xCoor;
+        monsterMovement(this.xCoor, 100);
         // document.getElementById('gameName').innerHTML = xCoor.toFixed(3);
         // document.getElementById('gameName').innerHTML = acc.x + ' ' + rot.alpha;
         // TODO: Implement updating position in (game)space
@@ -2138,61 +2152,75 @@ function clearQrCanvas() {
 
 // DRAWING BELOW
 
-// Draw on cameraOverlay
+// // Draw on cameraOverlay
 
-async function useCamera() {
-    const constraints = {
-        video: { width:{ideal: 300}, height:{ideal: 300} }, 
-        facingMode: { exact: "environment" }
-    };
-    cameraStream = await navigator.mediaDevices.getUserMedia(constraints);
-    const videoElement = document.getElementById('videoWindow');
-    const canvasElement = document.getElementById('canvasCameraOverlay');
-    videoElement.style.display = 'block';
-    canvasElement.style.display = 'block';
+// async function useCamera() {
+//     const constraints = {
+//         video: { width:{ideal: 300}, height:{ideal: 300} }, 
+//         facingMode: { exact: "environment" }
+//     };
+//     cameraStream = await navigator.mediaDevices.getUserMedia(constraints);
+//     const videoElement = document.getElementById('videoWindow');
+//     const canvasElement = document.getElementById('canvasCameraOverlay');
+//     videoElement.style.display = 'block';
+//     canvasElement.style.display = 'block';
 
-    videoElement.srcObject = cameraStream;
+//     videoElement.srcObject = cameraStream;
 
-    videoElement.onloadedmetadata = () => {
-        videoElement.play();
+//     videoElement.onloadedmetadata = () => {
+//         videoElement.play();
 
-        videoWidth = videoElement.videoWidth;
-        videoHeight = videoElement.videoHeight;
+//         videoWidth = videoElement.videoWidth;
+//         videoHeight = videoElement.videoHeight;
 
-        canvasElement.width = 100;
-        canvasElement.height = 100;
-        // canvasElement.width = videoWidth;
-        // canvasElement.height = videoHeight;
-    }
-}
+//         canvasElement.width = 100;
+//         canvasElement.height = 100;
+//         // canvasElement.width = videoWidth;
+//         // canvasElement.height = videoHeight;
+//     }
+// }
 
-function stopCamera() {
-    if (cameraStream) {
-        cameraStream.getTracks().forEach(track => track.stop());
-        let video = document.getElementById('videoWindow');
-        let canvas = document.getElementById('canvasCameraOverlay');
+// function stopCamera() {
+//     if (cameraStream) {
+//         cameraStream.getTracks().forEach(track => track.stop());
+//         let video = document.getElementById('videoWindow');
+//         let canvas = document.getElementById('canvasCameraOverlay');
 
-        let context = canvas.getContext('2d');
-        context.clearRect(0, 0, canvas.width, canvas.height);
+//         let context = canvas.getContext('2d');
+//         context.clearRect(0, 0, canvas.width, canvas.height);
         
-        video.style.display = 'none';
-        canvas.style.display = 'none';
+//         video.style.display = 'none';
+//         canvas.style.display = 'none';
 
-        video.srcObject = null;
-    }
+//         video.srcObject = null;
+//     }
+// }
+
+
+function drawBackground(backgroundXSize, backgroundYSize) {
+    let backgroundCanvas = document.getElementById('otherWorldBackgroundCanvas');
+    backgroundCanvas.hidden = false;
+    backgroundCanvas.width = backgroundXSize;
+    backgroundCanvas.height = backgroundYSize;
+    let drawArea = backgroundCanvas.getContext('2d');
+    let img = new Image;
+    img.src = 'qr-codes/background1.png';
+    img.onload = () => { drawArea.drawImage(img, 0, 0, backgroundXSize, backgroundYSize, 0, 0, backgroundXSize, backgroundYSize); };
 }
 
 
-function drawOnCameraOverlay(xPos, yPos) {  // TODO: Draw on qr-canvas instead? Gets rid of positioning problems. Have to check if camera is active, but whatevs...
-    let cameraOverlay = document.getElementById('canvasCameraOverlay');
-    cameraOverlay.hidden = false;
-    let drawArea = cameraOverlay.getContext('2d');
+function drawMonster(monsterXSize, monsterYSize) {
+    let monsterCanvas = document.getElementById('otherWorldMonsterCanvas');
+    monsterCanvas.hidden = false;
+    monsterCanvas.width = 100;
+    monsterCanvas.height = 100;
+    let drawArea = monsterCanvas.getContext('2d');
     let img = new Image;
     img.src = 'qr-codes/foe1.png';
 
     // drawArea.clearRect(0, 0, cameraOverlay.width, cameraOverlay.height)  // Clear drawArea
 
-    img.onload = () => { drawArea.drawImage(img, xPos, yPos); };
+    img.onload = () => { drawArea.drawImage(img, 0, 0, monsterXSize, monsterYSize, 0, 0, 100, 100); };
 
     // drawArea.beginPath();
     // drawArea.rect(0, 0, 300, 300);
@@ -2203,10 +2231,27 @@ function drawOnCameraOverlay(xPos, yPos) {  // TODO: Draw on qr-canvas instead? 
     // drawArea.fill();
 }
 
-function monsterMovement(xPos = 0, yPos = 0) {
-    const canvasElement = document.getElementById('canvasCameraOverlay');
+
+function drawRecticle(recticleXSize, recticleYSize, xx, yy) {
+    let recticleCanvas = document.getElementById('otherWorldRecticleCanvas');
+    recticleCanvas.hidden = false;
+    recticleCanvas.width = 300;
+    recticleCanvas.height = 300;
+    let drawArea = recticleCanvas.getContext('2d');
+    let img = new Image;
+    img.src = 'qr-codes/recticle.png';
+    img.onload = () => { drawArea.drawImage(img, 0, 0, recticleXSize, recticleYSize, 100, 100, xx, yy); };
+}
+
+
+function backgroundMovement(xPos = 0, yPos = 0) {
+    const canvasElement = document.getElementById('otherWorldBackgroundCanvas');
     canvasElement.style.transform = 'translate(' + xPos + 'px, ' + yPos + 'px)';
-    // drawOnCameraOverlay(xPos, yPos);
+}
+
+function monsterMovement(xPos = 0, yPos = 0) {
+    const canvasElement = document.getElementById('otherWorldMonsterCanvas');
+    canvasElement.style.transform = 'translate(' + xPos + 'px, ' + yPos + 'px)';
 }
 
 
