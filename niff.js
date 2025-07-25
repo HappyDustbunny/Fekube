@@ -500,8 +500,11 @@ class M2T2G2 extends NiffGame {  // Hunter
             drawMonster(100, 100);
             
         } else if (answer == 'M1Button2') {  // Shoot
-            this.localMana += 100;
-            updateManaCounters(100);
+            if (45 < currentUser.xCoor && currentUser.xCoor < 70) {
+                this.localMana += 100;
+                updateManaCounters(100);
+                monsterMovement(500, 100);
+            }
             // TODO: Implement action based on current position
         } else if (answer == 'M1Button3') {  // Stop hunt
             setButton('M1Button1', 'Start jagt', 'active', 'green');
@@ -538,7 +541,8 @@ class M2T2G2 extends NiffGame {  // Hunter
 
 // 
         document.getElementById('gameName').innerHTML = this.xCoor;
-        monsterMovement(this.xCoor, 100);
+        monsterMovement(2 * this.xCoor, 100);
+        backgroundMovement(-this.xCoor, 0);
         // document.getElementById('gameName').innerHTML = xCoor.toFixed(3);
         // document.getElementById('gameName').innerHTML = acc.x + ' ' + rot.alpha;
         // TODO: Implement updating position in (game)space
