@@ -476,7 +476,7 @@ class M2T2G2 extends NiffGame {  // Hunter
             this.xCoor = 0;
             this.vxCoor = 0;
             this.damping = 0.96;
-            this.animationID;
+            // this.animationID;
 
             // this.getMotion = this.getMotion.bind(this);
 
@@ -495,6 +495,7 @@ class M2T2G2 extends NiffGame {  // Hunter
             // useCamera().catch(console.error);  // TODO: Use a canvas to avoid the need for promises and stuff. The next command is run befor this resolve
 
             // this.animationID = requestAnimationFrame(monsterMovement);
+            document.getElementById('scene').style.display = 'block';
             drawBackground(1965, 294);
             drawRecticle(100, 100, 100, 100);
             drawMonster(100, 100);
@@ -511,9 +512,10 @@ class M2T2G2 extends NiffGame {  // Hunter
             setButton('M1Button2', 'Skyd!', 'hidden', 'green');
             setButton('M1Button3', 'Stop jagt', 'hidden', 'red');
 
-            cancelAnimationFrame(this.animationID);
-            stopCamera();
-            // document.getElementById('canvasCameraOverlay').hidden = true;  // todo: Check this
+            // cancelAnimationFrame(this.animationID);
+            document.getElementById('scene').style.display = 'none';
+            // stopCamera();
+            // document.getElementById('canvasCameraOverlay').hidden = true;
             window.removeEventListener('devicemotion', function(event) {this.getMotion(event)})
         }
     }
@@ -540,12 +542,10 @@ class M2T2G2 extends NiffGame {  // Hunter
         this.zCoor += this.vzCoor * dt;
 
 // 
-        document.getElementById('gameName').innerHTML = this.xCoor;
+        // document.getElementById('gameName').innerHTML = this.xCoor.toFixed(3);
         monsterMovement(2 * this.xCoor, 100);
         backgroundMovement(-this.xCoor, 0);
-        // document.getElementById('gameName').innerHTML = xCoor.toFixed(3);
         // document.getElementById('gameName').innerHTML = acc.x + ' ' + rot.alpha;
-        // TODO: Implement updating position in (game)space
     }
     
     // For test purposes
