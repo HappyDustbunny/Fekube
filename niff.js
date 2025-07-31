@@ -513,6 +513,8 @@ class M2T2G2 extends NiffGame {  // Hunter
             setButton('M1Button3', 'Stop jagt', 'hidden', 'red');
 
             // cancelAnimationFrame(this.animationID);
+            backgroundMovement(0, 0);
+            monsterMovement(0, 0);
             document.getElementById('scene').style.display = 'none';
             // stopCamera();
             // document.getElementById('canvasCameraOverlay').hidden = true;
@@ -542,9 +544,9 @@ class M2T2G2 extends NiffGame {  // Hunter
         this.zCoor += this.vzCoor * dt;
 
 // 
-        // document.getElementById('gameName').innerHTML = this.xCoor.toFixed(3);
-        monsterMovement(2 * this.xCoor, 100);
-        backgroundMovement(-this.xCoor, 0);
+        document.getElementById('gameName').innerHTML = this.xCoor.toFixed(3);
+        monsterMovement(2 * this.xCoor/5000, 100);
+        backgroundMovement(-this.xCoor/5000, 0);
         // document.getElementById('gameName').innerHTML = acc.x + ' ' + rot.alpha;
     }
     
