@@ -15,7 +15,14 @@
     <script>document.write("<script src='html5-qrcode.min.js'><\/script>")</script>
     <script src="html5-qrcode.min.js" type="text/plain"></script>
 
-    <script src="niff.js" type="text/javascript" defer></script>
+    <!-- <script src="niff.js" type="text/javascript" defer></script> --> 
+    <!-- REMOVE THE SCRIPT BELOW AND REINSTATE LINE ABOVE WHEN TESTING IS OVER!! -->
+     <script type="text/javascript">
+        const script = document.createElement('script');
+        script.src = 'niff.js?v=' + Date.now(); // Appends timestamp to bust cache
+        script.defer = true;
+        document.head.appendChild(script);
+    </script>
 </head>
 
 <body onload="setUpFunction()">

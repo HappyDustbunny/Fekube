@@ -475,10 +475,12 @@ class M2T2G2 extends NiffGame {  // Hunter
             // this.rot;
             this.xCoor = 0;
             this.vxCoor = 0;
+            this.yCoor = 0;
+            this.vyCoor = 0;
             this.damping = 0.96;
             // this.animationID;
 
-            // this.getMotion = this.getMotion.bind(this);
+            this.deviceMotionHandler = this.getMotion.bind(this);
 
             setButton('M1Button1', 'Start jagt', 'active', 'green');
     }
@@ -490,7 +492,8 @@ class M2T2G2 extends NiffGame {  // Hunter
             setButton('M1Button2', 'Skyd!', 'active', 'green');
             setButton('M1Button3', 'Stop jagt', 'active', 'red');
 
-            window.addEventListener('devicemotion', function(event) {currentUser.getMotion(event)});
+            window.addEventListener('devicemotion', this.deviceMotionHandler);
+            // window.addEventListener('devicemotion', function(event) {currentUser.getMotion(event)});
             // scanQRcode();
             // useCamera().catch(console.error);  // TODO: Use a canvas to avoid the need for promises and stuff. The next command is run befor this resolve
 
@@ -506,7 +509,6 @@ class M2T2G2 extends NiffGame {  // Hunter
                 updateManaCounters(100);
                 monsterMovement(500, 100);
             }
-            // TODO: Implement action based on current position
         } else if (answer == 'M1Button3') {  // Stop hunt
             setButton('M1Button1', 'Start jagt', 'active', 'green');
             setButton('M1Button2', 'Skyd!', 'hidden', 'green');
@@ -518,7 +520,12 @@ class M2T2G2 extends NiffGame {  // Hunter
             document.getElementById('scene').style.display = 'none';
             // stopCamera();
             // document.getElementById('canvasCameraOverlay').hidden = true;
-            window.removeEventListener('devicemotion', function(event) {this.getMotion(event)})
+            window.removeEventListener('devicemotion', this.deviceMotionHandler);
+            // window.removeEventListener('devicemotion', function(event) {currentUser.getMotion(event)});
+            this.xCoor = 0;
+            this.vxCoor = 0;
+            this.yCoor = 0;
+            this.vyCoor = 0;
         }
     }
 
@@ -526,16 +533,18 @@ class M2T2G2 extends NiffGame {  // Hunter
         let acc = event.acceleration;
         let rot = event.rotationRate;
         // let dt = 1/60;
-        let dt = event.interval;
+        let dt = event.interval/10;
 
         this.vxCoor += acc.x * dt;
         this.vxCoor *= this.damping;
         if (Math.abs(this.vxCoor) < 0.001) { this.vxCoor = 0; }
+        if (1900 < Math.abs(this.vxCoor)) { this.vxCoor = 1900; }
         this.xCoor += this.vxCoor * dt;
 
         this.vyCoor += acc.y * dt;
         this.vyCoor *= this.damping;
         if (Math.abs(this.vyCoor) < 0.001) { this.vyCoor = 0; }
+        if (300 < Math.abs(this.vyCoor)) { this.vyCoor = 300; }
         this.yCoor += this.vyCoor * dt;
 
         this.vzCoor += acc.y * dt;
@@ -544,9 +553,11 @@ class M2T2G2 extends NiffGame {  // Hunter
         this.zCoor += this.vzCoor * dt;
 
 // 
+        // document.getElementById('gameName').innerHTML = acc.x.toFixed(3);
         document.getElementById('gameName').innerHTML = this.xCoor.toFixed(3);
-        monsterMovement(2 * this.xCoor/5000, 100);
-        backgroundMovement(-this.xCoor/5000, 0);
+        document.getElementById('gameName').style.color = 'pink';
+        monsterMovement(2 * this.xCoor/100, 100);
+        backgroundMovement(-this.xCoor/100, this.yCoor/100);
         // document.getElementById('gameName').innerHTML = acc.x + ' ' + rot.alpha;
     }
     
@@ -2688,4 +2699,24 @@ function jumpToEndgame() {
 
 function jumpToEndgameCoordinator() {
     scanSeveralParticipants(); videre(); videre(); videre(); endGame();
+}
+
+function hunt() {
+    document.getElementById('coordinator').checked = false;
+    document.getElementById('timeChooseDiv').hidden = false;
+    document.getElementById('timeChooseDiv')[1].checked = true;
+    coordinator = false;
+    document.getElementById('coordinator').disabled = true;
+    document.getElementById('coordinatorSpan').style.color = 'grey';
+    solo = true;
+
+    endRoundAt = (new Date(new Date().valueOf() + 600000)).valueOf();
+
+    clearQrCanvas()
+    showTextDiv.innerHTML = '';
+    setButton('advanceGameStateButton', 'Videre', 'hidden');
+    gameMode = 'M2T2G2';
+
+    beginRound();
+    document.getElementById('navigationContainer').style.display = 'block';
 }
