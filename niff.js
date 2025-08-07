@@ -480,7 +480,7 @@ class M2T2G2 extends NiffGame {  // Hunter
             this.damping = 0.96;
             // this.animationID;
 
-            this.deviceMotionHandler = this.getMotion.bind(this);
+            this.deviceOrientationHandler = this.getMotion.bind(this);
 
             setButton('M1Button1', 'Start jagt', 'active', 'green');
     }
@@ -492,7 +492,7 @@ class M2T2G2 extends NiffGame {  // Hunter
             setButton('M1Button2', 'Skyd!', 'active', 'green');
             setButton('M1Button3', 'Stop jagt', 'active', 'red');
 
-            window.addEventListener('devicemotion', this.deviceMotionHandler);
+            window.addEventListener('deviceorientation', this.deviceOrientationHandler);
             // window.addEventListener('devicemotion', function(event) {currentUser.getMotion(event)});
             // scanQRcode();
             // useCamera().catch(console.error);  // TODO: Use a canvas to avoid the need for promises and stuff. The next command is run befor this resolve
@@ -520,7 +520,7 @@ class M2T2G2 extends NiffGame {  // Hunter
             document.getElementById('scene').style.display = 'none';
             // stopCamera();
             // document.getElementById('canvasCameraOverlay').hidden = true;
-            window.removeEventListener('devicemotion', this.deviceMotionHandler);
+            window.removeEventListener('deviceorientation', this.deviceOrientationHandler);
             // window.removeEventListener('devicemotion', function(event) {currentUser.getMotion(event)});
             this.xCoor = 0;
             this.vxCoor = 0;
@@ -530,43 +530,51 @@ class M2T2G2 extends NiffGame {  // Hunter
     }
 
     getMotion = (event) => {
-        let acc = event.acceleration;
-        let rot = event.rotationRate;
-        // let dt = 1/60;
-        let dt = event.interval/10;
+        let alpha = event.alpha;  // Z rotation (compas)
+        let beta = event.beta;  // X rotation (tilt forward/backvard)
 
-        this.vxCoor += acc.x * dt;
-        this.vxCoor *= this.damping;
-        if (Math.abs(this.vxCoor) < 0.001) { this.vxCoor = 0; }
-        if (1900 < Math.abs(this.vxCoor)) { this.vxCoor = 1900; }
-        this.xCoor += this.vxCoor * dt;
+        backgroundMovement(5.2 * alpha, beta);
+        document.getElementById('gameName').innerHTML = alpha.toFixed(3);
+        // document.getElementById('gameName').innerHTML = this.alpha.toFixed(3);
 
-        this.vyCoor += acc.y * dt;
-        this.vyCoor *= this.damping;
-        if (Math.abs(this.vyCoor) < 0.001) { this.vyCoor = 0; }
-        if (300 < Math.abs(this.vyCoor)) { this.vyCoor = 300; }
-        this.yCoor += this.vyCoor * dt;
 
-        this.vzCoor += acc.y * dt;
-        this.vzCoor *= this.damping;
-        if (Math.abs(this.vzCoor) < 0.001) { this.vzCoor = 0; }
-        this.zCoor += this.vzCoor * dt;
+//         let acc = event.acceleration;
+//         let rot = event.rotationRate;
+//         // let dt = 1/60;
+//         let dt = event.interval/50;
 
-// 
-        // document.getElementById('gameName').innerHTML = acc.x.toFixed(3);
-        document.getElementById('gameName').innerHTML = this.xCoor.toFixed(3);
-        document.getElementById('gameName').style.color = 'pink';
-        monsterMovement(2 * this.xCoor/100, 100);
-        backgroundMovement(-this.xCoor/100, this.yCoor/100);
+//         this.vxCoor += acc.x * dt;
+//         this.vxCoor *= this.damping;
+//         if (Math.abs(this.vxCoor) < 0.001) { this.vxCoor = 0; }
+//         if (1900 < Math.abs(this.vxCoor)) { this.vxCoor = 1900 * this.vxCoor/Math.abs(this.vxCoor); }
+//         this.xCoor += this.vxCoor * dt;
+
+//         this.vyCoor += acc.y * dt;
+//         this.vyCoor *= this.damping;
+//         if (Math.abs(this.vyCoor) < 0.001) { this.vyCoor = 0; }
+//         if (300 < Math.abs(this.vyCoor)) { this.vyCoor = 300; }
+//         this.yCoor += this.vyCoor * dt;
+
+//         this.vzCoor += acc.y * dt;
+//         this.vzCoor *= this.damping;
+//         if (Math.abs(this.vzCoor) < 0.001) { this.vzCoor = 0; }
+//         this.zCoor += this.vzCoor * dt;
+
+// // 
+//         // document.getElementById('gameName').innerHTML = acc.x.toFixed(3);
+//         document.getElementById('gameName').innerHTML = this.xCoor.toFixed(3);
+//         document.getElementById('gameName').style.color = 'pink';
+//         monsterMovement(-2 * this.xCoor/10, 100);
+//         backgroundMovement(-this.xCoor/10, 0);
         // document.getElementById('gameName').innerHTML = acc.x + ' ' + rot.alpha;
     }
     
     // For test purposes
-    shakeItBaby(ax = 0, ay = 0, az = 0, alpha = 0, beta = 0, gamma = 0) {
+    shakeItBaby(ax = 0, ay = 0, az = 0, ralpha = 0, rbeta = 0, rgamma = 0) {
         this.getMotion({
             acceleration: { x: ax, y: ay, z: az },
             accelerationIncludingGravity: null,
-            rotationRate: { alpha: alpha, beta: beta, gamma: gamma },
+            rotationRate: { alpha: ralpha, beta: rbeta, gamma: rgamma },
             interval: 16,
         });
     }
