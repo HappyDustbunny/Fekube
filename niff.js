@@ -504,7 +504,7 @@ class M2T2G2 extends NiffGame {  // Hunter
             drawMonster(100, 100);
             
         } else if (answer == 'M1Button2') {  // Shoot
-            if (45 < currentUser.xCoor && currentUser.xCoor < 70) {
+            if (45 < currentUser.xCoor && currentUser.xCoor < 70) { // TODO: Fix this
                 this.localMana += 100;
                 updateManaCounters(100);
                 monsterMovement(500, 100);
@@ -533,9 +533,14 @@ class M2T2G2 extends NiffGame {  // Hunter
         let alpha = event.alpha;  // Z rotation (compas)
         let beta = event.beta;  // X rotation (tilt forward/backvard)
 
-        backgroundMovement(5.2 * alpha, beta);
-        document.getElementById('gameName').innerHTML = alpha.toFixed(3);
+        let alphaOffsat = 5 * (alpha - 328);
+        let betaOffsat = 10 * (beta - 70);
+
+        backgroundMovement(alphaOffsat, betaOffsat);
+        monsterMovement(alphaOffsat, betaOffsat);
+        document.getElementById('gameName').innerHTML = alpha.toFixed(0) + ' ' + beta.toFixed(0);
         // document.getElementById('gameName').innerHTML = this.alpha.toFixed(3);
+        document.getElementById('gameName').style.color = 'blue';
 
 
 //         let acc = event.acceleration;
@@ -2229,7 +2234,7 @@ function drawBackground(backgroundXSize, backgroundYSize) {
     backgroundCanvas.height = backgroundYSize;
     let drawArea = backgroundCanvas.getContext('2d');
     let img = new Image;
-    img.src = 'qr-codes/background1.png';
+    img.src = 'qr-codes/background1800x300.jpg';
     img.onload = () => { drawArea.drawImage(img, 0, 0, backgroundXSize, backgroundYSize, 0, 0, backgroundXSize, backgroundYSize); };
 }
 
