@@ -499,7 +499,7 @@ class M2T2G2 extends NiffGame {  // Hunter
 
             // this.animationID = requestAnimationFrame(monsterMovement);
             document.getElementById('scene').style.display = 'block';
-            drawBackground(1965, 294);
+            drawBackground(1800, 300);
             drawRecticle(100, 100, 100, 100);
             drawMonster(100, 100);
             
@@ -533,14 +533,15 @@ class M2T2G2 extends NiffGame {  // Hunter
         let alpha = event.alpha;  // Z rotation (compas)
         let beta = event.beta;  // X rotation (tilt forward/backvard)
 
-        let alphaOffsat = 5 * (alpha - 328);
-        let betaOffsat = 10 * (beta - 70);
+        let alphaOffsat = 5 * alpha - 1350;
+        if (270 < alpha) {alphaOffsat = 5 * (alpha - 360) - 1000};
+        let betaOffsat = 10 * (beta - 80);
 
         backgroundMovement(alphaOffsat, betaOffsat);
         monsterMovement(alphaOffsat, betaOffsat);
-        document.getElementById('gameName').innerHTML = alpha.toFixed(0) + ' ' + beta.toFixed(0);
+        document.getElementById('gameName').innerHTML = alphaOffsat.toFixed(0) + ' ' + alpha.toFixed(0); // + ' ' + beta.toFixed(0);
         // document.getElementById('gameName').innerHTML = this.alpha.toFixed(3);
-        document.getElementById('gameName').style.color = 'blue';
+        document.getElementById('gameName').style.color = 'red';
 
 
 //         let acc = event.acceleration;
