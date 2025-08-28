@@ -491,8 +491,8 @@ progress::-webkit-progress-bar, progress::-moz-progress-bar {
 .summarySubSubHeading {
     font-size: 1.1em;
     background-color: rgba(128, 255, 255, .25);
-    padding-top: 3px;
-    padding-bottom: 3px;
+    padding-top: 5px;
+    padding-bottom: 5px;
 }
 
 .descrDiv {
@@ -502,6 +502,8 @@ progress::-webkit-progress-bar, progress::-moz-progress-bar {
 .experimental {
     background-color: rgba(255, 0, 0, 0.05);
     color: darkgray;
+    padding-top: 5px;
+    padding-bottom: 5px;
 }
 
 .textAndButton {

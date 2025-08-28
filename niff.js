@@ -533,15 +533,15 @@ class M2T2G2 extends NiffGame {  // Hunter
         let alpha = event.alpha;  // Z rotation (compas)
         let beta = event.beta;  // X rotation (tilt forward/backvard)
 
-        alpha += 90; // The + 90 is to move the jump in scenery to behind the player. No problem unless turning a lot ...
+        alpha += 90; // The + 90 is to move the slight jump in scenery to behind the player. No problem unless turning a lot ...
         if (360 < alpha) {alpha -= 360};
 
-        let alphaOffsat = 5 * alpha - 1800;  // It's 1804 instead of 2150 - 350 = 1450 because of the body width is 96%
+        let alphaOffsat = 5 * alpha - 1800;  // The body width is 96% and could be the reason behind the flitter at 0/360
         if (360 < alpha) {alphaOffsat = 5 * (alpha - 360) - 1800};
         let betaOffsat = 10 * (beta - 80);
 
         backgroundMovement(alphaOffsat, betaOffsat);
-        monsterMovement(alphaOffsat, betaOffsat);
+        monsterMovement(260, 0);  // TODO: Make monster movement independent and the coordinates accessible for the shoot button
         document.getElementById('gameName').innerHTML = alphaOffsat.toFixed(0) + ' ' + alpha.toFixed(0); // + ' ' + beta.toFixed(0);
         // document.getElementById('gameName').innerHTML = this.alpha.toFixed(3);
         document.getElementById('gameName').style.color = 'red';
@@ -579,11 +579,12 @@ class M2T2G2 extends NiffGame {  // Hunter
     }
     
     // For test purposes
-    shakeItBaby(ax = 0, ay = 0, az = 0, ralpha = 0, rbeta = 0, rgamma = 0) {
+    shakeItBaby(ax = 0, ay = 0, az = 0, ralpha = 0, rbeta = 0, rgamma = 0) { // rbeta = 80 is a good value
         this.getMotion({
             acceleration: { x: ax, y: ay, z: az },
             accelerationIncludingGravity: null,
-            rotationRate: { alpha: ralpha, beta: rbeta, gamma: rgamma },
+            alpha: ralpha, beta: rbeta, gamma: rgamma,
+            // rotationRate: { alpha: ralpha, beta: rbeta, gamma: rgamma },
             interval: 16,
         });
     }
@@ -2283,7 +2284,7 @@ function backgroundMovement(xPos = 0, yPos = 0) {
     canvasElement.style.transform = 'translate(' + xPos + 'px, ' + yPos + 'px)';
 }
 
-function monsterMovement(xPos = 0, yPos = 0) {
+function monsterMovement(xPos = 0, yPos = 0) {  // Monster onscreen between -80 < xpos <325
     const canvasElement = document.getElementById('otherWorldMonsterCanvas');
     canvasElement.style.transform = 'translate(' + xPos + 'px, ' + yPos + 'px)';
 }
