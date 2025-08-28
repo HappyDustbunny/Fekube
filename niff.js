@@ -471,13 +471,13 @@ class M2T2G2 extends NiffGame {  // Hunter
     constructor() {
             super();
             this.gameMode = 'M2T2G2';
-            // this.acc;
-            // this.rot;
-            this.xMonster = 0;
+            this.accX = 0;
+            this.accY = 0;
+            this.xMonster = 200;
             this.vxMonster = 0;
-            this.yMonster = 0;
+            this.yMonster = 60;
             this.vyMonster = 0;
-            this.damping = 0.96;
+            this.damping = 0.99996;
             // this.animationID;
 
             this.deviceOrientationHandler = this.getMotion.bind(this);
@@ -541,8 +541,8 @@ class M2T2G2 extends NiffGame {  // Hunter
         let betaOffsat = 10 * (beta - 80);
 
         backgroundMovement(alphaOffsat, betaOffsat);
-        moveMonster();
-        document.getElementById('gameName').innerHTML = alpha.toFixed(0); // + ' ' + beta.toFixed(0);
+        moveMonster(alphaOffsat, betaOffsat);
+        // document.getElementById('gameName').innerHTML = alpha.toFixed(0); // + ' ' + beta.toFixed(0);
         // document.getElementById('gameName').innerHTML = this.alpha.toFixed(3);
         document.getElementById('gameName').style.color = 'red';
 
@@ -2270,7 +2270,7 @@ function drawMonster(monsterXSize, monsterYSize) {
 function drawRecticle(recticleXSize, recticleYSize, xx, yy) {
     let recticleCanvas = document.getElementById('otherWorldRecticleCanvas');
     recticleCanvas.hidden = false;
-    recticleCanvas.width = 300;
+    recticleCanvas.width = 350;
     recticleCanvas.height = 300;
     let drawArea = recticleCanvas.getContext('2d');
     let img = new Image;
@@ -2289,26 +2289,29 @@ function placeMonster(xPos = 0, yPos = 0) {  // Monster onscreen between -80 < x
     canvasElement.style.transform = 'translate(' + xPos + 'px, ' + yPos + 'px)';
 }
 
-function moveMonster() {
-        let accX = 0;
-        let accY = 0;
-        if (Math.random() < 0.05) { accX = 1000} ;
-        if (Math.random() < 0.05) { accX = -1000} ;
-        let dt = 1/50;
+function moveMonster(alphaOffsat, betaOffsat) {
+    let whatEvs = Math.random();
+    if (whatEvs < 0.001) { currentUser.accX = 1000};
+    if (0.001 < whatEvs && whatEvs < 0.002) { currentUser.accX = -1000};
+    if (Math.abs(currentUser.accX) < 1) {currentUser.accX = 0} else {currentUser.accX *= 0.4}
 
-        currentUser.vxMonster += accX * dt;
-        currentUser.vxMonster *= currentUser.damping;
-        if (Math.abs(currentUser.vxMonster) < 0.001) { currentUser.vxMonster = 0; }
-        if (1900 < Math.abs(currentUser.vxMonster)) { currentUser.vxMonster = 1900 * currentUser.vxMonster/Math.abs(currentUser.vxMonster); }
-        currentUser.xMonster += currentUser.vxMonster * dt;
+    let dt = 1/50;
 
-        currentUser.vyMonster += accY * dt;
-        currentUser.vyMonster *= currentUser.damping;
-        if (Math.abs(currentUser.vyMonster) < 0.001) { currentUser.vyMonster = 0; }
-        if (300 < Math.abs(currentUser.vyMonster)) { currentUser.vyMonster = 300; }
-        currentUser.yMonster += currentUser.vyMonster * dt;
+    currentUser.vxMonster += currentUser.accX * dt;
+    currentUser.vxMonster *= currentUser.damping;
+    if (Math.abs(currentUser.vxMonster) < 0.001) { currentUser.vxMonster = 0; }
+    currentUser.vxMonster %= 1800;
+    // if (1900 < Math.abs(currentUser.vxMonster)) { currentUser.vxMonster = 1900 * currentUser.vxMonster/Math.abs(currentUser.vxMonster); }
+    currentUser.xMonster += currentUser.vxMonster * dt;
 
-        placeMonster(currentUser.xMonster, currentUser.yMonster);
+    currentUser.vyMonster += currentUser.accY * dt;
+    currentUser.vyMonster *= currentUser.damping;
+    if (Math.abs(currentUser.vyMonster) < 0.001) { currentUser.vyMonster = 0; }
+    if (300 < Math.abs(currentUser.vyMonster)) { currentUser.vyMonster = 300; }
+    currentUser.yMonster += currentUser.vyMonster * dt;
+
+    placeMonster(alphaOffsat + currentUser.xMonster, betaOffsat + currentUser.yMonster);
+    document.getElementById('gameName').innerHTML = currentUser.vxMonster.toFixed(0);
 }
 
 
