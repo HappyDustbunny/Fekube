@@ -473,10 +473,10 @@ class M2T2G2 extends NiffGame {  // Hunter
             this.gameMode = 'M2T2G2';
             // this.acc;
             // this.rot;
-            this.xCoor = 0;
-            this.vxCoor = 0;
-            this.yCoor = 0;
-            this.vyCoor = 0;
+            this.xMonster = 0;
+            this.vxMonster = 0;
+            this.yMonster = 0;
+            this.vyMonster = 0;
             this.damping = 0.96;
             // this.animationID;
 
@@ -504,10 +504,10 @@ class M2T2G2 extends NiffGame {  // Hunter
             drawMonster(100, 100);
             
         } else if (answer == 'M1Button2') {  // Shoot
-            if (45 < currentUser.xCoor && currentUser.xCoor < 70) { // TODO: Fix this
+            if (45 < currentUser.xMonster && currentUser.xMonster < 70) { // TODO: Fix this
                 this.localMana += 100;
                 updateManaCounters(100);
-                monsterMovement(500, 100);
+                placeMonster(500, 100);
             }
         } else if (answer == 'M1Button3') {  // Stop hunt
             setButton('M1Button1', 'Start jagt', 'active', 'green');
@@ -516,16 +516,16 @@ class M2T2G2 extends NiffGame {  // Hunter
 
             // cancelAnimationFrame(this.animationID);
             backgroundMovement(0, 0);
-            monsterMovement(0, 0);
+            placeMonster(0, 0);
             document.getElementById('scene').style.display = 'none';
             // stopCamera();
             // document.getElementById('canvasCameraOverlay').hidden = true;
             window.removeEventListener('deviceorientation', this.deviceOrientationHandler);
             // window.removeEventListener('devicemotion', function(event) {currentUser.getMotion(event)});
-            this.xCoor = 0;
-            this.vxCoor = 0;
-            this.yCoor = 0;
-            this.vyCoor = 0;
+            this.xMonster = 0;
+            this.vxMonster = 0;
+            this.yMonster = 0;
+            this.vyMonster = 0;
         }
     }
 
@@ -541,8 +541,8 @@ class M2T2G2 extends NiffGame {  // Hunter
         let betaOffsat = 10 * (beta - 80);
 
         backgroundMovement(alphaOffsat, betaOffsat);
-        monsterMovement(260, 0);  // TODO: Make monster movement independent and the coordinates accessible for the shoot button
-        document.getElementById('gameName').innerHTML = alphaOffsat.toFixed(0) + ' ' + alpha.toFixed(0); // + ' ' + beta.toFixed(0);
+        moveMonster();
+        document.getElementById('gameName').innerHTML = alpha.toFixed(0); // + ' ' + beta.toFixed(0);
         // document.getElementById('gameName').innerHTML = this.alpha.toFixed(3);
         document.getElementById('gameName').style.color = 'red';
 
@@ -2275,7 +2275,7 @@ function drawRecticle(recticleXSize, recticleYSize, xx, yy) {
     let drawArea = recticleCanvas.getContext('2d');
     let img = new Image;
     img.src = 'qr-codes/recticle.png';
-    img.onload = () => { drawArea.drawImage(img, 0, 0, recticleXSize, recticleYSize, 100, 100, xx, yy); };
+    img.onload = () => { drawArea.drawImage(img, 0, 0, recticleXSize, recticleYSize, 115, 65, xx, yy); };
 }
 
 
@@ -2284,9 +2284,31 @@ function backgroundMovement(xPos = 0, yPos = 0) {
     canvasElement.style.transform = 'translate(' + xPos + 'px, ' + yPos + 'px)';
 }
 
-function monsterMovement(xPos = 0, yPos = 0) {  // Monster onscreen between -80 < xpos <325
+function placeMonster(xPos = 0, yPos = 0) {  // Monster onscreen between -80 < xpos <325
     const canvasElement = document.getElementById('otherWorldMonsterCanvas');
     canvasElement.style.transform = 'translate(' + xPos + 'px, ' + yPos + 'px)';
+}
+
+function moveMonster() {
+        let accX = 0;
+        let accY = 0;
+        if (Math.random() < 0.05) { accX = 1000} ;
+        if (Math.random() < 0.05) { accX = -1000} ;
+        let dt = 1/50;
+
+        currentUser.vxMonster += accX * dt;
+        currentUser.vxMonster *= currentUser.damping;
+        if (Math.abs(currentUser.vxMonster) < 0.001) { currentUser.vxMonster = 0; }
+        if (1900 < Math.abs(currentUser.vxMonster)) { currentUser.vxMonster = 1900 * currentUser.vxMonster/Math.abs(currentUser.vxMonster); }
+        currentUser.xMonster += currentUser.vxMonster * dt;
+
+        currentUser.vyMonster += accY * dt;
+        currentUser.vyMonster *= currentUser.damping;
+        if (Math.abs(currentUser.vyMonster) < 0.001) { currentUser.vyMonster = 0; }
+        if (300 < Math.abs(currentUser.vyMonster)) { currentUser.vyMonster = 300; }
+        currentUser.yMonster += currentUser.vyMonster * dt;
+
+        placeMonster(currentUser.xMonster, currentUser.yMonster);
 }
 
 
