@@ -499,7 +499,7 @@ class M2T2G2 extends NiffGame {  // Hunter
 
             // this.animationID = requestAnimationFrame(monsterMovement);
             document.getElementById('scene').style.display = 'block';
-            drawBackground(1800, 300);
+            drawBackground(2150, 300);
             drawRecticle(100, 100, 100, 100);
             drawMonster(100, 100);
             
@@ -533,8 +533,11 @@ class M2T2G2 extends NiffGame {  // Hunter
         let alpha = event.alpha;  // Z rotation (compas)
         let beta = event.beta;  // X rotation (tilt forward/backvard)
 
-        let alphaOffsat = 5 * alpha - 1350;
-        if (270 < alpha) {alphaOffsat = 5 * (alpha - 360) - 1000};
+        alpha += 90; // The + 90 is to move the jump in scenery to behind the player. No problem unless turning a lot ...
+        if (360 < alpha) {alpha -= 360};
+
+        let alphaOffsat = 5 * alpha - 1800;  // It's 1804 instead of 2150 - 350 = 1450 because of the body width is 96%
+        if (360 < alpha) {alphaOffsat = 5 * (alpha - 360) - 1800};
         let betaOffsat = 10 * (beta - 80);
 
         backgroundMovement(alphaOffsat, betaOffsat);
@@ -2235,7 +2238,7 @@ function drawBackground(backgroundXSize, backgroundYSize) {
     backgroundCanvas.height = backgroundYSize;
     let drawArea = backgroundCanvas.getContext('2d');
     let img = new Image;
-    img.src = 'qr-codes/background1800x300.jpg';
+    img.src = 'qr-codes/background2150x300.jpg';
     img.onload = () => { drawArea.drawImage(img, 0, 0, backgroundXSize, backgroundYSize, 0, 0, backgroundXSize, backgroundYSize); };
 }
 
