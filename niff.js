@@ -473,11 +473,13 @@ class M2T2G2 extends NiffGame {  // Hunter
             this.gameMode = 'M2T2G2';
             this.accX = 0;
             this.accY = 0;
-            this.xMonster = 200;
             this.vxMonster = 0;
-            this.yMonster = 60;
             this.vyMonster = 0;
-            this.damping = 0.99996;
+            this.xMonster = Math.floor(Math.random() * 1700 + 100);
+            this.yMonster = 70;
+            this.alphaOffset;
+            this.betaOffset;
+            this.damping = 0.998;
             // this.animationID;
 
             this.deviceOrientationHandler = this.getMotion.bind(this);
@@ -504,7 +506,7 @@ class M2T2G2 extends NiffGame {  // Hunter
             drawMonster(100, 100);
             
         } else if (answer == 'M1Button2') {  // Shoot
-            if (45 < currentUser.xMonster && currentUser.xMonster < 70) { // TODO: Fix this
+            if (80 < currentUser.xMonster + currentUser.alphaOffset && currentUser.xMonster + currentUser.alphaOffset < 150) { // TODO: Fix this
                 this.localMana += 100;
                 updateManaCounters(100);
                 placeMonster(500, 100);
@@ -522,10 +524,10 @@ class M2T2G2 extends NiffGame {  // Hunter
             // document.getElementById('canvasCameraOverlay').hidden = true;
             window.removeEventListener('deviceorientation', this.deviceOrientationHandler);
             // window.removeEventListener('devicemotion', function(event) {currentUser.getMotion(event)});
-            this.xMonster = 0;
             this.vxMonster = 0;
-            this.yMonster = 0;
             this.vyMonster = 0;
+            this.xMonster = Math.floor(Math.random() * 1700 + 100);
+            this.yMonster = 70;
         }
     }
 
@@ -536,12 +538,12 @@ class M2T2G2 extends NiffGame {  // Hunter
         alpha += 90; // The + 90 is to move the slight jump in scenery to behind the player. No problem unless turning a lot ...
         if (360 < alpha) {alpha -= 360};
 
-        let alphaOffsat = 5 * alpha - 1800;  // The body width is 96% and could be the reason behind the flitter at 0/360
-        if (360 < alpha) {alphaOffsat = 5 * (alpha - 360) - 1800};
-        let betaOffsat = 10 * (beta - 80);
+        currentUser.alphaOffset = 5 * alpha - 1800;  // The body width is 96% and could be the reason behind the flitter at 0/360
+        if (360 < alpha) {currentUser.alphaOffset = 5 * (alpha - 360) - 1800};
+        currentUser.betaOffset = 10 * (beta - 80);
 
-        backgroundMovement(alphaOffsat, betaOffsat);
-        moveMonster(alphaOffsat, betaOffsat);
+        backgroundMovement(currentUser.alphaOffset, currentUser.betaOffset);
+        moveMonster(currentUser.alphaOffset, currentUser.betaOffset);
         // document.getElementById('gameName').innerHTML = alpha.toFixed(0); // + ' ' + beta.toFixed(0);
         // document.getElementById('gameName').innerHTML = this.alpha.toFixed(3);
         document.getElementById('gameName').style.color = 'red';
@@ -2289,10 +2291,10 @@ function placeMonster(xPos = 0, yPos = 0) {  // Monster onscreen between -80 < x
     canvasElement.style.transform = 'translate(' + xPos + 'px, ' + yPos + 'px)';
 }
 
-function moveMonster(alphaOffsat, betaOffsat) {
+function moveMonster(alphaOffset, betaOffset) {
     let whatEvs = Math.random();
-    if (whatEvs < 0.001) { currentUser.accX = 1000};
-    if (0.001 < whatEvs && whatEvs < 0.002) { currentUser.accX = -1000};
+    if (whatEvs < 0.001) { currentUser.accX = 2000};
+    if (0.001 < whatEvs && whatEvs < 0.002) { currentUser.accX = -2000};
     if (Math.abs(currentUser.accX) < 1) {currentUser.accX = 0} else {currentUser.accX *= 0.4}
 
     let dt = 1/50;
@@ -2300,9 +2302,9 @@ function moveMonster(alphaOffsat, betaOffsat) {
     currentUser.vxMonster += currentUser.accX * dt;
     currentUser.vxMonster *= currentUser.damping;
     if (Math.abs(currentUser.vxMonster) < 0.001) { currentUser.vxMonster = 0; }
-    currentUser.vxMonster %= 1800;
     // if (1900 < Math.abs(currentUser.vxMonster)) { currentUser.vxMonster = 1900 * currentUser.vxMonster/Math.abs(currentUser.vxMonster); }
     currentUser.xMonster += currentUser.vxMonster * dt;
+    currentUser.xMonster %= 1800;
 
     currentUser.vyMonster += currentUser.accY * dt;
     currentUser.vyMonster *= currentUser.damping;
@@ -2310,8 +2312,9 @@ function moveMonster(alphaOffsat, betaOffsat) {
     if (300 < Math.abs(currentUser.vyMonster)) { currentUser.vyMonster = 300; }
     currentUser.yMonster += currentUser.vyMonster * dt;
 
-    placeMonster(alphaOffsat + currentUser.xMonster, betaOffsat + currentUser.yMonster);
-    document.getElementById('gameName').innerHTML = currentUser.vxMonster.toFixed(0);
+    placeMonster(alphaOffset + currentUser.xMonster, betaOffset + currentUser.yMonster);
+
+    document.getElementById('gameName').innerHTML = currentUser.xMonster.toFixed(0) + ' ' + alphaOffset.toFixed(0);
 }
 
 
