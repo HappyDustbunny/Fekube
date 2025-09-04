@@ -502,14 +502,21 @@ class M2T2G2 extends NiffGame {  // Hunter
             // this.animationID = requestAnimationFrame(monsterMovement);
             document.getElementById('scene').style.display = 'block';
             drawBackground(2150, 300);
-            drawRecticle(100, 100, 100, 100);
+            drawFirstRecticle(100, 100, 115, 65, 100, 100, 0);
             drawMonster(100, 100);
             
         } else if (answer == 'M1Button2') {  // Shoot
             if (80 < currentUser.xMonster + currentUser.alphaOffset && currentUser.xMonster + currentUser.alphaOffset < 150) { // TODO: Fix this
                 this.localMana += 100;
                 updateManaCounters(100);
-                placeMonster(500, 100);
+                
+                // Spawn new monster by moving the old monster
+                this.xMonster = Math.floor(Math.random() * 1700 + 100);
+                this.yMonster = 70;
+                placeMonster(this.xMonster, this.yMonster);
+
+                // Display magic suckicng
+                requestAnimationFrame(zap);
             }
         } else if (answer == 'M1Button3') {  // Stop hunt
             setButton('M1Button1', 'Start jagt', 'active', 'green');
@@ -2269,15 +2276,51 @@ function drawMonster(monsterXSize, monsterYSize) {
 }
 
 
-function drawRecticle(recticleXSize, recticleYSize, xx, yy) {
+function drawFirstRecticle(recticleXSize, recticleYSize, recticleOffsetX, recticleOffsetY, xxPos, yyPos, frame) {
     let recticleCanvas = document.getElementById('otherWorldRecticleCanvas');
     recticleCanvas.hidden = false;
     recticleCanvas.width = 350;
     recticleCanvas.height = 300;
-    let drawArea = recticleCanvas.getContext('2d');
-    let img = new Image;
-    img.src = 'qr-codes/recticle.png';
-    img.onload = () => { drawArea.drawImage(img, 0, 0, recticleXSize, recticleYSize, 115, 65, xx, yy); };
+    currentUser.drawArea = recticleCanvas.getContext('2d');
+    currentUser.img = new Image;
+    currentUser.img.src = 'qr-codes/recticleZapSpriteSheet100x100.png';
+    currentUser.img.onload = () => { currentUser.drawArea.drawImage(currentUser.img, frame * recticleXSize, 0, recticleXSize, recticleYSize, recticleOffsetX, recticleOffsetY, xxPos, yyPos); };
+}
+
+
+function drawRecticle(recticleXSize, recticleYSize, recticleOffsetX, recticleOffsetY, xxPos, yyPos, frame) {
+    currentUser.drawArea.drawImage(currentUser.img, frame * recticleXSize, 0, recticleXSize, recticleYSize, recticleOffsetX, recticleOffsetY, xxPos, yyPos);
+}
+
+
+let animationStart;
+function zap(timestamp) {
+    if (animationStart === undefined) {
+        animationStart = timestamp;
+    }
+
+    let duration = timestamp - animationStart;
+
+    if (duration < 50) {
+        drawRecticle(100, 100, 50, 0, 250, 250, 1);
+    } else if (duration < 100) {
+        currentUser.drawArea.clearRect(0, 0, 350, 300);
+        drawRecticle(100, 100, 50, 0, 250, 250, 2);
+    } else if (duration < 150) {
+        currentUser.drawArea.clearRect(0, 0, 350, 300);
+        drawRecticle(100, 100, 50, 0, 250, 250, 3);
+    } else if (duration < 200) {
+        currentUser.drawArea.clearRect(0, 0, 350, 300);
+        drawRecticle(100, 100, 50, 0, 250, 250, 4);
+    } else if (duration < 250) {
+        currentUser.drawArea.clearRect(0, 0, 350, 300);
+        drawRecticle(100, 100, 115, 65, 100, 100, 0);
+    }
+    if (duration < 251) {
+        requestAnimationFrame(zap);
+    } else {
+        animationStart = undefined;
+    }
 }
 
 
