@@ -475,6 +475,7 @@ class M2T2G2 extends NiffGame {  // Hunter
             this.accY = 0;
             this.vxMonster = 0;
             this.vyMonster = 0;
+            this.oldxMonster = 500;
             this.xMonster = Math.floor(Math.random() * 1700 + 100);
             this.yMonster = 70;
             this.alphaOffset;
@@ -511,7 +512,10 @@ class M2T2G2 extends NiffGame {  // Hunter
                 updateManaCounters(100);
                 
                 // Spawn new monster by moving the old monster
-                this.xMonster = Math.floor(Math.random() * 1700 + 100);
+                this.oldxMonster = this.xMonster;
+                while (Math.abs(this.xMonster - this.oldxMonster) < 400) {
+                    this.xMonster = Math.floor(Math.random() * 1700 + 100);
+                }
                 this.yMonster = 70;
                 placeMonster(this.xMonster, this.yMonster);
 
@@ -2336,6 +2340,8 @@ function placeMonster(xPos = 0, yPos = 0) {  // Monster onscreen between -80 < x
 
 function moveMonster(alphaOffset, betaOffset) {
     let whatEvs = Math.random();
+    if (currentUser.xMonster < 50) {whatEvs = 0.0005};  // Create repulsion away from seam
+    if (1750 < currentUser.xMonster) {whatEvs = 0.0015};  // Create repulsion away from seam
     if (whatEvs < 0.001) { currentUser.accX = 2000};
     if (0.001 < whatEvs && whatEvs < 0.002) { currentUser.accX = -2000};
     if (Math.abs(currentUser.accX) < 1) {currentUser.accX = 0} else {currentUser.accX *= 0.4}
@@ -2809,3 +2815,6 @@ function hunt() {
     beginRound();
     document.getElementById('navigationContainer').style.display = 'block';
 }
+
+async function pan(val) {for (i=val;i<360;i+=1) {currentUser.shakeItBaby(0, 0, 0, i, 80, 0); console.log(i); 
+    await new Promise(resolve => setTimeout(resolve, 100));}}
