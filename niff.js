@@ -521,6 +521,11 @@ class M2T2G2 extends NiffGame {  // Hunter
 
                 // Display magic suckicng
                 requestAnimationFrame(zap);
+            } else {
+                this.localMana -= 10;
+                updateManaCounters(-10);
+
+                requestAnimationFrame(missed);
             }
         } else if (answer == 'M1Button3') {  // Stop hunt
             setButton('M1Button1', 'Start jagt', 'active', 'green');
@@ -537,6 +542,7 @@ class M2T2G2 extends NiffGame {  // Hunter
             // window.removeEventListener('devicemotion', function(event) {currentUser.getMotion(event)});
             this.vxMonster = 0;
             this.vyMonster = 0;
+            this.lastSign = 1;
             this.xMonster = Math.floor(Math.random() * 1700 + 100);
             this.yMonster = 70;
         }
@@ -2257,18 +2263,18 @@ function drawBackground(backgroundXSize, backgroundYSize) {
 }
 
 
-function drawMonster(monsterXSize, monsterYSize) {
+function drawMonster(monsterXSize, monsterYSize, spriteNumber = 1) {
     let monsterCanvas = document.getElementById('otherWorldMonsterCanvas');
     monsterCanvas.hidden = false;
     monsterCanvas.width = 100;
     monsterCanvas.height = 100;
     let drawArea = monsterCanvas.getContext('2d');
     let img = new Image;
-    img.src = 'qr-codes/foe1.png';
+    img.src = 'qr-codes/Foe1SpriteSheet.png';
 
     // drawArea.clearRect(0, 0, cameraOverlay.width, cameraOverlay.height)  // Clear drawArea
 
-    img.onload = () => { drawArea.drawImage(img, 0, 0, monsterXSize, monsterYSize, 0, 0, 100, 100); };
+    img.onload = () => { drawArea.drawImage(img, spriteNumber * 100, 0, monsterXSize, monsterYSize, 0, 0, 100, 100); };
 
     // drawArea.beginPath();
     // drawArea.rect(0, 0, 300, 300);
@@ -2327,6 +2333,35 @@ function zap(timestamp) {
     }
 }
 
+function missed(timestamp) {
+    if (animationStart === undefined) {
+        animationStart = timestamp;
+    }
+
+    let duration = timestamp - animationStart;
+
+    if (duration < 50) {
+        drawRecticle(100, 100, 50, 0, 250, 250, 1);
+    } else if (duration < 100) {
+        currentUser.drawArea.clearRect(0, 0, 350, 300);
+        drawRecticle(100, 100, 50, 0, 250, 250, 2);
+    // } else if (duration < 150) {
+    //     currentUser.drawArea.clearRect(0, 0, 350, 300);
+    //     drawRecticle(100, 100, 50, 0, 250, 250, 3);
+    // } else if (duration < 200) {
+    //     currentUser.drawArea.clearRect(0, 0, 350, 300);
+    //     drawRecticle(100, 100, 50, 0, 250, 250, 4);
+    } else if (duration < 250) {
+        currentUser.drawArea.clearRect(0, 0, 350, 300);
+        drawRecticle(100, 100, 115, 65, 100, 100, 0);
+    }
+    if (duration < 251) {
+        requestAnimationFrame(missed);
+    } else {
+        animationStart = undefined;
+    }
+}
+
 
 function backgroundMovement(xPos = 0, yPos = 0) {
     const canvasElement = document.getElementById('otherWorldBackgroundCanvas');
@@ -2350,7 +2385,21 @@ function moveMonster(alphaOffset, betaOffset) {
 
     currentUser.vxMonster += currentUser.accX * dt;
     currentUser.vxMonster *= currentUser.damping;
-    if (Math.abs(currentUser.vxMonster) < 0.001) { currentUser.vxMonster = 0; }
+    if (Math.abs(currentUser.vxMonster) < 10) { currentUser.vxMonster = 0; }
+    if (Math.sign(currentUser.vxMonster) != currentUser.lastSign) {  // Make monster turn to face direction of travel
+        currentUser.lastSign = Math.sign(currentUser.vxMonster);
+        switch(currentUser.lastSign) {
+            case -1:
+                drawMonster(100, 100, 0);  // Look left
+                break;
+            case 0:
+                drawMonster(100, 100, 1);  // Look forward
+                break;
+            case 1:
+                drawMonster(100, 100, 2);  // Look right
+                break;
+        }
+    }
     // if (1900 < Math.abs(currentUser.vxMonster)) { currentUser.vxMonster = 1900 * currentUser.vxMonster/Math.abs(currentUser.vxMonster); }
     currentUser.xMonster += currentUser.vxMonster * dt;
     currentUser.xMonster %= 1800;
@@ -2806,15 +2855,22 @@ function hunt() {
     solo = true;
 
     endRoundAt = (new Date(new Date().valueOf() + 600000)).valueOf();
-
+    
     clearQrCanvas()
     showTextDiv.innerHTML = '';
     setButton('advanceGameStateButton', 'Videre', 'hidden');
     gameMode = 'M2T2G2';
-
+    
     beginRound();
     document.getElementById('navigationContainer').style.display = 'block';
 }
 
+
+function skyd() {
+    document.getElementById('M1Button1').click();
+}
+
+
 async function pan(val) {for (i=val;i<360;i+=1) {currentUser.shakeItBaby(0, 0, 0, i, 80, 0); console.log(i); 
     await new Promise(resolve => setTimeout(resolve, 100));}}
+    
