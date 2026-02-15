@@ -550,11 +550,14 @@ class M2T2G2 extends NiffGame {  // Hunter
 
     getMotion = (event) => {
         let alpha = event.alpha;  // Z rotation (compas)
+        // let alpha = event.alpha * Math.PI / 180;
         let beta = event.beta;  // X rotation (tilt forward/backvard)
 
         alpha += 90; // The + 90 is to move the slight jump in scenery to behind the player. No problem unless turning a lot ...
         if (360 < alpha) {alpha -= 360};
-
+        
+        // let pixelsPrMeter = 1800;
+        // currentUser.alphaOffset = .4 * Math.sin(alpha) * pixelsPrMeter;  // The body width is 96% and could be the reason behind the flitter at 0/360
         currentUser.alphaOffset = 5 * alpha - 1800;  // The body width is 96% and could be the reason behind the flitter at 0/360
         if (360 < alpha) {currentUser.alphaOffset = 5 * (alpha - 360) - 1800};
         currentUser.betaOffset = 10 * (beta - 80);
