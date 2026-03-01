@@ -1339,25 +1339,21 @@ function firstTradeInterval() {
             
         }
 
-        let breakEl = document.createElement('br');
-        textNode.appendChild(breakEl);
-        let paragraph3 = document.createElement('p');
-        paragraph3.setAttribute('id', 'buyBoosterElement');
-        let word = 'også';
-        if (gameHasHealer) {
-            word = '';
-        }
-        let textContent3 = document.createTextNode('Du kan ' + word + ' købe en amulet \u2728 så dine ritualer ' + 
-            'samler mere mana ');
-        paragraph3.appendChild(textContent3);
-        let button2 = document.createElement('button');
-        button2.setAttribute('id', 'buyBoosterButton');
-        button2.innerText = ' Køb en amulet \u2728 der giver større manaudbytte for ' + boosterPrice + ' mana ';
-        paragraph3.appendChild(button2);
-        textNode.appendChild(paragraph3);
-        document.getElementById('buyBoosterButton').addEventListener('click', buyBoosterButtonHasBeenClicked);
+        offerManaBooster();
+
+    } else if (gameMode == 'M2T2G2') {
+        let paragraph1 = document.createElement("p");
+        let textContent1 = document.createTextNode('Du tager skade, hvis du ikke høster deres mana først');
+        paragraph1.appendChild(textContent1);
+        textNode.appendChild(paragraph1);
+        let paragraph2 = document.createElement("p");
+        let textContent2 = document.createTextNode('Skan 0 flere gange, hvis du tager skade, eller søg hjælp hos Healeren.');
+        paragraph2.appendChild(textContent2);
+        textNode.appendChild(paragraph2);
+
+        offerManaBooster();
     } else {
-        amulet = true;
+        // amulet = true;  
         let hunter1 = 'en jæger';
         let hunter2 = 'en';
         if (1 < participantList.filter(elem => elem === 'M2T2G2').length) {
@@ -1374,6 +1370,27 @@ function firstTradeInterval() {
         paragraph1.appendChild(textContent1);
         textNode.appendChild(paragraph1);
     }
+}
+
+
+function offerManaBooster() {
+        let breakEl = document.createElement('br');
+        textNode.appendChild(breakEl);
+        let paragraph3 = document.createElement('p');
+        paragraph3.setAttribute('id', 'buyBoosterElement');
+        let word = 'også';
+        if (gameHasHealer || gameHasHunter) {
+            word = '';
+        }
+        let textContent3 = document.createTextNode('Du kan ' + word + ' købe en amulet \u2728 så dine ritualer ' + 
+            'samler mere mana ');
+        paragraph3.appendChild(textContent3);
+        let button2 = document.createElement('button');
+        button2.setAttribute('id', 'buyBoosterButton');
+        button2.innerText = ' Køb en amulet \u2728 der giver større manaudbytte for ' + boosterPrice + ' mana ';
+        paragraph3.appendChild(button2);
+        textNode.appendChild(paragraph3);
+        document.getElementById('buyBoosterButton').addEventListener('click', buyBoosterButtonHasBeenClicked);
 }
 
 
@@ -1726,13 +1743,20 @@ function roleHasBeenClicked(event) {
     document.getElementById('navigationContainer').style.display = 'flex';
     
     if (gameMode !== '' && gameMode !== 'selectRoleContainer') {
+        if (gameMode == 'M2T2G2') {  // If Hunter ...
+            if (!window.DeviceMotionEvent) {
+                alert("Din browser understøtter ikke bevægelsesregistrering. Prøv at bruge Firefox eller Chrome eller vælg en anden rolle");
+            } else {
+                gameHasHunter = true;
+            }
+        } else if (gameMode == 'M1T1G1') { // If Healer ...
+            gameHasHealer = true;
+        }
         
         if (coordinator) {
             scanOthers();
         } else if (!solo) {
             shareRole();
-        } else if (gameMode == 'M2T2G2' && !window.DeviceMotionEvent) {  // If Hunter ...
-            alert("Din browser understøtter ikke bevægelsesregistrering. Prøv at bruge Firefox eller Chrome eller vælg en anden rolle");
         } else {
             clearQrCanvas()
         
