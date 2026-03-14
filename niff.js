@@ -2293,15 +2293,15 @@ function drawBackground(backgroundXSize, backgroundYSize) {
 function drawMonster(monsterXSize, monsterYSize, spriteNumber = 1) {
     let monsterCanvas = document.getElementById('otherWorldMonsterCanvas');
     monsterCanvas.hidden = false;
-    monsterCanvas.width = 100;
-    monsterCanvas.height = 100;
+    monsterCanvas.width = 300;
+    monsterCanvas.height = 300;
     let drawArea = monsterCanvas.getContext('2d');
     let img = new Image;
     img.src = 'qr-codes/Foe1SpriteSheet.png';
 
     // drawArea.clearRect(0, 0, cameraOverlay.width, cameraOverlay.height)  // Clear drawArea
 
-    img.onload = () => { drawArea.drawImage(img, spriteNumber * 100, 0, monsterXSize, monsterYSize, 0, 0, 100, 100); };
+    img.onload = () => { drawArea.drawImage(img, spriteNumber * 100, 0, 100, 100, 0, 0, monsterXSize, monsterYSize); };
 
     // drawArea.beginPath();
     // drawArea.rect(0, 0, 300, 300);
@@ -2331,7 +2331,7 @@ function drawRecticle(recticleXSize, recticleYSize, recticleOffsetX, recticleOff
 
 
 let animationStart;
-function zap(timestamp) {
+function zap(timestamp) {  // Zap animation for hitting the monster in Hunter mode
     if (animationStart === undefined) {
         animationStart = timestamp;
     }
@@ -2345,22 +2345,28 @@ function zap(timestamp) {
         drawRecticle(100, 100, 50, 0, 250, 250, 2);
     } else if (duration < 150) {
         currentUser.drawArea.clearRect(0, 0, 350, 300);
-        drawRecticle(100, 100, 50, 0, 250, 250, 3);
+        drawRecticle(100, 100, 125, 75, 100, 100, 3);
     } else if (duration < 200) {
         currentUser.drawArea.clearRect(0, 0, 350, 300);
+        drawRecticle(100, 100, 100, 50, 150, 150, 4);
+    } else if (duration < 300) {
+        currentUser.drawArea.clearRect(0, 0, 350, 300);
+        drawRecticle(100, 100, 76, 25, 200, 200, 3);
+    } else if (duration < 400) {
+        currentUser.drawArea.clearRect(0, 0, 350, 300);
         drawRecticle(100, 100, 50, 0, 250, 250, 4);
-    } else if (duration < 250) {
+    } else if (duration < 500) {
         currentUser.drawArea.clearRect(0, 0, 350, 300);
         drawRecticle(100, 100, 115, 65, 100, 100, 0);
     }
-    if (duration < 251) {
+    if (duration < 501) {
         requestAnimationFrame(zap);
     } else {
         animationStart = undefined;
     }
 }
 
-function missed(timestamp) {
+function missed(timestamp) {  // Missed zapping animation in Hunter mode
     if (animationStart === undefined) {
         animationStart = timestamp;
     }
@@ -2368,21 +2374,21 @@ function missed(timestamp) {
     let duration = timestamp - animationStart;
 
     if (duration < 50) {
-        drawRecticle(100, 100, 50, 0, 250, 250, 1);
-    } else if (duration < 100) {
+        drawRecticle(100, 100, 108, 65, 100, 100, 2);
+    } else if (duration < 80) {
         currentUser.drawArea.clearRect(0, 0, 350, 300);
-        drawRecticle(100, 100, 50, 0, 250, 250, 2);
+        drawRecticle(100, 100, 40, -10, 250, 250, 2);
     // } else if (duration < 150) {
     //     currentUser.drawArea.clearRect(0, 0, 350, 300);
     //     drawRecticle(100, 100, 50, 0, 250, 250, 3);
     // } else if (duration < 200) {
     //     currentUser.drawArea.clearRect(0, 0, 350, 300);
     //     drawRecticle(100, 100, 50, 0, 250, 250, 4);
-    } else if (duration < 250) {
+    } else if (duration < 100) {
         currentUser.drawArea.clearRect(0, 0, 350, 300);
         drawRecticle(100, 100, 115, 65, 100, 100, 0);
     }
-    if (duration < 251) {
+    if (duration < 101) {
         requestAnimationFrame(missed);
     } else {
         animationStart = undefined;
