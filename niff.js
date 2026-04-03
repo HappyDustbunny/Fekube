@@ -58,6 +58,9 @@ let cameraStream;
 let videoWidth;
 let videoHeight;
 
+let animationStart;
+let animationStartAttack;
+
 let healMsgs = [
     '',  // No message when healing has occured
     'Og ... sidste gang',
@@ -478,6 +481,7 @@ class M2T2G2 extends NiffGame {  // Hunter
             this.oldxMonster = 500;
             this.xMonster = Math.floor(Math.random() * 1700 + 100);
             this.yMonster = 70;
+            this.monsterIsPissed = false;
             this.alphaOffset;
             this.betaOffset;
             this.damping = 0.998;
@@ -507,7 +511,8 @@ class M2T2G2 extends NiffGame {  // Hunter
             drawMonster(100, 100);
             
         } else if (answer == 'M1Button2') {  // Shoot
-            if (80 < currentUser.xMonster + currentUser.alphaOffset && currentUser.xMonster + currentUser.alphaOffset < 150) { // TODO: Fix this
+            let monsterPos = currentUser.xMonster + currentUser.alphaOffset;
+            if (80 < monsterPos && monsterPos < 150) {
                 this.localMana += 100;
                 updateManaCounters(100);
                 
@@ -518,9 +523,16 @@ class M2T2G2 extends NiffGame {  // Hunter
                 }
                 this.yMonster = 70;
                 placeMonster(this.xMonster, this.yMonster);
-
+                
                 // Display magic suckicng
                 requestAnimationFrame(zap);
+            } else if ((0 < monsterPos && monsterPos < 79) || (151 < monsterPos && monsterPos < 250)) {
+                this.localMana -= 10;
+                updateManaCounters(-10);
+
+                currentUser.monsterIsPissed = true;
+
+                drawMonster(100, 100, 3);
             } else {
                 this.localMana -= 10;
                 updateManaCounters(-10);
@@ -2330,7 +2342,6 @@ function drawRecticle(recticleXSize, recticleYSize, recticleOffsetX, recticleOff
 }
 
 
-let animationStart;
 function zap(timestamp) {  // Zap animation for hitting the monster in Hunter mode
     if (animationStart === undefined) {
         animationStart = timestamp;
@@ -2378,12 +2389,6 @@ function missed(timestamp) {  // Missed zapping animation in Hunter mode
     } else if (duration < 80) {
         currentUser.drawArea.clearRect(0, 0, 350, 300);
         drawRecticle(100, 100, 40, -10, 250, 250, 2);
-    // } else if (duration < 150) {
-    //     currentUser.drawArea.clearRect(0, 0, 350, 300);
-    //     drawRecticle(100, 100, 50, 0, 250, 250, 3);
-    // } else if (duration < 200) {
-    //     currentUser.drawArea.clearRect(0, 0, 350, 300);
-    //     drawRecticle(100, 100, 50, 0, 250, 250, 4);
     } else if (duration < 100) {
         currentUser.drawArea.clearRect(0, 0, 350, 300);
         drawRecticle(100, 100, 115, 65, 100, 100, 0);
@@ -2392,6 +2397,33 @@ function missed(timestamp) {  // Missed zapping animation in Hunter mode
         requestAnimationFrame(missed);
     } else {
         animationStart = undefined;
+        currentUser.monsterIsPissed = false;
+    }
+}
+
+
+function monsterAttacking(timestamp) {
+    if (animationStartAttack === undefined) {
+        animationStartAttack = timestamp;
+    }
+    
+    let duration = timestamp - animationStartAttack;
+    
+    if (duration < 250) {
+        drawMonster(150, 150, 3);
+    } else if (duration < 500) {
+        currentUser.drawArea.clearRect(0, 0, 350, 300);
+        drawMonster(200, 200, 3);
+    } else if (duration < 750) {
+        currentUser.drawArea.clearRect(0, 0, 350, 300);
+        drawMonster(250, 250, 0);
+    }
+    if (duration < 1000) {
+        requestAnimationFrame(missed);
+    } else {
+        animationStartAttack = undefined;
+        currentUser.monsterIsPissed = false;
+        isVictim = 5;
     }
 }
 
@@ -2407,45 +2439,49 @@ function placeMonster(xPos = 0, yPos = 0) {  // Monster onscreen between -80 < x
 }
 
 function moveMonster(alphaOffset, betaOffset) {
-    let whatEvs = Math.random();
-    if (currentUser.xMonster < 50) {whatEvs = 0.0005};  // Create repulsion away from seam
-    if (1750 < currentUser.xMonster) {whatEvs = 0.0015};  // Create repulsion away from seam
-    if (whatEvs < 0.001) { currentUser.accX = 2000};
-    if (0.001 < whatEvs && whatEvs < 0.002) { currentUser.accX = -2000};
-    if (Math.abs(currentUser.accX) < 1) {currentUser.accX = 0} else {currentUser.accX *= 0.4}
-
-    let dt = 1/50;
-
-    currentUser.vxMonster += currentUser.accX * dt;
-    currentUser.vxMonster *= currentUser.damping;
-    if (Math.abs(currentUser.vxMonster) < 10) { currentUser.vxMonster = 0; }
-    if (Math.sign(currentUser.vxMonster) != currentUser.lastSign) {  // Make monster turn to face direction of travel
-        currentUser.lastSign = Math.sign(currentUser.vxMonster);
-        switch(currentUser.lastSign) {
-            case -1:
-                drawMonster(100, 100, 0);  // Look left
-                break;
-            case 0:
-                drawMonster(100, 100, 1);  // Look forward
-                break;
-            case 1:
-                drawMonster(100, 100, 2);  // Look right
-                break;
+    if (currentUser.monsterIsPissed) {  // Attack
+        requestAnimationFrame(monsterAttacking);
+    } else {  // Move randomly
+        let whatEvs = Math.random();
+        if (currentUser.xMonster < 50) {whatEvs = 0.0005};  // Create repulsion away from seam
+        if (1750 < currentUser.xMonster) {whatEvs = 0.0015};  // Create repulsion away from seam
+        if (whatEvs < 0.001) { currentUser.accX = 2000};
+        if (0.001 < whatEvs && whatEvs < 0.002) { currentUser.accX = -2000};
+        if (Math.abs(currentUser.accX) < 1) {currentUser.accX = 0} else {currentUser.accX *= 0.4}
+    
+        let dt = 1/50;
+    
+        currentUser.vxMonster += currentUser.accX * dt;
+        currentUser.vxMonster *= currentUser.damping;
+        if (Math.abs(currentUser.vxMonster) < 10) { currentUser.vxMonster = 0; }
+        if (Math.sign(currentUser.vxMonster) != currentUser.lastSign) {  // Make monster turn to face direction of travel
+            currentUser.lastSign = Math.sign(currentUser.vxMonster);
+            switch(currentUser.lastSign) {
+                case -1:
+                    drawMonster(100, 100, 0);  // Look left
+                    break;
+                case 0:
+                    drawMonster(100, 100, 1);  // Look forward
+                    break;
+                case 1:
+                    drawMonster(100, 100, 2);  // Look right
+                    break;
+            }
         }
+        // if (1900 < Math.abs(currentUser.vxMonster)) { currentUser.vxMonster = 1900 * currentUser.vxMonster/Math.abs(currentUser.vxMonster); }
+        currentUser.xMonster += currentUser.vxMonster * dt;
+        currentUser.xMonster %= 1800;
+    
+        currentUser.vyMonster += currentUser.accY * dt;
+        currentUser.vyMonster *= currentUser.damping;
+        if (Math.abs(currentUser.vyMonster) < 0.001) { currentUser.vyMonster = 0; }
+        if (300 < Math.abs(currentUser.vyMonster)) { currentUser.vyMonster = 300; }
+        currentUser.yMonster += currentUser.vyMonster * dt;
+    
+        placeMonster(alphaOffset + currentUser.xMonster, betaOffset + currentUser.yMonster);
+    
+        document.getElementById('gameName').innerHTML = currentUser.xMonster.toFixed(0) + ' ' + alphaOffset.toFixed(0);
     }
-    // if (1900 < Math.abs(currentUser.vxMonster)) { currentUser.vxMonster = 1900 * currentUser.vxMonster/Math.abs(currentUser.vxMonster); }
-    currentUser.xMonster += currentUser.vxMonster * dt;
-    currentUser.xMonster %= 1800;
-
-    currentUser.vyMonster += currentUser.accY * dt;
-    currentUser.vyMonster *= currentUser.damping;
-    if (Math.abs(currentUser.vyMonster) < 0.001) { currentUser.vyMonster = 0; }
-    if (300 < Math.abs(currentUser.vyMonster)) { currentUser.vyMonster = 300; }
-    currentUser.yMonster += currentUser.vyMonster * dt;
-
-    placeMonster(alphaOffset + currentUser.xMonster, betaOffset + currentUser.yMonster);
-
-    document.getElementById('gameName').innerHTML = currentUser.xMonster.toFixed(0) + ' ' + alphaOffset.toFixed(0);
 }
 
 
