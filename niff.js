@@ -474,7 +474,7 @@ class M2T2G2 extends NiffGame {  // Hunter
     constructor() {
             super();
             this.gameMode = 'M2T2G2';
-            this.accX = 0;
+            this.accX = -2000;  // To get monster moving
             this.accY = 0;
             this.vxMonster = 0;
             this.vyMonster = 0;
@@ -482,8 +482,8 @@ class M2T2G2 extends NiffGame {  // Hunter
             this.xMonster = Math.floor(Math.random() * 1700 + 100);
             this.yMonster = 70;
             // this.monsterIsPissed = false;
-            this.alphaOffset;
-            this.betaOffset;
+            this.alphaOffset = 0;
+            this.betaOffset = 0;
             this.damping = 0.998;
             // this.animationID;
 
@@ -577,7 +577,7 @@ class M2T2G2 extends NiffGame {  // Hunter
         currentUser.betaOffset = 10 * (beta - 80);
 
         backgroundMovement(currentUser.alphaOffset, currentUser.betaOffset);
-        moveMonster(currentUser.alphaOffset, currentUser.betaOffset);
+        // moveMonster(currentUser.alphaOffset, currentUser.betaOffset);
 
         // document.getElementById('gameName').innerHTML = alpha.toFixed(0); // + ' ' + beta.toFixed(0);
         // document.getElementById('gameName').innerHTML = this.alpha.toFixed(3);
@@ -1857,10 +1857,14 @@ function isRoundOver() {
         }
     }
 
-    if (isVictim === 5) {
+}
+
+
+function upKeep() {
+    if (isVictim === 5 && whileAttackedTimer === '') {
         initializeAttack();
-    // } else if (isVictim === 0) {
-    //     moveMonster(currentUser.alphaOffset, currentUser.betaOffset);
+    } else if (isVictim === 0) {
+        moveMonster(currentUser.alphaOffset, currentUser.betaOffset);
     }
 }
 
@@ -1875,6 +1879,7 @@ function beginRound() {
     document.getElementById('progressBar').style.setProperty('--progressBarColour', 'green')
     document.getElementById('progressBarContainer').hidden = false;
     isRoundOverTimer = setInterval(isRoundOver, 1000);
+    upKeepTimer = setInterval(upKeep, 10);
 
     setButton('advanceGameStateButton', 'Videre', 'hidden');
     document.getElementById('firstTradeInfo').innerHTML = '';
@@ -1915,6 +1920,7 @@ function beginRound() {
 
 function endGame() {
     clearInterval(isRoundOverTimer);
+    clearInterval(upKeepTimer);
     clearInterval(attackTimer);
     document.getElementById('progressBarContainer').hidden = true;
     document.getElementById('canvasClockface').hidden = true;
