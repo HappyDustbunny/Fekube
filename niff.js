@@ -492,7 +492,7 @@ class M2T2G2 extends NiffGame {  // Hunter
             setButton('M1Button1', 'Start jagt', 'active', 'green');
     }
         
-     useAnswer(event) {
+    async useAnswer(event) {
         let answer = event.target.id;
         if (answer == 'M1Button1') {  // Start hunt
             setButton('M1Button1', 'Start jagt', 'hidden', 'green');
@@ -531,7 +531,8 @@ class M2T2G2 extends NiffGame {  // Hunter
                 updateManaCounters(-10);
 
                 // currentUser.monsterIsPissed = true;
-                requestAnimationFrame(monsterAttacking);
+                // requestAnimationFrame(monsterAttacking);
+                await monsterAttacking();
                 isVictim = 5;
 
                 // drawMonster(100, 100, 3);
@@ -2328,13 +2329,13 @@ function drawMonster(monsterXSize, monsterYSize, spriteNumber = 1) {
     monsterCanvas.hidden = false;
     monsterCanvas.width = 300;
     monsterCanvas.height = 300;
-    let drawArea = monsterCanvas.getContext('2d');
+    currentUser.drawAreaMonster = monsterCanvas.getContext('2d');
     let img = new Image;
     img.src = 'qr-codes/Foe1SpriteSheet.png';
 
     // drawArea.clearRect(0, 0, cameraOverlay.width, cameraOverlay.height)  // Clear drawArea
 
-    img.onload = () => { drawArea.drawImage(img, spriteNumber * 100, 0, 100, 100, 0, 0, monsterXSize, monsterYSize); };
+    img.onload = () => { currentUser.drawAreaMonster.drawImage(img, spriteNumber * 100, 0, 100, 100, 0, 0, monsterXSize, monsterYSize); };
 
     // drawArea.beginPath();
     // drawArea.rect(0, 0, 300, 300);
@@ -2424,29 +2425,50 @@ function missed(timestamp) {  // Missed zapping animation in Hunter mode
 }
 
 
-function monsterAttacking(timestamp) {
-    if (animationStartAttack === undefined) {
-        animationStartAttack = timestamp;
-    }
-    
-    let duration = timestamp - animationStartAttack;
-    
-    if (duration < 50) {
-        drawMonster(150, 150, 3);
-    } else if (duration < 150) {
-        currentUser.drawArea.clearRect(0, 0, 350, 300);
-        drawMonster(200, 200, 3);
-    } else if (duration < 250) {
-        currentUser.drawArea.clearRect(0, 0, 350, 300);
-        drawMonster(250, 250, 0);
-    }
-    
-    if (duration < 251) {
-        requestAnimationFrame(monsterAttacking);
-    } else {
-        animationStartAttack = undefined;
-        drawMonster(100, 100, 0);
-    }
+function monsterAttacking() {
+    return new Promise(resolve => {
+
+        let animationStartAttack;
+
+        function frame(timestamp) {
+            if (animationStartAttack === undefined) {
+                animationStartAttack = timestamp;
+            }
+            
+            let duration = timestamp - animationStartAttack;
+        
+            if (duration < 50) {
+                drawMonster(150, 150, 3);
+                console.log('et');
+            } else if (duration < 150) {
+                currentUser.drawAreaMonster.clearRect(0, 0, 350, 300);
+                drawMonster(200, 200, 3);
+                console.log('to');
+            } else if (duration < 200) {
+                currentUser.drawAreaMonster.clearRect(0, 0, 350, 300);
+                drawMonster(250, 250, 3);
+                console.log('tre');
+            } else if (duration < 300) {
+                currentUser.drawAreaMonster.clearRect(0, 0, 350, 300);
+                drawMonster(300, 300, 3);
+                console.log('fire');
+            } else if (duration < 450) {
+                currentUser.drawAreaMonster.clearRect(0, 0, 350, 300);
+                drawMonster(100, 100, 0);
+            }
+            
+            if (duration < 451) {
+                requestAnimationFrame(frame);
+            } else {
+                animationStartAttack = undefined;
+                resolve();
+                return;
+                // document.getElementById('scene').style.display = 'none';
+            }
+        }
+
+        requestAnimationFrame(frame);
+    });
 }
 
 
@@ -2958,10 +2980,13 @@ function hunt() {
 }
 
 
-function skyd() {
+function shoot() {
     document.getElementById('M1Button2').click();
 }
 
+function turn(v) {  // v is the angle to turn towards
+    currentUser.shakeItBaby(0, 0, 0, v, 80, 0);
+}
 
 async function pan(val) {for (i=val;i<360;i+=1) {currentUser.shakeItBaby(0, 0, 0, i, 80, 0); console.log(i); 
     await new Promise(resolve => setTimeout(resolve, 100));}}
