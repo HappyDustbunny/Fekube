@@ -508,7 +508,7 @@ class M2T2G2 extends NiffGame {  // Hunter
             document.getElementById('scene').style.display = 'block';
             drawBackground(2150, 300);
             drawFirstRecticle(100, 100, 115, 65, 100, 100, 0);
-            drawMonster(100, 100);
+            drawFirstMonster(100, 100);
             
         } else if (answer == 'M1Button2') {  // Shoot
             let monsterPos = currentUser.xMonster + currentUser.alphaOffset;
@@ -531,8 +531,7 @@ class M2T2G2 extends NiffGame {  // Hunter
                 updateManaCounters(-10);
 
                 // currentUser.monsterIsPissed = true;
-                // requestAnimationFrame(monsterAttacking);
-                await monsterAttacking();
+                requestAnimationFrame(monsterAttacking);
                 isVictim = 5;
 
                 // drawMonster(100, 100, 3);
@@ -2324,18 +2323,19 @@ function drawBackground(backgroundXSize, backgroundYSize) {
 }
 
 
-function drawMonster(monsterXSize, monsterYSize, spriteNumber = 1) {
+function drawFirstMonster(monsterXSize, monsterYSize, spriteNumber = 1) {
     let monsterCanvas = document.getElementById('otherWorldMonsterCanvas');
     monsterCanvas.hidden = false;
     monsterCanvas.width = 300;
     monsterCanvas.height = 300;
     currentUser.drawAreaMonster = monsterCanvas.getContext('2d');
-    let img = new Image;
-    img.src = 'qr-codes/Foe1SpriteSheet.png';
+    currentUser.foeImg = new Image;
+    currentUser.foeImg.src = 'qr-codes/Foe1SpriteSheet.png';
 
     // drawArea.clearRect(0, 0, cameraOverlay.width, cameraOverlay.height)  // Clear drawArea
 
-    img.onload = () => { currentUser.drawAreaMonster.drawImage(img, spriteNumber * 100, 0, 100, 100, 0, 0, monsterXSize, monsterYSize); };
+    currentUser.foeImg.onload = () => { currentUser.drawAreaMonster.drawImage(currentUser.foeImg, 
+        spriteNumber * 100, 0, 100, 100, 0, 0, monsterXSize, monsterYSize); };
 
     // drawArea.beginPath();
     // drawArea.rect(0, 0, 300, 300);
@@ -2344,6 +2344,11 @@ function drawMonster(monsterXSize, monsterYSize, spriteNumber = 1) {
     // drawArea.moveTo(winWidth / 2 + 50, winHeight / 2);
     // drawArea.arc(winWidth / 2, winHeight / 2, 50, 0, 2*pi);  // Draw disk-monster... Camera position needst to be changed to absolute after camera is started.
     // drawArea.fill();
+}
+
+
+function drawMonster(monsterXSize, monsterYSize, spriteNumber = 1) {
+    currentUser.drawAreaMonster.drawImage(currentUser.foeImg, spriteNumber * 100, 0, 100, 100, 0, 0, monsterXSize, monsterYSize);
 }
 
 
@@ -2425,50 +2430,39 @@ function missed(timestamp) {  // Missed zapping animation in Hunter mode
 }
 
 
-function monsterAttacking() {
-    return new Promise(resolve => {
+function monsterAttacking(timestamp) {
+    if (animationStartAttack === undefined) {
+        animationStartAttack = timestamp;
+    }
+    
+    let duration = timestamp - animationStartAttack;
 
-        let animationStartAttack;
-
-        function frame(timestamp) {
-            if (animationStartAttack === undefined) {
-                animationStartAttack = timestamp;
-            }
-            
-            let duration = timestamp - animationStartAttack;
-        
-            if (duration < 50) {
-                drawMonster(150, 150, 3);
-                console.log('et');
-            } else if (duration < 150) {
-                currentUser.drawAreaMonster.clearRect(0, 0, 350, 300);
-                drawMonster(200, 200, 3);
-                console.log('to');
-            } else if (duration < 200) {
-                currentUser.drawAreaMonster.clearRect(0, 0, 350, 300);
-                drawMonster(250, 250, 3);
-                console.log('tre');
-            } else if (duration < 300) {
-                currentUser.drawAreaMonster.clearRect(0, 0, 350, 300);
-                drawMonster(300, 300, 3);
-                console.log('fire');
-            } else if (duration < 450) {
-                currentUser.drawAreaMonster.clearRect(0, 0, 350, 300);
-                drawMonster(100, 100, 0);
-            }
-            
-            if (duration < 451) {
-                requestAnimationFrame(frame);
-            } else {
-                animationStartAttack = undefined;
-                resolve();
-                return;
-                // document.getElementById('scene').style.display = 'none';
-            }
-        }
-
-        requestAnimationFrame(frame);
-    });
+    if (duration < 50) {
+        drawMonster(150, 150, 3);
+        console.log('et');
+    } else if (duration < 150) {
+        currentUser.drawAreaMonster.clearRect(0, 0, 350, 300);
+        drawMonster(200, 200, 3);
+        console.log('to');
+    } else if (duration < 200) {
+        currentUser.drawAreaMonster.clearRect(0, 0, 350, 300);
+        drawMonster(250, 250, 3);
+        console.log('tre');
+    } else if (duration < 300) {
+        currentUser.drawAreaMonster.clearRect(0, 0, 350, 300);
+        drawMonster(300, 300, 3);
+        console.log('fire');
+    } else if (duration < 450) {
+        currentUser.drawAreaMonster.clearRect(0, 0, 350, 300);
+        drawMonster(100, 100, 0);
+    }
+    
+    if (duration < 451) {
+        requestAnimationFrame(monsterAttacking);
+    } else {
+        animationStartAttack = undefined;
+        // document.getElementById('scene').style.display = 'none';
+    }
 }
 
 
