@@ -507,7 +507,7 @@ class M2T2G2 extends NiffGame {  // Hunter
             // this.animationID = requestAnimationFrame(monsterMovement);
             document.getElementById('scene').style.display = 'block';
             drawBackground(2150, 300);
-            drawFirstRecticle(100, 100, 115, 65, 100, 100, 0);
+            drawFirstRecticle(115, 65, 100, 100, 0);
             drawFirstMonster(100, 100);
             
         } else if (answer == 'M1Button2') {  // Shoot
@@ -2348,11 +2348,13 @@ function drawFirstMonster(monsterXSize, monsterYSize, spriteNumber = 1) {
 
 
 function drawMonster(monsterXSize, monsterYSize, spriteNumber = 1) {
-    currentUser.drawAreaMonster.drawImage(currentUser.foeImg, spriteNumber * 100, 0, 100, 100, 0, 0, monsterXSize, monsterYSize);
+    currentUser.drawAreaMonster.clearRect(0, 0, 350, 300);
+    currentUser.drawAreaMonster.drawImage(currentUser.foeImg, spriteNumber * 100, 0, 100, 100, 0, 0,
+        monsterXSize, monsterYSize);
 }
 
 
-function drawFirstRecticle(recticleXSize, recticleYSize, recticleOffsetX, recticleOffsetY, xxPos, yyPos, frame) {
+function drawFirstRecticle(recticleOffsetX, recticleOffsetY, recticleXSize, recticleYSize, frame) {
     let recticleCanvas = document.getElementById('otherWorldRecticleCanvas');
     recticleCanvas.hidden = false;
     recticleCanvas.width = 350;
@@ -2360,12 +2362,14 @@ function drawFirstRecticle(recticleXSize, recticleYSize, recticleOffsetX, rectic
     currentUser.drawArea = recticleCanvas.getContext('2d');
     currentUser.img = new Image;
     currentUser.img.src = 'qr-codes/recticleZapSpriteSheet100x100.png';
-    currentUser.img.onload = () => { currentUser.drawArea.drawImage(currentUser.img, frame * recticleXSize, 0, recticleXSize, recticleYSize, recticleOffsetX, recticleOffsetY, xxPos, yyPos); };
+    currentUser.img.onload = () => { currentUser.drawArea.drawImage(currentUser.img, frame * 100, 0, 100, 100, 
+        recticleOffsetX, recticleOffsetY, recticleXSize, recticleYSize); };
 }
 
 
-function drawRecticle(recticleXSize, recticleYSize, recticleOffsetX, recticleOffsetY, xxPos, yyPos, frame) {
-    currentUser.drawArea.drawImage(currentUser.img, frame * recticleXSize, 0, recticleXSize, recticleYSize, recticleOffsetX, recticleOffsetY, xxPos, yyPos);
+function drawRecticle(recticleOffsetX, recticleOffsetY, recticleXSize, recticleYSize, frame) {
+    currentUser.drawArea.drawImage(currentUser.img, frame * 100, 0, 100, 100,
+        recticleOffsetX, recticleOffsetY, recticleXSize, recticleYSize);
 }
 
 
@@ -2377,25 +2381,31 @@ function zap(timestamp) {  // Zap animation for hitting the monster in Hunter mo
     let duration = timestamp - animationStart;
 
     if (duration < 50) {
-        drawRecticle(100, 100, 50, 0, 250, 250, 1);
+        drawRecticle(50, 0, 250, 250, 1);
     } else if (duration < 100) {
         currentUser.drawArea.clearRect(0, 0, 350, 300);
-        drawRecticle(100, 100, 50, 0, 250, 250, 2);
+        drawRecticle(115, 65, 100, 100, 0);  // To avoid flicker when animation run
+        drawRecticle(50, 0, 250, 250, 2);
     } else if (duration < 150) {
         currentUser.drawArea.clearRect(0, 0, 350, 300);
-        drawRecticle(100, 100, 125, 75, 100, 100, 3);
+        drawRecticle(115, 65, 100, 100, 0);
+        drawRecticle(125, 75, 100, 100, 3);
     } else if (duration < 200) {
         currentUser.drawArea.clearRect(0, 0, 350, 300);
-        drawRecticle(100, 100, 100, 50, 150, 150, 4);
+        drawRecticle(115, 65, 100, 100, 0);
+        drawRecticle(100, 50, 150, 150, 4);
     } else if (duration < 300) {
         currentUser.drawArea.clearRect(0, 0, 350, 300);
-        drawRecticle(100, 100, 76, 25, 200, 200, 3);
+        drawRecticle(115, 65, 100, 100, 0);
+        drawRecticle(76, 25, 200, 200, 3);
     } else if (duration < 400) {
         currentUser.drawArea.clearRect(0, 0, 350, 300);
-        drawRecticle(100, 100, 50, 0, 250, 250, 4);
+        drawRecticle(115, 65, 100, 100, 0);
+        drawRecticle(50, 0, 250, 250, 4);
     } else if (duration < 500) {
         currentUser.drawArea.clearRect(0, 0, 350, 300);
-        drawRecticle(100, 100, 115, 65, 100, 100, 0);
+        drawRecticle(115, 65, 100, 100, 0);
+        drawRecticle(115, 65, 100, 100, 0);
     }
 
     if (duration < 501) {
@@ -2412,17 +2422,18 @@ function missed(timestamp) {  // Missed zapping animation in Hunter mode
 
     let duration = timestamp - animationStart;
 
-    if (duration < 50) {
-        drawRecticle(100, 100, 108, 65, 100, 100, 2);
-    } else if (duration < 80) {
+    if (duration < 30) {
+        drawRecticle(115, 65, 100, 100, 1);
+    } else if (duration < 160) {
         currentUser.drawArea.clearRect(0, 0, 350, 300);
-        drawRecticle(100, 100, 40, -10, 250, 250, 2);
-    } else if (duration < 100) {
+        drawRecticle(115, 65, 100, 100, 0);  // To avoid flicker when animation run
+        drawRecticle(115, 65, 100, 100, 2);
+    } else if (duration < 180) {
         currentUser.drawArea.clearRect(0, 0, 350, 300);
-        drawRecticle(100, 100, 115, 65, 100, 100, 0);
+        drawRecticle(115, 65, 100, 100, 0);
     }
 
-    if (duration < 101) {
+    if (duration < 181) {
         requestAnimationFrame(missed);
     } else {
         animationStart = undefined;
@@ -2439,19 +2450,15 @@ function monsterAttacking(timestamp) {
 
     if (duration < 50) {
         drawMonster(150, 150, 3);
-        console.log('et');
     } else if (duration < 150) {
         currentUser.drawAreaMonster.clearRect(0, 0, 350, 300);
         drawMonster(200, 200, 3);
-        console.log('to');
     } else if (duration < 200) {
         currentUser.drawAreaMonster.clearRect(0, 0, 350, 300);
         drawMonster(250, 250, 3);
-        console.log('tre');
     } else if (duration < 300) {
         currentUser.drawAreaMonster.clearRect(0, 0, 350, 300);
         drawMonster(300, 300, 3);
-        console.log('fire');
     } else if (duration < 450) {
         currentUser.drawAreaMonster.clearRect(0, 0, 350, 300);
         drawMonster(100, 100, 0);
