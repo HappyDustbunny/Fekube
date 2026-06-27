@@ -46,6 +46,7 @@ let gameState = 'chooseCoordinator';
 let participantList = [];
 let gameHasHealer = false;
 let gameHasHunter = false;
+let hunterIsActive = false;
 let id = 0;
 let globalMana = 500;  // Start with some mana to heal attacked players
 let isVictim = 0;  // Change to 5 if player is attacked and needs healing. Is healed fully by Healer, but need a few scans of '0' to heal alone
@@ -503,6 +504,7 @@ class M2T2G2 extends NiffGame {  // Hunter
             setButton('M1Button1', 'Start jagt', 'hidden', 'green');
             setButton('M1Button2', 'Skyd!', 'active', 'green');
             setButton('M1Button3', 'Stop jagt', 'active', 'red');
+            hunterIsActive = true;
 
             window.addEventListener('deviceorientation', this.deviceOrientationHandler);
             // window.addEventListener('devicemotion', function(event) {currentUser.getMotion(event)});
@@ -537,9 +539,16 @@ class M2T2G2 extends NiffGame {  // Hunter
 
                 // currentUser.monsterIsPissed = true;
                 requestAnimationFrame(monsterAttacking);
+                await delay(500);
                 isVictim = 5;
 
-                // drawMonster(100, 3);
+                drawMonster(100, 1);
+                this.stopHunt();
+
+                setButton('actionButton', 'Skan', 'active', 'green');
+                setButton('M1Button1', 'Start jagt', 'hidden', 'green');
+                setButton('M1Button2', 'Skyd!', 'hidden', 'green');
+                setButton('M1Button3', 'Stop jagt', 'hidden', 'red');
             } else {
                 this.localMana -= 10;
                 updateManaCounters(-10);
@@ -547,24 +556,30 @@ class M2T2G2 extends NiffGame {  // Hunter
                 requestAnimationFrame(missed);
             }
         } else if (answer == 'M1Button3') {  // Stop hunt
+            // cancelAnimationFrame(this.animationID);
+            this.stopHunt();
+
             setButton('M1Button1', 'Start jagt', 'active', 'green');
             setButton('M1Button2', 'Skyd!', 'hidden', 'green');
             setButton('M1Button3', 'Stop jagt', 'hidden', 'red');
-
-            // cancelAnimationFrame(this.animationID);
-            backgroundMovement(0, 0);
-            placeMonster(0, 0);
-            document.getElementById('scene').style.display = 'none';
-            // stopCamera();
-            // document.getElementById('canvasCameraOverlay').hidden = true;
-            window.removeEventListener('deviceorientation', this.deviceOrientationHandler);
-            // window.removeEventListener('devicemotion', function(event) {currentUser.getMotion(event)});
-            this.vxMonster = 0;
-            this.vyMonster = 0;
-            this.lastSign = 1;
-            this.xMonster = Math.floor(Math.random() * 1700 + 100);
-            this.yMonster = 0;
         }
+    }
+    
+    stopHunt() {
+        backgroundMovement(0, 0);
+        placeMonster(0, 0);
+        document.getElementById('scene').style.display = 'none';
+        // stopCamera();
+        // document.getElementById('canvasCameraOverlay').hidden = true;
+        window.removeEventListener('deviceorientation', this.deviceOrientationHandler);
+        // window.removeEventListener('devicemotion', function(event) {currentUser.getMotion(event)});
+        this.vxMonster = 0;
+        this.vyMonster = 0;
+        this.lastSign = 1;
+        this.xMonster = Math.floor(Math.random() * 1700 + 100);
+        this.yMonster = 0;
+
+        hunterIsActive = false;
     }
 
     getMotion = (event) => {
@@ -1868,7 +1883,7 @@ function isRoundOver() {
 function upKeep() {
     if (isVictim === 5 && whileAttackedTimer === '') {
         initializeAttack();
-    } else if (isVictim === 0) {
+    } else if (isVictim === 0  && hunterIsActive) {
         moveMonster(currentUser.alphaOffset, currentUser.betaOffset);
     }
 }
@@ -2361,6 +2376,11 @@ function drawMonster(monsterSize  = 100, spriteNumber = 1) {   // monsterSize is
 }
 
 
+function delay(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+
 function drawFirstRecticle(recticleXSize, recticleYSize, frame) {
     let recticleCanvas = document.getElementById('otherWorldRecticleCanvas');
     recticleCanvas.hidden = false;
@@ -2465,10 +2485,16 @@ function monsterAttacking(timestamp) {
         drawMonster(200, 3);
     } else if (duration < 200) {
         drawMonster(250, 3);
-    } else if (duration < 300) {
+    } else if (duration < 250) {
         drawMonster(300, 3);
+    } else if (duration < 300) {
+        drawMonster(400, 3);
+    } else if (duration < 350) {
+        drawMonster(300, 3);
+    } else if (duration < 400) {
+        drawMonster(200, 3);
     } else if (duration < 450) {
-        drawMonster(100, 0);
+        drawMonster(100, 3);
     }
     
     if (duration < 451) {
