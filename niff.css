@@ -478,7 +478,7 @@ progress::-webkit-progress-bar, progress::-moz-progress-bar {
 }
 
 .summaryHeading {
-    transform: scaleX(-1);
+    /* transform: scaleX(-1); */
     font-size: 3em;
     background-color: rgb(128, 255, 255);
 }

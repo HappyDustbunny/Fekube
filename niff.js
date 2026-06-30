@@ -325,7 +325,7 @@ class M1T1G1 extends NiffGame {  // Healer
         super();
         this.gameMode = 'M1T1G1';
 
-        generateQRcode("Thy shalst be healed!").append(canvasQrShow);
+        generateQRcode("Thou shalst be healed!").append(canvasQrShow);
         canvasQrShow.style.display = 'none';
         // ToDo: Add explaning text?
         setButton('actionButton', 'Skan', 'active', 'green');
@@ -533,7 +533,7 @@ class M2T2G2 extends NiffGame {  // Hunter
                 
                 // Display magic suckicng
                 requestAnimationFrame(zap);
-            } else if ((-120 < monsterPos && monsterPos < -40) || (41 < monsterPos && monsterPos < 120)) {
+            } else if ((-120 < monsterPos && monsterPos < -40) || (41 < monsterPos && monsterPos < 120)) {  // Near miss will cause monster to attack and bite
                 this.localMana -= 10;
                 updateManaCounters(-10);
 
@@ -1273,7 +1273,7 @@ function advanceGameStateButtonHasBeenClicked(event) {
         // TODO: Implement a QR code being shown after the coordinators finalScore QR has been scanned
 
         // if (currentUser.coordinator) {
-        //     generateQRcode("Thy shalst be healed!").append(document.getElementById('canvasQrShow'));
+        //     generateQRcode("Thou shalst be healed!").append(document.getElementById('canvasQrShow'));
         //     document.getElementById('canvasQrShow').style.display = 'block';
         // }
         
@@ -2120,7 +2120,7 @@ function useQRcode(QrNumber) {
         document.getElementById('page').style.background = 'rgba(255, 0, 0, '+ isVictim / 14 + ')';
         messageDiv.innerHTML = '<p> ' + healMsgs[isVictim] + ' <br> Scan 0 igen</p>' 
         
-    } else if (isVictim !== 0  && QrNumber === 'Thy shalst be healed!') {
+    } else if (isVictim !== 0  && QrNumber === 'Thou shalst be healed!') {
         isVictim = 0;  // Heal fully
         document.getElementById('page').style.background = 'white';
         messageDiv.innerHTML = '';
@@ -3009,7 +3009,7 @@ function hunt() {
     gameMode = 'M2T2G2';
     
     beginRound();
-    document.getElementById('navigationContainer').style.display = 'block';
+    document.getElementById('navigationContainer').style.display = 'flex';
     document.getElementById('M1Button1').click();
 }
 
